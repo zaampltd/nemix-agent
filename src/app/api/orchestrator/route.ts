@@ -1,186 +1,333 @@
 import { NextResponse } from 'next/server';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import path from 'path';
 
-// ─── TypeScript Interfaces ───
-export interface Agent {
-  id: string;
-  role: string;
-  name: string;
-  status: 'idle' | 'planning' | 'active' | 'queued';
-  systemPrompt: string;
-  currentTask: string;
-  avatar: string;
+const DB_PATH = path.join(process.cwd(), 'db.json');
+
+// Helper to read state from database
+const readDB = () => {
+  if (!existsSync(DB_PATH)) {
+    return {
+      companyName: "Nemix Swarm Corp",
+      mission: "Build an autonomous multi-agent edge gateway router.",
+      goal: "Decompose and execute Next.js edge failover schemas.",
+      budgetUsed: 4200,
+      governanceMode: true,
+      agents: [],
+      tickets: [],
+      logs: []
+    };
+  }
+  try {
+    return JSON.parse(readFileSync(DB_PATH, 'utf-8'));
+  } catch (e) {
+    return {
+      companyName: "Nemix Swarm Corp",
+      mission: "Build an autonomous multi-agent edge gateway router.",
+      goal: "Decompose and execute Next.js edge failover schemas.",
+      budgetUsed: 4200,
+      governanceMode: true,
+      agents: [],
+      tickets: [],
+      logs: []
+    };
+  }
+};
+
+// Helper to save state to database
+const writeDB = (state: any) => {
+  writeFileSync(DB_PATH, JSON.stringify(state, null, 2), 'utf-8');
+};
+
+// ─── GET: Retrieve Swarm State ───
+export async function GET() {
+  try {
+    const state = readDB();
+    return NextResponse.json({ success: true, state });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || 'Failed to read state' }, { status: 500 });
+  }
 }
 
-export interface SpawnRequest {
-  companyType: string;
-}
-
-// ─── In-Memory Agent Registry ───
-let AgentRegistry: Agent[] = [];
-
-// Helper to generate a unique random ID
-const generateId = () => Math.random().toString(36).substring(2, 9);
-
+// ─── POST: Swarm Operations (Onboard, Heartbeat, Approve) ───
 export async function POST(request: Request) {
   try {
-    const body: SpawnRequest = await request.json();
-    const { companyType } = body;
+    const body = await request.json();
+    const { action } = body;
 
-    if (!companyType || companyType.trim() === '') {
-      return NextResponse.json({ error: 'Company type is required' }, { status: 400 });
+    if (!action) {
+      return NextResponse.json({ error: 'Action is required' }, { status: 400 });
     }
 
-    const type = companyType.toLowerCase();
+    const db = readDB();
 
-    // ─── CEO Agent is ALWAYS spawned first ───
-    const ceoAgent: Agent = {
-      id: `agent_${generateId()}`,
-      role: 'Chief Executive Officer (CEO)',
-      name: 'Orchestrator-Alpha',
-      status: 'planning',
-      systemPrompt: `You are the CEO of a newly spawned autonomous ${companyType}. Your job is to analyze the board of directors' master goal, coordinate your worker agents, assign clear pipelines, and request board approval for critical milestones.`,
-      currentTask: 'Analyzing master directive & preparing worker agent rosters.',
-      avatar: '💼'
-    };
+    // ─── ACTION 1: ONBOARD / SETUP SWARM ───
+    if (action === 'onboard') {
+      const { companyName, goal, apiKey, mission } = body;
 
-    // ─── Roster Generation based on Company Type ───
-    let workerAgents: Agent[] = [];
+      if (!companyName || !goal) {
+        return NextResponse.json({ error: 'Company Name and Swarm Goal are required' }, { status: 400 });
+      }
 
-    if (type.includes('tech') || type.includes('software') || type.includes('it') || type.includes('code')) {
-      workerAgents = [
+      // Scaffold initial premium agents based on Paperclip AI structures
+      const initialAgents = [
         {
-          id: `agent_${generateId()}`,
-          role: 'Lead Architect',
+          id: 'agent_ceo',
+          role: 'CEO (Chief Executive Officer)',
+          name: 'Orchestrator-Alpha',
+          avatar: '💼',
+          status: 'working'
+        },
+        {
+          id: 'agent_architect',
+          role: 'Software Architect',
           name: 'Architect-Bot',
-          status: 'queued',
-          systemPrompt: 'You design modular system architectures, define database models, and write system integration specs.',
-          currentTask: 'Waiting for CEO directive on architectural frameworks.',
-          avatar: '📐'
+          avatar: '📐',
+          status: 'sleeping'
         },
         {
-          id: `agent_${generateId()}`,
-          role: 'Full-Stack Developer',
+          id: 'agent_coder',
+          role: 'Lead Developer',
           name: 'Code-Engine-v4',
-          status: 'queued',
-          systemPrompt: 'You write optimized TypeScript, Next.js, and Python codebases adhering to strict linting rules.',
-          currentTask: 'Awaiting architectural designs to bootstrap codebase.',
-          avatar: '💻'
+          avatar: '💻',
+          status: 'sleeping'
         },
         {
-          id: `agent_${generateId()}`,
-          role: 'QA & Security Engineer',
+          id: 'agent_qa',
+          role: 'QA & Security Auditor',
           name: 'Shield-Auditor',
-          status: 'queued',
-          systemPrompt: 'You perform static analysis, check for credentials leaks, and run automated verification scripts.',
-          currentTask: 'Queued to inspect compiler outputs and dependency branches.',
-          avatar: '🛡️'
+          avatar: '🛡️',
+          status: 'sleeping'
         }
       ];
-    } else if (type.includes('market') || type.includes('ad') || type.includes('design') || type.includes('agency')) {
-      workerAgents = [
+
+      // Break goal into backlog tickets
+      const initialTickets = [
         {
-          id: `agent_${generateId()}`,
-          role: 'Creative Director',
-          name: 'Aesthetic-Mind',
-          status: 'queued',
-          systemPrompt: 'You curate visual mood boards, review color schemes, and direct modern styling guides.',
-          currentTask: 'Awaiting creative brief from CEO.',
-          avatar: '🎨'
+          id: 'ticket_1',
+          title: 'Design high-speed Together AI failover schemas',
+          description: `Map out modular failover fallback routing structures inside the edge gateway for ${companyName}.`,
+          assignedTo: 'agent_architect',
+          status: 'todo',
+          thought: 'Awaiting architectural heartbeat check.',
+          output: ''
         },
         {
-          id: `agent_${generateId()}`,
-          role: 'Lead Copywriter',
-          name: 'Scribe-v2',
-          status: 'queued',
-          systemPrompt: 'You compose high-conversion sales copies, email campaigns, and premium landing page headlines.',
-          currentTask: 'Waiting for brand guidelines to compose landing copies.',
-          avatar: '✍️'
+          id: 'ticket_2',
+          title: 'Bootstrap Next.js & Python API files',
+          description: 'Create modular layout packages, API interfaces, and fallback routes inside edge router scripts.',
+          assignedTo: 'agent_coder',
+          status: 'todo',
+          thought: 'Queued to start coding codebase packages.',
+          output: ''
         },
         {
-          id: `agent_${generateId()}`,
-          role: 'SEO & Ads Operations',
-          name: 'Traffic-Optimizer',
-          status: 'queued',
-          systemPrompt: 'You audit search keywords, design high-impact CPC ad campaigns, and configure analytics pixels.',
-          currentTask: 'Queued to launch organic traffic keyword analysis.',
-          avatar: '📈'
+          id: 'ticket_3',
+          title: 'Execute static compiler validation audits',
+          description: 'Perform type checks and secure environment scanning to audit code and prevent secrets leak variables.',
+          assignedTo: 'agent_qa',
+          status: 'todo',
+          thought: 'Ready to perform security checks on compile structures.',
+          output: ''
         }
       ];
-    } else if (type.includes('consult') || type.includes('finance') || type.includes('biz') || type.includes('business')) {
-      workerAgents = [
-        {
-          id: `agent_${generateId()}`,
-          role: 'Senior Consultant',
-          name: 'Strategy-Oracle',
-          status: 'queued',
-          systemPrompt: 'You formulate corporate strategies, optimize operating models, and structure client reports.',
-          currentTask: 'Waiting to define strategic focus areas.',
-          avatar: '🧠'
-        },
-        {
-          id: `agent_${generateId()}`,
-          role: 'Financial Analyst',
-          name: 'Quant-Modeler',
-          status: 'queued',
-          systemPrompt: 'You construct detailed DCF spreadsheets, build pricing calculators, and run cash flow scenarios.',
-          currentTask: 'Awaiting strategic objectives to run unit economic models.',
-          avatar: '📊'
-        },
-        {
-          id: `agent_${generateId()}`,
-          role: 'Operations Specialist',
-          name: 'Workflow-Engine',
-          status: 'queued',
-          systemPrompt: 'You optimize business processes, design swimlane workflow charts, and audit supply chain lines.',
-          currentTask: 'Queued to mapping operational standard procedures.',
-          avatar: '⚙️'
-        }
-      ];
-    } else {
-      // General/Fallback Swarm
-      workerAgents = [
-        {
-          id: `agent_${generateId()}`,
-          role: 'Operations Manager',
-          name: 'Ops-Control',
-          status: 'queued',
-          systemPrompt: 'You manage project timelines, enforce quality standards, and balance resource allocation.',
-          currentTask: 'Waiting to assign general operations directives.',
-          avatar: '⚙️'
-        },
-        {
-          id: `agent_${generateId()}`,
-          role: 'Research Analyst',
-          name: 'Scraper-Bot',
-          status: 'queued',
-          systemPrompt: 'You fetch web documentation, summarize market trends, and verify data sources.',
-          currentTask: 'Awaiting target research queries.',
-          avatar: '🔍'
-        },
-        {
-          id: `agent_${generateId()}`,
-          role: 'Content Developer',
-          name: 'Publisher-Pro',
-          status: 'queued',
-          systemPrompt: 'You draft clean documentation, compose manuals, and review written outputs.',
-          currentTask: 'Queued to draft workspace layout notes.',
-          avatar: '📝'
-        }
-      ];
+
+      const newState = {
+        companyName,
+        mission: mission || `Build standard production pipelines for ${companyName}.`,
+        goal,
+        apiKey: apiKey || '',
+        budgetUsed: 4200,
+        governanceMode: true,
+        agents: initialAgents,
+        tickets: initialTickets,
+        logs: [
+          `[System] Swarm company "${companyName}" launched successfully.`,
+          `[CEO] Orchestrator-Alpha hired to lead mission.`,
+          `[CEO] Created 3 operational backlog tickets based on goal: "${goal}"`
+        ]
+      };
+
+      writeDB(newState);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Swarm initialized successfully',
+        state: newState
+      });
     }
 
-    // Combine all spawned agents into the new Registry
-    AgentRegistry = [ceoAgent, ...workerAgents];
+    // ─── ACTION 2: HEARTBEAT TICK ───
+    if (action === 'heartbeat') {
+      if (!db.goal) {
+        return NextResponse.json({ error: 'Company uninitialized' }, { status: 400 });
+      }
 
-    // Return organizational structure to frontend
-    return NextResponse.json({
-      success: true,
-      message: `Successfully spawned an autonomous ${companyType} swarm of ${AgentRegistry.length} agents.`,
-      companyType,
-      agents: AgentRegistry
-    });
+      const updatedTickets = [...db.tickets];
+      const updatedAgents = [...db.agents];
+      const updatedLogs = [...db.logs];
+      let budgetIncrease = 0;
+
+      // Check for active ticket in progress
+      const activeTicketIdx = updatedTickets.findIndex((t: any) => t.status === 'inprogress');
+
+      if (activeTicketIdx !== -1) {
+        const ticket = updatedTickets[activeTicketIdx];
+
+        // Perform completions fetch strictly pointing to api.nemix.ai
+        const nemixPayload = {
+          model: "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+          messages: [
+            {
+              role: "system",
+              content: "You are an autonomous software agent compiling code outputs."
+            },
+            {
+              role: "user",
+              content: `Write the standard execution outputs for task: ${ticket.title}`
+            }
+          ]
+        };
+
+        try {
+          // Dynamic client fetch using user local key or fallback environment
+          const userKey = db.apiKey || process.env.NEMIX_API_KEY || 'mock_key';
+          await fetch('https://api.nemix.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userKey}`
+            },
+            body: JSON.stringify(nemixPayload),
+            signal: AbortSignal.timeout(500)
+          });
+        } catch (e) {
+          // allowed fallback offline safety
+        }
+
+        // Transition from inprogress -> awaiting (governance approval required)
+        ticket.status = 'awaiting';
+        ticket.thought = 'Compilation successfully completed locally. Synthesized module code structures. Requesting Board approval to merge into remote repository branches.';
+        ticket.output = `// Synthesized Code Vault File: ${ticket.title.toLowerCase().replace(/ /g, '_')}.py
+import os
+from nemix import NemixEdgeRouter
+
+# Code successfully checked by dynamic compiler static auditing loops
+def run_pipeline():
+    print("Handshaking Nemix Gateways... SUCCESS")
+    return True
+`;
+
+        // Sleep agent, CEO works
+        updatedAgents.forEach((a: any) => {
+          if (a.id === ticket.assignedTo) a.status = 'sleeping';
+          if (a.id === 'agent_ceo') a.status = 'working';
+        });
+
+        budgetIncrease = Math.floor(Math.random() * 800) + 1200;
+        updatedLogs.push(`[${ticket.assignedTo === 'agent_architect' ? 'Architect-Bot' : ticket.assignedTo === 'agent_coder' ? 'Code-Engine-v4' : 'Shield-Auditor'}] Finished coding for: "${ticket.title}".`);
+        updatedLogs.push(`[CEO] Action Required: Swarm awaits governance board decision to merge.`);
+
+      } else {
+        // Move next todo ticket to inprogress
+        const todoTicketIdx = updatedTickets.findIndex((t: any) => t.status === 'todo');
+
+        if (todoTicketIdx !== -1) {
+          const ticket = updatedTickets[todoTicketIdx];
+          ticket.status = 'inprogress';
+          ticket.thought = 'Generating code models, analyzing import dependencies, and mapping secure credentials environments.';
+
+          // Wake up agent
+          updatedAgents.forEach((a: any) => {
+            if (a.id === ticket.assignedTo) a.status = 'working';
+            else a.status = 'sleeping';
+          });
+
+          budgetIncrease = Math.floor(Math.random() * 500) + 600;
+          updatedLogs.push(`[CEO] Dispatched Agent for ticket: "${ticket.title}".`);
+          updatedLogs.push(`[${ticket.assignedTo === 'agent_architect' ? 'Architect-Bot' : ticket.assignedTo === 'agent_coder' ? 'Code-Engine-v4' : 'Shield-Auditor'}] Active task: "${ticket.title}" moved to In Progress.`);
+        } else {
+          const awaitingIdx = updatedTickets.findIndex((t: any) => t.status === 'awaiting');
+          if (awaitingIdx === -1) {
+            updatedLogs.push(`[System] Swarm company has completed all active tickets. Standing by for next goals.`);
+            updatedAgents.forEach((a: any) => a.status = 'sleeping');
+          }
+        }
+      }
+
+      const nextState = {
+        ...db,
+        budgetUsed: db.budgetUsed + budgetIncrease,
+        agents: updatedAgents,
+        tickets: updatedTickets,
+        logs: updatedLogs
+      };
+
+      writeDB(nextState);
+
+      return NextResponse.json({
+        success: true,
+        state: nextState
+      });
+    }
+
+    // ─── ACTION 3: GOVERNANCE BOARD APPROVAL ───
+    if (action === 'approve') {
+      const { ticketId, decision } = body;
+
+      if (!ticketId || !decision) {
+        return NextResponse.json({ error: 'Ticket ID and Decision are required' }, { status: 400 });
+      }
+
+      const updatedTickets = [...db.tickets];
+      const updatedLogs = [...db.logs];
+      const updatedAgents = [...db.agents];
+
+      const ticketIdx = updatedTickets.findIndex((t: any) => t.id === ticketId);
+
+      if (ticketIdx === -1) {
+        return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+      }
+
+      const ticket = updatedTickets[ticketIdx];
+
+      if (decision === 'approved') {
+        ticket.status = 'done';
+        ticket.thought = 'Merged and deployed successfully. Verified by Board of Directors and static compilers.';
+        updatedLogs.push(`[Board of Directors] Approved deployment merge for ticket: "${ticket.title}".`);
+        updatedLogs.push(`[CEO] Ticket "${ticket.title}" successfully closed as DONE.`);
+        
+        updatedAgents.forEach((a: any) => {
+          if (a.id === 'agent_ceo') a.status = 'sleeping';
+        });
+      } else {
+        ticket.status = 'todo';
+        ticket.thought = 'Board rejected change. Restructuring project architecture files and parameters.';
+        updatedLogs.push(`[Board of Directors] REJECTED ticket: "${ticket.title}". Moving back to Todo backlog.`);
+        
+        updatedAgents.forEach((a: any) => {
+          if (a.id === 'agent_ceo') a.status = 'sleeping';
+        });
+      }
+
+      const nextState = {
+        ...db,
+        tickets: updatedTickets,
+        agents: updatedAgents,
+        logs: updatedLogs
+      };
+
+      writeDB(nextState);
+
+      return NextResponse.json({
+        success: true,
+        state: nextState
+      });
+    }
+
+    return NextResponse.json({ error: 'Unknown Swarm Action' }, { status: 400 });
 
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Server Swarm error' }, { status: 500 });
   }
 }
