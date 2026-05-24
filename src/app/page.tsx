@@ -40,6 +40,35 @@ interface ChatMessage {
   codeSnippet?: string;
 }
 
+// ─── Human Coding Aesthetic Helpers ───
+const getAgentIcon = (id: string, fallbackAvatar: string) => {
+  const normalizedId = id.toLowerCase();
+  if (normalizedId.includes('ceo')) {
+    return <BrainCircuit className="w-5 h-5 text-cyan-400" />;
+  } else if (normalizedId.includes('architect')) {
+    return <Compass className="w-5 h-5 text-indigo-400" />;
+  } else if (normalizedId.includes('coder') || normalizedId.includes('dev')) {
+    return <Code className="w-5 h-5 text-emerald-400" />;
+  } else if (normalizedId.includes('qa') || normalizedId.includes('audit')) {
+    return <ShieldCheck className="w-5 h-5 text-amber-400" />;
+  }
+  return <Cpu className="w-5 h-5 text-cyan-400" />;
+};
+
+const getAgentMetrics = (id: string) => {
+  const normalizedId = id.toLowerCase();
+  if (normalizedId.includes('ceo')) {
+    return { temp: 0.2, tokens: '1.4M', successRate: '99.2%', latency: '18ms' };
+  } else if (normalizedId.includes('architect')) {
+    return { temp: 0.5, tokens: '890K', successRate: '98.5%', latency: '24ms' };
+  } else if (normalizedId.includes('coder') || normalizedId.includes('dev')) {
+    return { temp: 0.7, tokens: '2.1M', successRate: '96.8%', latency: '14ms' };
+  } else if (normalizedId.includes('qa') || normalizedId.includes('audit')) {
+    return { temp: 0.1, tokens: '1.1M', successRate: '99.9%', latency: '12ms' };
+  }
+  return { temp: 0.7, tokens: '240K', successRate: '95.0%', latency: '35ms' };
+};
+
 export default function Page() {
   // ─── Global App Tabs ───
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Files' | 'Chat' | 'Settings'>('Dashboard');
@@ -814,93 +843,95 @@ class GatewayRouter:
             )}
 
             {activeTab === 'Team' && (
-              <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col h-full overflow-hidden">
-                <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-6">Corporate Org Chart</h2>
+              <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col h-full overflow-hidden relative shadow-2xl">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/25 to-transparent" />
+                <h2 className="text-xs font-bold text-gray-150 uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <i className="fa-solid fa-sitemap text-cyan-400"></i> Corporate Org Chart
+                </h2>
                 
                 <div className="flex-1 flex flex-col items-center relative py-4">
                   {/* CEO Node */}
-                  <div className="flex flex-col items-center z-10 mb-4 shrink-0">
-                    <div className="w-14 h-14 rounded-lg bg-[#082f49] border-2 border-neonCyan glow-cyan flex items-center justify-center mb-2 relative">
-                      <i className="fa-solid fa-user-tie text-2xl text-cyan-300"></i>
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-neonCyan rounded-full animate-pulse shadow-[0_0_10px_#06b6d4]"></div>
+                  <div className="flex flex-col items-center z-10 mb-4 shrink-0 group">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-950/70 to-slate-900/90 border-2 border-cyan-500/35 glow-cyan flex items-center justify-center mb-2 relative group-hover:scale-105 transition-all duration-300 shadow-lg">
+                      <BrainCircuit className="w-8 h-8 text-cyan-400" />
+                      <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-cyan-500 rounded-full border-2 border-slate-900 animate-pulse shadow-[0_0_12px_rgba(6,182,212,0.8)]"></div>
                     </div>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">Alpha-CEO</span>
+                    <span className="text-xs font-black text-white uppercase tracking-widest leading-none">Alpha-CEO</span>
+                    <span className="text-[7.5px] text-cyan-400 font-extrabold uppercase tracking-widest mt-1 opacity-90">Swarm Director</span>
                   </div>
 
                   {/* Connectors lines */}
-                  <div className="w-64 h-6 border-t-2 border-l-2 border-r-2 border-cyan-500/30 rounded-t-xl absolute top-[100px]"></div>
-                  <div className="w-[2px] h-4 bg-cyan-500/30 absolute top-[88px]"></div>
-                  <div className="w-[2px] h-4 bg-cyan-500/30 absolute top-[100px] left-1/2 -translate-x-1/2"></div>
+                  <div className="w-64 h-6 border-t border-l border-r border-cyan-500/25 rounded-t-xl absolute top-[106px] pointer-events-none"></div>
+                  <div className="w-[1px] h-4 bg-cyan-500/25 absolute top-[94px] pointer-events-none"></div>
+                  <div className="w-[1px] h-4 bg-cyan-500/25 absolute top-[106px] left-1/2 -translate-x-1/2 pointer-events-none"></div>
                   
                   {/* Worker Nodes row */}
                   <div className="flex justify-between w-72 mt-2 shrink-0">
                     
                     {/* Dev */}
-                    <div className={`flex flex-col items-center bg-[#111827] border rounded-lg px-2.5 py-2 w-[88px] ${
-                      devAgent?.status === 'working' ? 'glow-cyan border-neonCyan/30' : 'border-panelBorder'
+                    <div className={`flex flex-col items-center bg-[#0e111a]/95 border rounded-xl p-2.5 w-[92px] group hover:-translate-y-1 transition-all duration-300 ${
+                      devAgent?.status === 'working' ? 'border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.15)] bg-cyan-950/10' : 'border-panelBorder'
                     }`}>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <div className="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                          <i className="fa-solid fa-code text-[10px] text-cyan-300"></i>
-                        </div>
-                        <span className="text-[10px] font-bold text-white truncate max-w-[50px]">{devAgent ? devAgent.name : "Dev-Bot"}</span>
+                      <div className="w-8 h-8 rounded-lg bg-black/40 border border-panelBorder flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform relative">
+                        <Code className={`w-4 h-4 ${devAgent?.status === 'working' ? 'text-emerald-400' : 'text-slate-400'}`} />
+                        {devAgent?.status === 'working' && (
+                          <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-500 border border-slate-900 animate-ping"></span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1 mt-1 shrink-0">
-                        <div className={`w-2 h-2 rounded-full ${
-                          devAgent?.status === 'working' ? 'bg-neonCyan shadow-[0_0_5px_#06b6d4]' : 'bg-slate-500'
-                        }`} />
-                        <span className="text-[9px] text-textMuted font-bold uppercase">{devAgent?.status === 'working' ? "Running" : "Idle"}</span>
-                      </div>
+                      <span className="text-[9px] font-black text-white uppercase tracking-wider truncate max-w-full text-center">
+                        {devAgent ? devAgent.name : "Dev-Bot"}
+                      </span>
+                      <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-widest mt-0.5 leading-none">Developer</span>
                     </div>
 
-                    {/* Marketer */}
-                    <div className={`flex flex-col items-center bg-[#111827] border rounded-lg px-2.5 py-2 w-[94px] ${
-                      marketerAgent?.status === 'working' || (initialized && !devAgent) ? 'glow-green border-neonGreen/30' : 'border-panelBorder'
+                    {/* Architect */}
+                    <div className={`flex flex-col items-center bg-[#0e111a]/95 border rounded-xl p-2.5 w-[92px] group hover:-translate-y-1 transition-all duration-300 ${
+                      marketerAgent?.status === 'working' || (initialized && !devAgent) ? 'border-indigo-500/40 shadow-[0_0_12px_rgba(99,102,241,0.15)] bg-indigo-950/10' : 'border-panelBorder'
                     }`}>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <div className="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                          <i className="fa-solid fa-bullhorn text-[10px] text-neonGreen"></i>
-                        </div>
-                        <span className="text-[10px] font-bold text-white truncate max-w-[54px]">{marketerAgent ? marketerAgent.name : "Marketer"}</span>
+                      <div className="w-8 h-8 rounded-lg bg-black/40 border border-panelBorder flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform relative">
+                        <Compass className={`w-4 h-4 ${marketerAgent?.status === 'working' || (initialized && !devAgent) ? 'text-indigo-400' : 'text-slate-400'}`} />
+                        {(marketerAgent?.status === 'working' || (initialized && !devAgent)) && (
+                          <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-indigo-500 border border-slate-900 animate-ping"></span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1 mt-1 shrink-0">
-                        <div className={`w-2 h-2 rounded-full ${
-                          marketerAgent?.status === 'working' || (initialized && !devAgent) ? 'bg-neonGreen shadow-[0_0_5px_#10b981]' : 'bg-slate-500'
-                        }`} />
-                        <span className={`text-[9px] font-bold uppercase ${
-                          marketerAgent?.status === 'working' || (initialized && !devAgent) ? 'text-neonGreen' : 'text-textMuted'
-                        }`}>{(marketerAgent?.status === 'working' || (initialized && !devAgent)) ? "Running" : "Idle"}</span>
-                      </div>
+                      <span className="text-[9px] font-black text-white uppercase tracking-wider truncate max-w-full text-center">
+                        {marketerAgent ? marketerAgent.name : "Architect"}
+                      </span>
+                      <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-widest mt-0.5 leading-none">Architect</span>
                     </div>
 
                     {/* QA */}
-                    <div className={`flex flex-col items-center bg-[#111827] border rounded-lg px-2.5 py-2 w-[88px] ${
-                      qaAgent?.status === 'working' ? 'glow-cyan border-neonCyan/30' : 'border-panelBorder'
+                    <div className={`flex flex-col items-center bg-[#0e111a]/95 border rounded-xl p-2.5 w-[92px] group hover:-translate-y-1 transition-all duration-300 ${
+                      qaAgent?.status === 'working' ? 'border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.15)] bg-amber-950/10' : 'border-panelBorder'
                     }`}>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <div className="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                          <i className="fa-solid fa-bug text-[10px] text-amber-400"></i>
-                        </div>
-                        <span className="text-[10px] font-bold text-white truncate max-w-[50px]">{qaAgent ? qaAgent.name : "QA-Bot"}</span>
+                      <div className="w-8 h-8 rounded-lg bg-black/40 border border-panelBorder flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform relative">
+                        <ShieldCheck className={`w-4 h-4 ${qaAgent?.status === 'working' ? 'text-amber-400' : 'text-slate-400'}`} />
+                        {qaAgent?.status === 'working' && (
+                          <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-amber-500 border border-slate-900 animate-ping"></span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1 mt-1 shrink-0">
-                        <div className={`w-2 h-2 rounded-full ${
-                          qaAgent?.status === 'working' ? 'bg-neonCyan shadow-[0_0_5px_#06b6d4]' : 'bg-slate-500'
-                        }`} />
-                        <span className="text-[9px] text-textMuted font-bold uppercase">{qaAgent?.status === 'working' ? "Running" : "Idle"}</span>
-                      </div>
+                      <span className="text-[9px] font-black text-white uppercase tracking-wider truncate max-w-full text-center">
+                        {qaAgent ? qaAgent.name : "QA-Bot"}
+                      </span>
+                      <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-widest mt-0.5 leading-none">Auditor</span>
                     </div>
+
                   </div>
 
-                  <div className="mt-8 border-t border-panelBorder/40 w-full pt-5 flex-1 flex flex-col justify-center space-y-3">
-                    <p className="text-center text-[10.5px] text-textMuted leading-relaxed font-semibold">
-                      Spawning recursive employee templates requires secure completions authorization. dispatches sync active roster loops dynamically.
-                    </p>
+                  {/* Warning notice & Spawn Action */}
+                  <div className="mt-8 border-t border-panelBorder/30 w-full pt-5 flex-1 flex flex-col justify-end space-y-4">
+                    <div className="bg-[#091d24]/20 border border-cyan-500/10 rounded-xl p-3.5 shadow-inner text-center relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-[2px] h-full bg-cyan-500/40"></div>
+                      <p className="text-[10px] text-slate-350 leading-relaxed font-medium">
+                        Spawning recursive employee templates requires <span className="text-cyan-400 font-bold">secure completions authorization</span>. Dispatches sync active roster loops dynamically.
+                      </p>
+                    </div>
+                    
                     <button
                       onClick={() => setIsHireModalOpen(true)}
-                      className="py-2.5 w-full btn-secondary justify-center text-xs font-bold tracking-wider uppercase"
+                      className="w-full py-3 rounded-xl border border-neonCyan bg-[#082f49] hover:bg-[#0c4a6e] text-cyan-300 text-xs font-bold tracking-widest transition-all hover:scale-[1.01] active:scale-100 uppercase flex items-center justify-center gap-1.5 glow-cyan cursor-pointer shadow-md"
                     >
-                      <i className="fa-solid fa-plus mr-1"></i> Hire Specialized Agent
+                      <Plus className="w-4 h-4 text-cyan-300 animate-pulse" /> Hire Specialized Agent
                     </button>
                   </div>
 
@@ -1214,36 +1245,87 @@ class GatewayRouter:
 
                 {/* Agents detailed profiles grid list */}
                 <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 pr-1.5 custom-scrollbar">
-                  {agents.map((agent) => (
-                    <div key={agent.id} className="border border-panelBorder bg-[#151a23]/40 rounded-xl p-5 flex flex-col space-y-4 hover:border-cyan-500/20 transition-all group">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-black/40 border border-panelBorder rounded-lg flex items-center justify-center text-lg shrink-0">
-                            {agent.avatar}
+                  {agents.map((agent) => {
+                    const metrics = getAgentMetrics(agent.id);
+                    const systemPromptText = agent.id === 'agent_ceo' 
+                      ? `You analyze goals: "${goal}", coordinate workers, and organize task backlogs using Nemix API completions.`
+                      : `You execute targeted Swarm development, architectures, or auditing tasks dispatches dynamically.`;
+                    
+                    return (
+                      <div 
+                        key={agent.id} 
+                        className={`border rounded-2xl p-5 flex flex-col space-y-4 hover:border-cyan-500/35 transition-all duration-300 group relative overflow-hidden backdrop-blur-md ${
+                          agent.status === 'working' 
+                            ? 'bg-[#091b24]/40 border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.04)]' 
+                            : 'bg-[#0e111a]/85 border-panelBorder shadow-lg'
+                        }`}
+                      >
+                        {/* Glow ambient background detail */}
+                        <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan-500/5 blur-2xl group-hover:bg-cyan-500/10 transition-colors pointer-events-none" />
+                        
+                        <div className="flex justify-between items-start gap-2 relative z-10">
+                          <div className="flex items-center gap-3.5">
+                            <div className={`w-11 h-11 rounded-xl bg-black/40 border border-panelBorder flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${
+                              agent.status === 'working' ? 'border-cyan-500/30' : ''
+                            }`}>
+                              {getAgentIcon(agent.id, agent.avatar)}
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black uppercase text-white tracking-widest group-hover:text-cyan-400 transition-colors leading-tight">{agent.name}</h4>
+                              <p className="text-[8px] font-black text-cyan-400 uppercase tracking-widest mt-1.5 opacity-85">{agent.role}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="text-xs font-black uppercase text-white tracking-wider group-hover:text-cyan-400 transition-colors">{agent.name}</h4>
-                            <p className="text-[8px] font-extrabold text-cyan-400 uppercase tracking-widest mt-0.5">{agent.role}</p>
+
+                          {/* pulsing badge */}
+                          <div className="flex items-center gap-1.5 bg-black/45 px-2.5 py-1 rounded-full border border-panelBorder shrink-0 select-none shadow-sm">
+                            <span className="relative flex h-1.5 w-1.5">
+                              {agent.status === 'working' && (
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neonGreen opacity-75"></span>
+                              )}
+                              <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${agent.status === 'working' ? 'bg-neonGreen shadow-[0_0_6px_#10b981]' : 'bg-slate-550'}`} />
+                            </span>
+                            <span className={`text-[8.5px] font-extrabold uppercase tracking-widest ${agent.status === 'working' ? 'text-neonGreen' : 'text-slate-405'}`}>{agent.status}</span>
                           </div>
                         </div>
 
-                        {/* pulsing badge */}
-                        <div className="flex items-center gap-1.5 bg-black/30 px-2.5 py-1 rounded-full border border-panelBorder shrink-0 select-none">
-                          <span className={`w-1.5 h-1.5 rounded-full ${agent.status === 'working' ? 'bg-neonGreen animate-pulse shadow-[0_0_5px_#10b981]' : 'bg-slate-500'}`} />
-                          <span className={`text-[8px] font-black uppercase tracking-wider ${agent.status === 'working' ? 'text-neonGreen' : 'text-slate-400'}`}>{agent.status}</span>
+                        {/* System Prompt Blueprint styled like a micro IDE panel */}
+                        <div className="bg-[#050608]/75 border border-panelBorder/40 p-4 rounded-xl text-[10px] font-mono leading-relaxed shadow-inner relative group/panel border-l-2 border-l-cyan-500/30">
+                          <div className="flex items-center justify-between border-b border-panelBorder/20 pb-2 mb-2 select-none text-[8.5px] font-black text-gray-500 uppercase tracking-wider font-sans">
+                            <span className="text-[8.5px] font-bold text-cyan-400/90 tracking-widest">prompt_system_blueprint.py</span>
+                            <span className="opacity-80">ReadOnly • UTF-8</span>
+                          </div>
+                          <div className="select-text overflow-y-auto max-h-[75px] custom-scrollbar text-slate-300 font-medium">
+                            <span className="text-purple-400">class</span> <span className="text-cyan-400">{agent.name.replace(/-/g, '')}</span>:<br />
+                            &nbsp;&nbsp;<span className="text-purple-400">def</span> <span className="text-blue-400">execute</span>(self):<br />
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-amber-300">"""</span><br />
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-slate-350">{systemPromptText}</span><br />
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-amber-300">"""</span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="bg-black/40 border border-panelBorder/30 p-3 rounded-lg text-[9.5px] font-mono text-slate-400 leading-relaxed shadow-inner">
-                        <span className="text-[8.5px] font-black text-cyan-400 uppercase tracking-wider block mb-1">System Prompt Blueprint</span>
-                        <div className="select-text overflow-y-auto max-h-[80px] custom-scrollbar">
-                          {agent.id === 'agent_ceo' 
-                            ? `You analyze goals: "${goal}", coordinate workers, and organize task backlogs using Nemix API completions.`
-                            : `You execute targeted Swarm development, architectures, or auditing tasks dispatches dynamically.`}
+                        {/* Premium agent telemetry params */}
+                        <div className="grid grid-cols-4 gap-2 pt-1 border-t border-panelBorder/20 text-[9px] font-mono relative z-10 select-none">
+                          <div className="bg-black/20 p-2 rounded-lg border border-panelBorder/10 text-center">
+                            <span className="text-gray-500 block text-[7.5px] font-sans font-bold uppercase tracking-wider mb-0.5">Temp</span>
+                            <span className="text-slate-300 font-extrabold">{metrics.temp}</span>
+                          </div>
+                          <div className="bg-black/20 p-2 rounded-lg border border-panelBorder/10 text-center">
+                            <span className="text-gray-550 block text-[7.5px] font-sans font-bold uppercase tracking-wider mb-0.5">Tokens</span>
+                            <span className="text-cyan-400 font-extrabold">{metrics.tokens}</span>
+                          </div>
+                          <div className="bg-black/20 p-2 rounded-lg border border-panelBorder/10 text-center">
+                            <span className="text-gray-550 block text-[7.5px] font-sans font-bold uppercase tracking-wider mb-0.5">Success</span>
+                            <span className="text-emerald-405 font-extrabold text-neonGreen">{metrics.successRate}</span>
+                          </div>
+                          <div className="bg-black/20 p-2 rounded-lg border border-panelBorder/10 text-center">
+                            <span className="text-gray-550 block text-[7.5px] font-sans font-bold uppercase tracking-wider mb-0.5">Latency</span>
+                            <span className="text-indigo-400 font-extrabold">{metrics.latency}</span>
+                          </div>
                         </div>
+
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
