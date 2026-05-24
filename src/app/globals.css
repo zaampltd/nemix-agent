@@ -1,29 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --font-inter: 'Inter', sans-serif;
-    --font-outfit: 'Outfit', sans-serif;
-    --font-mono: 'Fira Code', monospace;
-  }
-  
-  body {
-    background-color: #050507;
-    color: #f3f3f7;
-    font-family: var(--font-inter), sans-serif;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
+/* ── Material 3 Color Tokens — Light Mode ─────────── */
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-mono: 'Fira Code', monospace;
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-outfit), sans-serif;
-    letter-spacing: -0.02em;
-  }
+  --md-primary:           #5b5bd6;
+  --md-on-primary:        #ffffff;
+  --md-primary-container: #e8e7ff;
+  --md-on-primary-cont:   #17006b;
+
+  --md-secondary:         #5c5d72;
+  --md-secondary-cont:    #e1e0f9;
+
+  --md-surface:           #fafaff;
+  --md-surface-1:         #f2f2ff;
+  --md-surface-2:         #ebebfa;
+  --md-surface-3:         #e5e4f5;
+  --md-surface-variant:   #e4e1ec;
+
+  --md-on-surface:        #1b1b22;
+  --md-on-surface-var:    #47464f;
+
+  --md-outline:           #d0cdd8;
+  --md-outline-var:       #ece9f4;
+
+  --md-success:           #1a6b3c;
+  --md-success-cont:      #d4f5e1;
+  --md-error:             #ba1a1a;
+  --md-error-cont:        #ffdad6;
+  --md-warning:           #795900;
+  --md-warning-cont:      #ffefc6;
+
+  --md-scrim:             rgba(0,0,0,0.32);
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-2: 0 2px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-3: 0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.07);
+
+  /* Brand Logo Gradient - Light Mode */
+  --logo-grad-start:      #5b5bd6;
+  --logo-grad-mid:        #7c3aed;
+  --logo-grad-end:        #0ea5e9;
 }
 
-/* Custom scrollbars */
+/* ── Material 3 Color Tokens — Dark Mode ──────────── */
+.dark {
+  --md-primary:           #bfb8ff;
+  --md-on-primary:        #2a0096;
+  --md-primary-container: #4240c4;
+  --md-on-primary-cont:   #e8e7ff;
+
+  --md-secondary:         #c5c4dd;
+  --md-secondary-cont:    #444559;
+
+  --md-surface:           #111118;
+  --md-surface-1:         #1a1a24;
+  --md-surface-2:         #1f1f2c;
+  --md-surface-3:         #252534;
+  --md-surface-variant:   #46454e;
+
+  --md-on-surface:        #e5e1f0;
+  --md-on-surface-var:    #c8c5d0;
+
+  --md-outline:           #30303f;
+  --md-outline-var:       #222230;
+
+  --md-success:           #6dd99a;
+  --md-success-cont:      #00522a;
+  --md-error:             #ffb4ab;
+  --md-error-cont:        #930009;
+  --md-warning:           #f9c13f;
+  --md-warning-cont:      #5b4300;
+
+  --md-scrim:             rgba(0,0,0,0.6);
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-2: 0 2px 8px rgba(0,0,0,0.45);
+  --shadow-3: 0 4px 16px rgba(0,0,0,0.5);
+
+  /* Brand Logo Gradient - Dark Mode (Glowing Neon Colors) */
+  --logo-grad-start:      #bfb8ff;
+  --logo-grad-mid:        #a78bfa;
+  --logo-grad-end:        #22d3ee;
+}
+
+/* ── Base Reset ───────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--md-surface);
+  color: var(--md-on-surface);
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space), var(--font-inter), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ── Brand Logotype Styling ─────────────────────────── */
+.brand-logotype {
+  font-family: var(--font-space);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background-image: linear-gradient(180deg, #ffffff 15%, #d8deeb 55%, #8fa0c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.brand-logotype-adaptive {
+  font-family: var(--font-space);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background-image: linear-gradient(180deg, #334155 0%, #1e293b 60%, #0f172a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: background-image 0.2s ease;
+}
+
+.dark .brand-logotype-adaptive {
+  background-image: linear-gradient(180deg, #ffffff 15%, #d8deeb 55%, #8fa0c0 100%);
+}
+
+/* ── Material 3 / Nemix SaaS Premium Utilities ──────── */
+.md-card {
+  background-color: var(--md-surface-1);
+  border: 1px solid var(--md-outline);
+  border-radius: 16px;
+  box-shadow: var(--shadow-1);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.md-card-elevated {
+  background-color: var(--md-surface-1);
+  border-radius: 16px;
+  box-shadow: var(--shadow-2);
+  transition: box-shadow 0.2s ease;
+}
+
+.md-filled-btn {
+  background-color: var(--md-primary);
+  color: var(--md-on-primary);
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 10px 24px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.02em;
+}
+.md-filled-btn:hover {
+  opacity: 0.95;
+  box-shadow: var(--shadow-2);
+}
+
+.md-outlined-btn {
+  background: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.md-outlined-btn:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: var(--md-primary);
+}
+
+.md-tonal-btn {
+  background-color: var(--md-primary-container);
+  color: var(--md-on-primary-cont);
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 10px 24px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.md-tonal-btn:hover {
+  opacity: 0.92;
+}
+
+.md-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--md-outline);
+  background: var(--md-surface-1);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--md-on-surface);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+/* Glassmorphism Styles */
+.glass {
+  background: var(--md-surface-2);
+  border: 1px solid var(--md-outline);
+  border-radius: 16px;
+}
+
+.glass-strong {
+  background: var(--md-surface-1);
+  border: 1px solid var(--md-outline);
+  border-radius: 16px;
+  box-shadow: var(--shadow-2);
+}
+
+.glass-card {
+  background: var(--md-surface-1);
+  border: 1px solid var(--md-outline);
+  border-radius: 16px;
+}
+
+.premium-gradient {
+  background: linear-gradient(135deg, var(--md-primary) 0%, #a78bfa 100%);
+}
+
+.premium-text-glow {
+  color: var(--md-on-surface);
+}
+
+.glow-line {
+  height: 1px;
+  background: var(--md-outline);
+}
+
+/* ── Sleek Custom Scrollbar ───────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -32,51 +268,23 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 99px;
-  transition: all 0.3s ease;
+  background: rgba(156, 163, 175, 0.2);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(156, 163, 175, 0.4);
 }
 
-/* Glassmorphism custom classes */
-.glass-panel {
-  background: rgba(13, 13, 17, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+/* Remove Default Browser Focus Rings Globally */
+input:focus, select:focus, textarea:focus, button:focus, button:focus-visible {
+  outline: none !important;
 }
 
-.glass-input {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
-}
-.glass-input:focus {
-  border-color: rgba(59, 130, 246, 0.5) !important;
-  box-shadow: 
-    0 0 15px rgba(59, 130, 246, 0.1),
-    inset 0 1px 2px rgba(0, 0, 0, 0.8) !important;
-  outline: none;
+::selection {
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-cont);
 }
 
-.glow-border {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.glow-border:focus-within, .glow-border:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.15) !important;
-  outline: none;
-}
-
-/* Gradient text utility */
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+input, select, textarea, button {
+  transition: all 0.15s ease;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, Fira_Code } from 'next/font/google';
+import { Inter, Space_Grotesk, Fira_Code } from 'next/font/google';
 import "./globals.css";
 
 const inter = Inter({
@@ -8,9 +8,9 @@ const inter = Inter({
   display: 'swap',
 });
 
-const outfit = Outfit({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-outfit',
+  variable: '--font-space',
   display: 'swap',
 });
 
@@ -31,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} ${firaCode.variable} dark`}>
-      <body className="antialiased bg-[#050507] text-[#f3f3f7] min-h-screen">
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${firaCode.variable} dark`}>
+      <body className="antialiased bg-[#111118] text-[#e5e1f0] min-h-screen">
         {children}
       </body>
     </html>

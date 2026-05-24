@@ -7,7 +7,7 @@ import {
   Eye, EyeOff, Save, Sparkles, ChevronRight, UserCheck, ThumbsUp, ThumbsDown,
   ShieldAlert, Clock, Compass, Rocket, Zap, RefreshCw, FileCode,
   Coins, Users, Kanban, Plus, PlayCircle, PauseCircle, Code, Copy, Check,
-  X, Server, CheckSquare, Layers, AlertCircle
+  X, Server, CheckSquare, Layers, AlertCircle, Moon, Sun
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -46,6 +46,9 @@ export default function Page() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [logs, setLogs] = useState<string[]>([]);
   
+  // Theme State
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  
   // Simulation Controls
   const [isAutoTicking, setIsAutoTicking] = useState(false);
   const [isHeartbeating, setIsHeartbeating] = useState(false);
@@ -80,6 +83,16 @@ export default function Page() {
   const addLocalLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs(prev => [...prev, `[${timestamp}] ${message}`]);
+  };
+
+  // Toggle Dark/Light Mode
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
   };
 
   // ─── Initialize Swarm ───
@@ -251,71 +264,55 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020204] text-[#f3f3f7] font-sans flex flex-col overflow-hidden relative selection:bg-blue-500/30 selection:text-blue-200">
+    <div className="min-h-screen bg-md-surface text-md-on-surface font-sans flex flex-col overflow-hidden relative transition-colors duration-200">
       
-      {/* ─── Breathtaking, High-Visibility Animated Glow Backgrounds ─── */}
+      {/* ─── Modern Cyber Dot Grid Overlays & Radial Lights ─── */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Massive vibrant neon blurs with high visibility */}
-        <motion.div 
-          animate={{
-            scale: [1, 1.15, 1],
-            x: [0, 20, 0],
-            y: [0, -30, 0]
-          }}
-          transition={{ repeat: Infinity, duration: 15, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] w-[650px] h-[650px] rounded-full opacity-[0.16] pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #7c6af7 0%, transparent 70%)', filter: 'blur(120px)' }} 
-        />
-        <motion.div 
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, -40, 0],
-            y: [0, 40, 0]
-          }}
-          transition={{ repeat: Infinity, duration: 20, ease: "easeInOut" }}
-          className="absolute bottom-[-15%] right-[-10%] w-[700px] h-[700px] rounded-full opacity-[0.12] pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', filter: 'blur(130px)' }} 
-        />
-        <div className="absolute top-[30%] right-[20%] w-[450px] h-[450px] rounded-full opacity-[0.05] pointer-events-none"
-          style={{ background: 'radial-gradient(circle, #10b981 0%, transparent 70%)', filter: 'blur(110px)' }} />
+        {/* Glowing Material design circles */}
+        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-[0.05] dark:opacity-[0.15] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, var(--md-primary) 0%, transparent 70%)', filter: 'blur(100px)' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-[0.04] dark:opacity-[0.1] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, var(--md-secondary) 0%, transparent 70%)', filter: 'blur(100px)' }} />
         
-        {/* Subtle dynamic background light beams */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-        
-        {/* Dense tech dot pattern */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '24px 24px'
-          }}
-        />
+        {/* Stripe-style developer grid lines */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(156,163,175,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(156,163,175,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)]" />
       </div>
 
-      {/* ─── Main Scaffold Row ─── */}
+      {/* ─── Main Content Row ─── */}
       <div className="flex flex-1 overflow-hidden h-screen relative z-10">
 
         {/* ======================================================== */}
         {/* LEFT SIDEBAR: Org Hierarchy (290px)                     */}
         {/* ======================================================== */}
-        <aside className="w-[290px] bg-[#09090b]/90 border-r border-white/[0.08] flex flex-col shrink-0 relative z-20 backdrop-blur-3xl">
+        <aside className="w-[290px] bg-md-surface-1 border-r border-md-outline flex flex-col shrink-0 relative z-20 transition-colors">
           {/* Top Brand Mission */}
-          <div className="p-5.5 border-b border-white/[0.08] space-y-4.5 bg-[#09090b]/40">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <BrainCircuit className="w-5 h-5 text-white animate-pulse" />
+          <div className="p-5.5 border-b border-md-outline space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center shadow-md">
+                  <BrainCircuit className="w-4.5 h-4.5 text-white" />
+                </div>
+                <div>
+                  <span className="brand-logotype-adaptive leading-none text-base">
+                    NEMIX SWARM
+                  </span>
+                  <span className="text-[7.5px] font-black uppercase text-md-primary tracking-widest block leading-none mt-1">META-ORCHESTRATOR</span>
+                </div>
               </div>
-              <div>
-                <span className="font-black text-sm tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-100 to-zinc-400 font-outfit">
-                  NEMIX SWARM
-                </span>
-                <span className="text-[8px] font-black uppercase text-blue-400 tracking-widest block leading-none mt-1">META-ORCHESTRATOR</span>
-              </div>
+              
+              {/* Theme Toggler */}
+              <button
+                onClick={toggleTheme}
+                className="w-8 h-8 rounded-full border border-md-outline hover:bg-md-surface-2 flex items-center justify-center text-md-on-surface-var hover:text-md-on-surface transition-all"
+              >
+                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
             </div>
 
             {initialized && (
-              <div className="bg-white/[0.02] border border-white/[0.06] p-4 rounded-2xl space-y-2 shadow-inner">
-                <span className="text-[8px] font-black uppercase text-blue-400 tracking-widest block">CORPORATE MISSION</span>
-                <p className="text-[10.5px] leading-relaxed text-zinc-400 font-semibold font-sans">
+              <div className="bg-md-surface-2 border border-md-outline-var p-4 rounded-2xl space-y-2">
+                <span className="text-[8px] font-black uppercase text-md-primary tracking-widest block">CORPORATE MISSION</span>
+                <p className="text-[10px] leading-relaxed text-md-on-surface-var font-semibold">
                   {mission}
                 </p>
               </div>
@@ -325,13 +322,13 @@ export default function Page() {
           {/* Org Chart Tree Navigation */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
             <div className="flex items-center justify-between px-1 mb-2">
-              <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-zinc-600" /> Active Roster Hierarchy
+              <span className="text-[9px] font-black uppercase text-md-on-surface-var tracking-wider flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5" /> Active Roster Hierarchy
               </span>
             </div>
 
             {agents.length === 0 ? (
-              <div className="text-center py-28 text-zinc-500 text-[10px] leading-relaxed border border-dashed border-white/[0.06] rounded-2xl bg-white/[0.01] px-4">
+              <div className="text-center py-28 text-md-on-surface-var text-[10px] leading-relaxed border border-dashed border-md-outline rounded-2xl bg-md-surface-2/40 px-4">
                 Hive is currently offline.<br />Initialize swarm company on onboarding dashboard.
               </div>
             ) : (
@@ -340,41 +337,41 @@ export default function Page() {
                 {/* CEO Node */}
                 {agents.filter(a => a.id === 'agent_ceo').map(ceo => (
                   <div key={ceo.id} className="relative">
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/90 border border-white/[0.08] shadow-md relative z-10 transition-all hover:border-white/20">
-                      <div className="w-8.5 h-8.5 rounded-lg bg-black border border-white/10 flex items-center justify-center text-lg shrink-0 shadow-inner">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-md-surface-2 border border-md-outline shadow-md relative z-10 transition-all hover:border-md-outline-focus">
+                      <div className="w-8.5 h-8.5 rounded-lg bg-md-surface border border-md-outline flex items-center justify-center text-lg shrink-0 shadow-inner">
                         {ceo.avatar}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-[10.5px] font-black uppercase text-white truncate font-outfit">{ceo.name}</h4>
-                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">{ceo.role}</p>
+                        <h4 className="text-[10.5px] font-black uppercase text-md-on-surface truncate">{ceo.name}</h4>
+                        <p className="text-[8px] font-bold text-md-primary uppercase tracking-widest mt-0.5">{ceo.role}</p>
                       </div>
-                      <span className={`w-2.5 h-2.5 rounded-full relative shrink-0 border border-black ${
-                        ceo.status === 'working' ? 'bg-emerald-500 animate-pulse shadow-glow-success' : 'bg-zinc-700'
+                      <span className={`w-2.5 h-2.5 rounded-full relative shrink-0 border border-md-surface ${
+                        ceo.status === 'working' ? 'bg-md-success animate-pulse shadow-glow-success' : 'bg-md-secondary'
                       }`} />
                     </div>
                     {/* Visual Connection line to worker agents */}
-                    <div className="absolute left-7.5 top-12 bottom-[-24px] w-[1px] bg-white/[0.08] pointer-events-none" />
+                    <div className="absolute left-7.5 top-12 bottom-[-24px] w-[1px] bg-md-outline pointer-events-none" />
                   </div>
                 ))}
 
                 {/* Worker Nodes */}
                 <div className="space-y-3 pl-7.5 pt-1.5">
                   {agents.filter(a => a.id !== 'agent_ceo').map(worker => (
-                    <div key={worker.id} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] relative hover:border-white/[0.1] transition-all group shadow-sm">
+                    <div key={worker.id} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-md-surface-2/50 border border-md-outline-var relative hover:border-md-outline transition-all group shadow-sm">
                       {/* Connection horizontal line */}
-                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 h-[1px] bg-white/[0.08] pointer-events-none" />
+                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 h-[1px] bg-md-outline pointer-events-none" />
                       
-                      <div className="w-7.5 h-7.5 rounded-lg bg-zinc-950 border border-white/5 flex items-center justify-center text-sm shrink-0">
+                      <div className="w-7.5 h-7.5 rounded-lg bg-md-surface border border-md-outline flex items-center justify-center text-sm shrink-0">
                         {worker.avatar}
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <h5 className="text-[9.5px] font-bold uppercase text-zinc-200 truncate font-outfit">{worker.name}</h5>
-                        <p className="text-[8px] font-semibold text-zinc-500 truncate mt-0.5 uppercase tracking-wide">{worker.role.split(' ')[0]}</p>
+                        <h5 className="text-[9.5px] font-bold uppercase text-md-on-surface truncate">{worker.name}</h5>
+                        <p className="text-[8px] font-semibold text-md-on-surface-var truncate mt-0.5 uppercase tracking-wide">{worker.role.split(' ')[0]}</p>
                       </div>
                       
-                      <span className={`w-2 h-2 rounded-full shrink-0 border border-black ${
-                        worker.status === 'working' ? 'bg-emerald-500 animate-pulse shadow-glow-success' : 'bg-zinc-700'
+                      <span className={`w-2 h-2 rounded-full shrink-0 border border-md-surface ${
+                        worker.status === 'working' ? 'bg-md-success animate-pulse shadow-glow-success' : 'bg-md-secondary'
                       }`} />
                     </div>
                   ))}
@@ -386,13 +383,13 @@ export default function Page() {
 
           {/* Hire Button */}
           {initialized && (
-            <div className="p-5 border-t border-white/[0.08] bg-[#09090b] shrink-0">
+            <div className="p-5 border-t border-md-outline bg-md-surface-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsHireModalOpen(true)}
-                className="w-full h-11 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300 hover:text-white"
+                className="w-full h-11 md-outlined-btn justify-center font-bold text-xs"
               >
-                <Plus className="w-4 h-4 text-blue-400" />
+                <Plus className="w-4 h-4" />
                 Hire New Agent
               </button>
             </div>
@@ -405,12 +402,12 @@ export default function Page() {
         <main className="flex-1 flex flex-col overflow-hidden relative z-10">
           
           {/* Header Workspace Details */}
-          <header className="px-6 py-4.5 border-b border-white/[0.08] flex items-center justify-between shrink-0 bg-[#020204]/80 backdrop-blur-3xl">
+          <header className="px-6 py-4.5 border-b border-md-outline flex items-center justify-between shrink-0 bg-md-surface/80 backdrop-blur-3xl transition-colors">
             
             {/* Left: Active Goal */}
             <div className="flex-1 max-w-lg min-w-0 pr-4">
-              <span className="text-[8px] font-black uppercase text-blue-400 tracking-widest block">ACTIVE SWARM GOAL DIRECTIVE</span>
-              <h2 className="text-xs font-bold text-zinc-100 truncate mt-0.5 font-outfit uppercase tracking-wide">
+              <span className="text-[8px] font-black uppercase text-md-primary tracking-widest block">ACTIVE SWARM GOAL DIRECTIVE</span>
+              <h2 className="text-xs font-bold text-md-on-surface truncate mt-0.5 uppercase tracking-wide">
                 {initialized ? goal : "Awaiting Swarm Setup Launchpad..."}
               </h2>
             </div>
@@ -419,21 +416,21 @@ export default function Page() {
             {initialized && (
               <div className="flex items-center gap-4 shrink-0">
                 {/* Budget Coins */}
-                <div className="flex items-center gap-3 px-3.5 py-2 rounded-xl bg-zinc-900/80 border border-white/[0.06] shadow-sm">
-                  <Coins className="w-4.5 h-4.5 text-blue-400 animate-pulse" />
+                <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-md-surface-1 border border-md-outline shadow-sm">
+                  <Coins className="w-4.5 h-4.5 text-md-primary" />
                   <div>
-                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-widest block leading-none">BUDGET USED</span>
-                    <span className="text-[11.5px] font-extrabold text-white font-mono leading-none mt-1 block">
-                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-zinc-500 font-black">NMX</span>
+                    <span className="text-[7px] font-black uppercase text-md-on-surface-var tracking-widest block leading-none">BUDGET USED</span>
+                    <span className="text-[11.5px] font-extrabold text-md-on-surface font-mono leading-none mt-1 block">
+                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-md-on-surface-var font-black">NMX</span>
                     </span>
                   </div>
                 </div>
 
                 {/* God Mode Governance Mode Toggle */}
-                <div className="flex items-center gap-3 px-3.5 py-2 rounded-xl bg-zinc-900/80 border border-white/[0.06] shadow-sm">
+                <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-md-surface-1 border border-md-outline shadow-sm">
                   <div>
-                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-widest block leading-none">GOVERNANCE MODE</span>
-                    <span className="text-[10px] font-extrabold text-zinc-200 leading-none mt-1 block">
+                    <span className="text-[7px] font-black uppercase text-md-on-surface-var tracking-widest block leading-none">GOVERNANCE MODE</span>
+                    <span className="text-[10px] font-extrabold text-md-on-surface leading-none mt-1 block">
                       {governanceMode ? "God Mode On" : "Autonomous"}
                     </span>
                   </div>
@@ -441,13 +438,13 @@ export default function Page() {
                     type="button"
                     onClick={() => {
                       setGovernanceMode(!governanceMode);
-                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Board approvals required)' : 'OFF (Autonomous loops)'}`);
+                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Human Board approvals required)' : 'OFF (Autonomous loops)'}`);
                     }}
                     className={`w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none shrink-0 ${
-                      governanceMode ? 'bg-blue-600' : 'bg-zinc-800'
+                      governanceMode ? 'bg-md-primary' : 'bg-md-outline'
                     }`}
                   >
-                    <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                    <div className={`w-4 h-4 rounded-full bg-md-surface transition-transform duration-200 ${
                       governanceMode ? 'translate-x-4' : 'translate-x-0'
                     }`} />
                   </button>
@@ -464,8 +461,8 @@ export default function Page() {
                     }}
                     className={`h-10 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all text-white shadow-lg ${
                       isAutoTicking 
-                        ? 'bg-zinc-800 hover:bg-zinc-700' 
-                        : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-blue-600/15'
+                        ? 'bg-md-secondary hover:opacity-95' 
+                        : 'bg-md-primary hover:opacity-95 shadow-glow-primary'
                     }`}
                   >
                     {isAutoTicking ? (
@@ -484,9 +481,9 @@ export default function Page() {
                     type="button"
                     onClick={triggerHeartbeat}
                     disabled={isHeartbeating || isAutoTicking}
-                    className="h-10 px-4 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300 disabled:opacity-40"
+                    className="h-10 px-4 rounded-xl bg-md-surface-2 border border-md-outline hover:bg-md-surface-3 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-md-on-surface disabled:opacity-40"
                   >
-                    <Zap className={`w-3.5 h-3.5 text-blue-400 ${isHeartbeating ? 'animate-bounce' : ''}`} />
+                    <Zap className={`w-3.5 h-3.5 text-md-primary ${isHeartbeating ? 'animate-bounce' : ''}`} />
                     Heartbeat Tick
                   </button>
                 </div>
@@ -497,131 +494,127 @@ export default function Page() {
           </header>
 
           {/* Core Kanban Board Area */}
-          <div className="flex-1 overflow-hidden p-6 flex flex-col relative">
+          <div className="flex-1 overflow-hidden p-6 flex flex-col relative bg-md-surface transition-colors">
             
             {!initialized ? (
-              // Breathtaking Onboarding Launchpad Setup Portal
+              // Stunning Onboarding Launchpad Setup Portal
               <div className="flex-1 flex items-center justify-center max-w-5xl mx-auto w-full">
-                {/* Glow border wrapper */}
-                <div className="bg-gradient-to-r from-blue-500/15 via-purple-500/10 to-emerald-500/10 p-[1.5px] rounded-3xl w-full shadow-2xl shadow-blue-500/5">
-                  <div className="bg-[#0b0b0e]/95 rounded-[22px] border border-white/[0.06] overflow-hidden w-full grid grid-cols-1 md:grid-cols-12 max-h-[85vh]">
+                <div className="md-card rounded-3xl overflow-hidden w-full grid grid-cols-1 md:grid-cols-12 max-h-[85vh] shadow-2xl">
+                  
+                  {/* Left Column: Brief info (5 spans) */}
+                  <div className="md:col-span-5 bg-md-surface-2 p-8.5 flex flex-col justify-between border-r border-md-outline relative">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(91,91,214,0.06),transparent_65%)]" />
                     
-                    {/* Left Column: Visual Brief (5 spans) */}
-                    <div className="md:col-span-5 bg-gradient-to-b from-[#0e0e12] to-black p-8.5 flex flex-col justify-between border-r border-white/[0.08] relative">
-                      {/* Dynamic light leak inside onboarding */}
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(124,106,247,0.1),transparent_65%)]" />
+                    <div className="space-y-6.5 relative z-10">
+                      <div className="w-12 h-12 rounded-xl bg-md-primary flex items-center justify-center shadow-lg shadow-glow-primary">
+                        <BrainCircuit className="w-6 h-6 text-md-on-primary animate-pulse" />
+                      </div>
                       
-                      <div className="space-y-6.5 relative z-10">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                          <BrainCircuit className="w-6 h-6 text-white" />
-                        </div>
-                        
-                        <div className="space-y-3.5">
-                          <h3 className="text-xl font-extrabold uppercase tracking-wider text-white font-outfit">
-                            Nemix Swarm Portal
-                          </h3>
-                          <p className="text-[11px] leading-relaxed text-zinc-400 font-semibold font-sans">
-                            Bootstrap an autonomous corporate model using client-side recursive pipelines. The CEO plans the backlog, coordinates workers, and routes code changes using the secure Nemix Gateway API.
-                          </p>
-                        </div>
-
-                        {/* Roster Pipeline Steps */}
-                        <div className="space-y-4 pt-3.5">
-                          {[
-                            "CEO breaks master goal into Backlog",
-                            "Dispatches Developers & QA Auditors",
-                            "God Mode Human Governance review",
-                            "Fast-forward compilation checks & deploy"
-                          ].map((step, idx) => (
-                            <div key={idx} className="flex items-center gap-3">
-                              <span className="w-5.5 h-5.5 rounded-full bg-blue-950 border border-blue-500/30 flex items-center justify-center text-[10px] font-black text-blue-400">
-                                {idx + 1}
-                              </span>
-                              <span className="text-[10px] font-extrabold text-zinc-300 uppercase tracking-wider">{step}</span>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="space-y-3.5">
+                        <h3 className="text-xl font-extrabold uppercase tracking-wider text-md-on-surface font-outfit">
+                          Nemix Swarm Portal
+                        </h3>
+                        <p className="text-[11px] leading-relaxed text-md-on-surface-var font-semibold font-sans">
+                          Bootstrap an autonomous corporate model using client-side recursive pipelines. The CEO plans the backlog, coordinates workers, and routes code changes using the secure Nemix Gateway API.
+                        </p>
                       </div>
 
-                      <div className="text-[9px] text-zinc-500 pt-6 border-t border-white/5 uppercase tracking-widest font-black relative z-10">
-                        CLIENT-SIDE SECURED HANDSHAKE GATEWAY
+                      {/* Roster Pipeline Steps */}
+                      <div className="space-y-4 pt-3.5">
+                        {[
+                          "CEO breaks master goal into Backlog",
+                          "Dispatches Developers & QA Auditors",
+                          "God Mode Human Governance review",
+                          "Fast-forward compilation checks & deploy"
+                        ].map((step, idx) => (
+                          <div key={idx} className="flex items-center gap-3">
+                            <span className="w-5.5 h-5.5 rounded-full bg-md-primary-container border border-md-outline flex items-center justify-center text-[10px] font-black text-md-on-primary-cont">
+                              {idx + 1}
+                            </span>
+                            <span className="text-[10px] font-extrabold text-md-on-surface-var uppercase tracking-wider">{step}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Right Column: Interactive Fields (7 spans) */}
-                    <div className="md:col-span-7 p-9 bg-white/[0.01] backdrop-blur-xl flex flex-col justify-center space-y-5.5">
-                      
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-blue-400 block mb-1">Company Mission Statement</label>
+                    <div className="text-[9px] text-md-on-surface-var pt-6 border-t border-md-outline uppercase tracking-widest font-black relative z-10">
+                      CLIENT-SIDE SECURED HANDSHAKE GATEWAY
+                    </div>
+                  </div>
+
+                  {/* Right Column: Onboarding Fields Form (7 spans) */}
+                  <div className="md:col-span-7 p-9 bg-md-surface-1 flex flex-col justify-center space-y-5.5">
+                    
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-md-primary block mb-1">Company Mission Statement</label>
+                      <input
+                        type="text"
+                        value={mission}
+                        onChange={e => setMission(e.target.value)}
+                        placeholder="e.g. Build a high-performance Edge Router."
+                        className="w-full h-11 px-4 rounded-xl bg-md-surface-2 border border-md-outline text-xs text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-md-primary block mb-1">Master Swarm Directive / Goal</label>
+                      <textarea
+                        value={goal}
+                        onChange={e => setGoal(e.target.value)}
+                        placeholder="e.g. Code failover fallback gateway parameters and execute security audits."
+                        className="w-full h-22 p-3.5 rounded-xl bg-md-surface-2 border border-md-outline text-xs text-md-on-surface resize-none focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none leading-relaxed transition-all font-semibold"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-md-primary block mb-1">Secure Vault Gateway Key</label>
+                      <div className="relative">
                         <input
-                          type="text"
-                          value={mission}
-                          onChange={e => setMission(e.target.value)}
-                          placeholder="e.g. Build a high-performance modular Edge Router."
-                          className="w-full h-11 px-4 rounded-xl bg-black/60 border border-white/10 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all font-semibold"
+                          type={showKey ? 'text' : 'password'}
+                          placeholder="nex_sk_ep_xxxxxxxxxxxx"
+                          value={apiKey}
+                          onChange={e => setApiKey(e.target.value)}
+                          className="w-full h-11 pl-4 pr-20 text-xs font-mono rounded-xl bg-md-surface-2 border border-md-outline text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowKey(!showKey)}
+                          className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                          {showKey ? <EyeOff className="w-3.5 h-3.5 text-md-on-surface-var" /> : <Eye className="w-3.5 h-3.5 text-md-on-surface-var" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={saveKey}
+                          disabled={!apiKey.trim()}
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-md-primary hover:opacity-90 text-md-on-primary transition-colors disabled:opacity-40 shadow-sm"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-blue-400 block mb-1">Master Swarm Directive / Goal</label>
-                        <textarea
-                          value={goal}
-                          onChange={e => setGoal(e.target.value)}
-                          placeholder="e.g. Code failover fallback gateway parameters and execute security audits."
-                          className="w-full h-22 p-3.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none leading-relaxed transition-all font-semibold"
-                        />
-                      </div>
-                      
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-blue-400 block mb-1">Secure Vault Gateway Key</label>
-                        <div className="relative">
-                          <input
-                            type={showKey ? 'text' : 'password'}
-                            placeholder="nex_sk_ep_xxxxxxxxxxxx"
-                            value={apiKey}
-                            onChange={e => setApiKey(e.target.value)}
-                            className="w-full h-11 pl-4 pr-20 text-xs font-mono rounded-xl bg-black/60 border border-white/10 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all font-semibold"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowKey(!showKey)}
-                            className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-                          >
-                            {showKey ? <EyeOff className="w-3.5 h-3.5 text-zinc-400" /> : <Eye className="w-3.5 h-3.5 text-zinc-400" />}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={saveKey}
-                            disabled={!apiKey.trim()}
-                            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40 shadow-md shadow-blue-600/10"
-                          >
-                            <Save className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleStartCompany}
-                        disabled={isInitializing || !mission.trim() || !goal.trim()}
-                        className="w-full h-12 rounded-xl font-black text-xs flex items-center justify-center gap-2 text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-xl shadow-blue-600/15 hover:opacity-95 disabled:opacity-40 transition-all select-none uppercase tracking-wider font-outfit"
-                      >
-                        {isInitializing ? (
-                          <>
-                            <RefreshCw className="w-4.5 h-4.5 animate-spin" />
-                            Recruiting Workers Swarm...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-4.5 h-4.5 fill-current text-white" />
-                            Initialize Swarm Company
-                          </>
-                        )}
-                      </button>
-
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={handleStartCompany}
+                      disabled={isInitializing || !mission.trim() || !goal.trim()}
+                      className="w-full h-12 md-filled-btn justify-center uppercase tracking-wider font-outfit"
+                    >
+                      {isInitializing ? (
+                        <>
+                          <RefreshCw className="w-4.5 h-4.5 animate-spin" />
+                          Recruiting Swarm...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4.5 h-4.5 fill-current text-md-on-primary" />
+                          Initialize Swarm Company
+                        </>
+                      )}
+                    </button>
 
                   </div>
+
                 </div>
               </div>
             ) : (
@@ -629,12 +622,12 @@ export default function Page() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-5 overflow-hidden">
                 
                 {/* ─── COLUMN 1: TO DO ─── */}
-                <div className="flex flex-col bg-white/[0.01] border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl backdrop-blur-xl">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" /> To Do
+                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
+                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-md-on-surface-var tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-md-secondary" /> To Do
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-zinc-500 bg-zinc-900 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-mono font-bold text-md-on-surface-var bg-md-surface-2 border border-md-outline px-1.5 py-0.5 rounded">
                       {tickets.filter(t => t.status === 'todo').length}
                     </span>
                   </div>
@@ -646,12 +639,12 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 2: IN PROGRESS ─── */}
-                <div className="flex flex-col bg-white/[0.01] border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl backdrop-blur-xl">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-blue-400 tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-glow-primary" /> In Progress
+                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
+                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-md-primary tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-md-primary animate-pulse shadow-glow-primary" /> In Progress
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-blue-400/80 bg-blue-950/20 border border-blue-500/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-mono font-bold text-md-primary bg-md-primary-container px-1.5 py-0.5 rounded border border-md-outline">
                       {tickets.filter(t => t.status === 'inprogress').length}
                     </span>
                   </div>
@@ -663,12 +656,12 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 3: AWAITING APPROVAL ─── */}
-                <div className="flex flex-col bg-white/[0.01] border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl backdrop-blur-xl">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" /> Governance Review
+                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
+                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-md-warning tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-md-warning animate-ping" /> Governance Review
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-amber-400/80 bg-amber-950/20 border border-amber-500/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-mono font-bold text-md-warning bg-md-warning-cont px-1.5 py-0.5 rounded border border-md-outline">
                       {tickets.filter(t => t.status === 'awaiting').length}
                     </span>
                   </div>
@@ -687,12 +680,12 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 4: DONE ─── */}
-                <div className="flex flex-col bg-white/[0.01] border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl backdrop-blur-xl">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Done
+                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
+                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-md-success tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-md-success" /> Done
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-emerald-400/80 bg-emerald-950/20 border border-emerald-500/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-mono font-bold text-md-success bg-md-success-cont px-1.5 py-0.5 rounded border border-md-outline">
                       {tickets.filter(t => t.status === 'done').length}
                     </span>
                   </div>
@@ -710,17 +703,17 @@ export default function Page() {
 
           {/* Bottom Execution Shell Drawer */}
           {initialized && (
-            <div className="h-[200px] bg-[#08080a] border-t border-white/[0.08] flex flex-col shrink-0 relative z-10 p-5">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2.5 mb-2.5 shrink-0">
-                <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest flex items-center gap-1.5">
-                  <Terminal className="w-3.5 h-3.5 text-blue-400" /> Live Swarm Execution Log
+            <div className="h-[200px] bg-md-surface-2 border-t border-md-outline flex flex-col shrink-0 relative z-10 p-5 transition-colors">
+              <div className="flex items-center justify-between border-b border-md-outline pb-2.5 mb-2.5 shrink-0">
+                <span className="text-[9px] font-black uppercase text-md-on-surface-var tracking-widest flex items-center gap-1.5 font-sans">
+                  <Terminal className="w-3.5 h-3.5 text-md-primary" /> Live Swarm Execution Log
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="text-[8px] font-mono text-emerald-400 font-extrabold tracking-widest uppercase">STREAM ACTIVE</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-md-success animate-ping" />
+                  <span className="text-[8px] font-mono text-md-success font-extrabold tracking-widest uppercase">STREAM ACTIVE</span>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9.5px] text-zinc-400 custom-scrollbar select-text leading-relaxed">
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9.5px] text-md-on-surface-var custom-scrollbar select-text leading-relaxed">
                 {logs.map((log, idx) => {
                   const isError = log.includes('[Error]');
                   const isCEO = log.includes('[CEO]');
@@ -731,14 +724,14 @@ export default function Page() {
                       key={idx}
                       className={`p-2.5 rounded-xl border ${
                         isError 
-                          ? 'bg-red-950/15 border-red-900/20 text-red-400' 
+                          ? 'bg-md-error-cont border-md-error/20 text-md-error' 
                           : isCEO 
-                          ? 'bg-blue-950/15 border-blue-900/20 text-blue-300'
+                          ? 'bg-md-primary-container border-md-primary/20 text-md-primary'
                           : isSystem 
-                          ? 'bg-zinc-900/40 border-white/5 text-zinc-400'
+                          ? 'bg-md-surface-3/50 border-md-outline-var text-md-on-surface-var'
                           : isBroker
-                          ? 'bg-emerald-950/10 border-emerald-900/20 text-emerald-400'
-                          : 'bg-zinc-950/20 border-transparent text-zinc-300'
+                          ? 'bg-md-success-cont border-md-success/20 text-md-success'
+                          : 'bg-md-surface border-transparent text-md-on-surface-var'
                       }`}
                     >
                       {log}
@@ -759,44 +752,44 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {activeApprovalTicket && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-md-scrim backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0b0b0e]/95 border border-blue-500/20 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden text-left"
+              className="bg-md-surface border border-md-outline rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden text-left"
             >
               {/* Alert background glow */}
-              <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-blue-500/5 blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-md-primary/5 blur-2xl pointer-events-none" />
 
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div className="flex items-center justify-between border-b border-md-outline pb-3">
                 <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-blue-400 animate-pulse" />
-                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-blue-400 font-outfit">
+                  <ShieldAlert className="w-5 h-5 text-md-warning animate-pulse" />
+                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-md-warning font-outfit">
                     GOVERNANCE VOTE REQUIRED
                   </h3>
                 </div>
-                <span className="text-[8px] font-black uppercase bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20">
+                <span className="text-[8px] font-black uppercase bg-md-primary-container text-md-on-primary-cont px-2 py-0.5 rounded border border-md-outline">
                   GOD MODE HIERARCHY
                 </span>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[8.5px] text-zinc-500 uppercase tracking-widest block font-bold">Target backlog Ticket</span>
-                <h4 className="text-xs font-black text-white font-outfit uppercase leading-tight">{activeApprovalTicket.title}</h4>
+                <span className="text-[8.5px] text-md-on-surface-var uppercase tracking-widest block font-bold">Target backlog Ticket</span>
+                <h4 className="text-xs font-black text-md-on-surface font-outfit uppercase leading-tight">{activeApprovalTicket.title}</h4>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[8.5px] text-zinc-500 uppercase tracking-widest block font-bold">Agent Synthesis Thought Reasoning</span>
-                <p className="text-[10px] leading-relaxed text-zinc-400 bg-black/60 border border-white/5 p-3.5 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar font-sans font-medium">
+                <span className="text-[8.5px] text-md-on-surface-var uppercase tracking-widest block font-bold">Agent Synthesis Thought Reasoning</span>
+                <p className="text-[10px] leading-relaxed text-md-on-surface bg-md-surface-2 border border-md-outline p-3.5 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar font-sans font-medium">
                   {activeApprovalTicket.thought}
                 </p>
               </div>
 
               {activeApprovalTicket.output && (
                 <div className="space-y-1.5">
-                  <span className="text-[8.5px] text-zinc-500 uppercase tracking-widest block font-bold">Generated Output Code Vault</span>
-                  <pre className="text-[9.5px] font-mono text-emerald-400 bg-black/80 border border-white/5 p-3 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar select-text leading-relaxed">
+                  <span className="text-[8.5px] text-md-on-surface-var uppercase tracking-widest block font-bold">Generated Output Code Vault</span>
+                  <pre className="text-[9.5px] font-mono text-md-success bg-md-surface-3/80 border border-md-outline p-3 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar select-text leading-relaxed">
                     <code>{activeApprovalTicket.output}</code>
                   </pre>
                 </div>
@@ -806,14 +799,15 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => handleBoardApproval('approved')}
-                  className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold text-white shadow-lg shadow-emerald-600/10"
+                  className="h-11 rounded-xl bg-md-success hover:opacity-90 transition-all flex items-center justify-center gap-1.5 text-xs font-bold text-md-on-primary shadow-sm"
+                  style={{ backgroundColor: 'var(--md-success)', color: '#fff' }}
                 >
                   <ThumbsUp className="w-4 h-4" /> Approve Deploy
                 </button>
                 <button
                   type="button"
                   onClick={() => handleBoardApproval('rejected')}
-                  className="h-11 rounded-xl bg-red-950/40 border border-red-500/20 hover:bg-red-950/60 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold text-red-400"
+                  className="h-11 rounded-xl bg-md-error-cont border border-md-error/30 hover:opacity-90 transition-all flex items-center justify-center gap-1.5 text-xs font-bold text-md-error"
                 >
                   <ThumbsDown className="w-4 h-4" /> Reject Code
                 </button>
@@ -828,29 +822,29 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {activeCodePreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-md-scrim backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0b0b0e]/95 border border-white/10 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] text-left"
+              className="bg-md-surface border border-md-outline rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] text-left"
             >
               {/* Window Header */}
-              <div className="bg-black/60 px-5 py-4 flex items-center justify-between border-b border-white/[0.08]">
+              <div className="bg-md-surface-2 px-5 py-4 flex items-center justify-between border-b border-md-outline">
                 <div className="flex items-center gap-2">
-                  <Code className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs font-mono text-zinc-300">Workspace Code Output</span>
+                  <Code className="w-4 h-4 text-md-primary" />
+                  <span className="text-xs font-mono text-md-on-surface">Workspace Code Output</span>
                 </div>
                 <button
                   onClick={() => setActiveCodePreview(null)}
-                  className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-md-surface-3 flex items-center justify-center text-md-on-surface-var hover:text-md-on-surface transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Body */}
-              <div className="flex-1 p-5 overflow-y-auto bg-black font-mono text-[11px] leading-relaxed text-emerald-400 custom-scrollbar select-text">
+              <div className="flex-1 p-5 overflow-y-auto bg-md-surface-3 font-mono text-[11px] leading-relaxed text-md-primary custom-scrollbar select-text">
                 <pre><code>{activeCodePreview}</code></pre>
               </div>
             </motion.div>
@@ -863,18 +857,18 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {isHireModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-md-scrim backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0b0b0e]/95 border border-white/10 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-left"
+              className="bg-md-surface border border-md-outline rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-left"
             >
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
-                <h4 className="text-xs font-black uppercase text-white font-outfit">Recruit Swarm Employee</h4>
+              <div className="flex items-center justify-between border-b border-md-outline pb-2.5">
+                <h4 className="text-xs font-black uppercase text-md-on-surface font-outfit">Recruit Swarm Employee</h4>
                 <button 
                   onClick={() => setIsHireModalOpen(false)}
-                  className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-md-surface-2 flex items-center justify-center text-md-on-surface-var hover:text-md-on-surface transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -882,24 +876,24 @@ export default function Page() {
 
               <div className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Agent Name</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-md-on-surface-var">Agent Name</label>
                   <input
                     type="text"
                     value={newAgentName}
                     onChange={e => setNewAgentName(e.target.value)}
                     placeholder="e.g. Scribe-v2, Traffic-Optimizer..."
-                    className="w-full h-9.5 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none transition-all font-semibold"
+                    className="w-full h-9.5 px-3 rounded-lg bg-md-surface-2 border border-md-outline text-xs text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
                   />
                 </div>
                 
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Agent Role / Specialty</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-md-on-surface-var">Agent Role / Specialty</label>
                   <input
                     type="text"
                     value={newAgentRole}
                     onChange={e => setNewAgentRole(e.target.value)}
                     placeholder="e.g. Lead Copywriter, SEO Optimizer..."
-                    className="w-full h-9.5 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none transition-all font-semibold"
+                    className="w-full h-9.5 px-3 rounded-lg bg-md-surface-2 border border-md-outline text-xs text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
                   />
                 </div>
               </div>
@@ -908,7 +902,7 @@ export default function Page() {
                 type="button"
                 onClick={handleHireAgent}
                 disabled={!newAgentName.trim() || !newAgentRole.trim()}
-                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white transition-colors disabled:opacity-40 shadow-lg shadow-blue-600/10"
+                className="w-full h-11 md-filled-btn justify-center font-bold text-xs"
               >
                 Hire Employee
               </button>
@@ -918,7 +912,7 @@ export default function Page() {
       </AnimatePresence>
 
       {/* Footer copyright */}
-      <footer className="py-2.5 border-t border-white/5 text-center text-[9px] font-medium text-zinc-600 bg-black shrink-0 relative z-20">
+      <footer className="py-2.5 border-t border-md-outline text-center text-[9px] font-medium text-md-on-surface-var bg-md-surface-1 shrink-0 relative z-20 transition-colors">
         © {new Date().getFullYear()} Nemix Corporation. All private client-side agent configurations encrypted in sandbox.
       </footer>
 
@@ -948,30 +942,30 @@ function KanbanCard({
     <motion.div
       layoutId={ticket.id}
       transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-      className="p-4.5 rounded-2xl border border-white/[0.06] bg-[#0b0b0e]/95 shadow-md flex flex-col space-y-4 text-left hover:border-white/[0.12] transition-all group"
+      className="p-4.5 md-card flex flex-col space-y-4 text-left hover:border-md-primary transition-all group"
     >
-      <h4 className="text-[10.5px] font-black uppercase text-zinc-100 tracking-wide font-outfit leading-tight group-hover:text-white transition-colors">
+      <h4 className="text-[10.5px] font-black uppercase text-md-on-surface tracking-wide font-outfit leading-tight group-hover:text-md-primary transition-colors">
         {ticket.title}
       </h4>
-      <p className="text-[9.5px] text-zinc-400 leading-relaxed font-semibold font-sans">
+      <p className="text-[9.5px] text-md-on-surface-var leading-relaxed font-semibold font-sans">
         {ticket.description}
       </p>
 
       {/* Reasoning log snippet */}
-      <div className="bg-black/60 border border-white/[0.04] p-3 rounded-xl text-[9px] font-mono text-zinc-500 leading-relaxed shadow-inner">
-        <span className="text-[8px] font-black text-blue-400/80 uppercase tracking-widest block mb-1">Reasoning Log</span>
+      <div className="bg-md-surface-2 border border-md-outline-var p-3 rounded-xl text-[9px] font-mono text-md-on-surface-var leading-relaxed shadow-inner">
+        <span className="text-[8px] font-black text-md-primary uppercase tracking-widest block mb-1">Reasoning Log</span>
         {ticket.thought}
       </div>
 
-      <div className="flex items-center justify-between border-t border-white/[0.06] pt-3.5 gap-2 shrink-0">
+      <div className="flex items-center justify-between border-t border-md-outline-var pt-3.5 gap-2 shrink-0">
         {/* Agent Avatar info */}
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded bg-zinc-950 border border-white/10 flex items-center justify-center text-xs shrink-0 shadow-inner">
+          <div className="w-7 h-7 rounded bg-md-surface-3 border border-md-outline flex items-center justify-center text-xs shrink-0 shadow-inner">
             {agent?.avatar || '🤖'}
           </div>
           <div className="min-w-0">
-            <p className="text-[8.5px] font-bold text-zinc-200 truncate leading-tight font-outfit uppercase">{agent?.name || 'Worker-Bot'}</p>
-            <p className="text-[7.5px] text-zinc-500 truncate leading-tight mt-0.5 uppercase tracking-wider">{agent?.role.split(' ')[0] || 'Worker'}</p>
+            <p className="text-[8.5px] font-bold text-md-on-surface truncate leading-tight font-outfit uppercase">{agent?.name || 'Worker-Bot'}</p>
+            <p className="text-[7.5px] text-md-on-surface-var truncate leading-tight mt-0.5 uppercase tracking-wider">{agent?.role.split(' ')[0] || 'Worker'}</p>
           </div>
         </div>
 
@@ -980,7 +974,7 @@ function KanbanCard({
           {hasOutput && (
             <button
               onClick={() => onCodePreview(ticket.output!)}
-              className="h-6 px-2 rounded bg-blue-950/20 border border-blue-500/10 hover:border-blue-500/30 text-blue-400 text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5 transition-colors"
+              className="h-6 px-2 rounded bg-md-primary-container border border-md-outline hover:opacity-90 text-md-on-primary-cont text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5 transition-colors"
             >
               <Code className="w-2.5 h-2.5" /> Output
             </button>
@@ -989,7 +983,8 @@ function KanbanCard({
           {isAwaiting && onApproveRequest && governanceMode && (
             <button
               onClick={() => onApproveRequest(ticket)}
-              className="h-6 px-2 rounded bg-emerald-950/30 border border-emerald-500/20 hover:bg-emerald-950 text-emerald-400 text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5 transition-colors"
+              className="h-6 px-2 rounded bg-md-success-cont border border-md-success/20 hover:opacity-90 text-md-success text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5 transition-colors"
+              style={{ color: 'var(--md-success)' }}
             >
               Vote
             </button>
