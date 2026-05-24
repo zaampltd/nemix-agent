@@ -1,28 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, Fira_Code } from 'next/font/google';
+import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import "./globals.css";
 
-const inter = Inter({
+const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sans',
   display: 'swap',
 });
 
-const spaceGrotesk = Space_Grotesk({
+const mono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-space',
-  display: 'swap',
-});
-
-const firaCode = Fira_Code({
-  subsets: ['latin'],
-  variable: '--font-fira-code',
+  variable: '--font-mono',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Nemix Agent Orchestrator Swarm",
-  description: "Autonomous Paperclip-style multi-agent simulation console powered by Nemix LLM Gateway",
+  title: "Nemix Swarm Command Center",
+  description: "Autonomous multi-agent simulation console powered by Nemix LLM Gateway",
 };
 
 export default function RootLayout({
@@ -31,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${firaCode.variable} dark`}>
-      <body className="antialiased bg-[#111118] text-[#e5e1f0] min-h-screen">
+    <html lang="en" className={`${sans.variable} ${mono.variable} dark`}>
+      <body className="antialiased bg-[#030305] text-[#f8fafc] min-h-screen">
         {children}
       </body>
     </html>

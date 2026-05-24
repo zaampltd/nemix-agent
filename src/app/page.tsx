@@ -7,7 +7,7 @@ import {
   Eye, EyeOff, Save, Sparkles, ChevronRight, UserCheck, ThumbsUp, ThumbsDown,
   ShieldAlert, Clock, Compass, Rocket, Zap, RefreshCw, FileCode,
   Coins, Users, Kanban, Plus, PlayCircle, PauseCircle, Code, Copy, Check,
-  X, Server, CheckSquare, Layers, AlertCircle, Moon, Sun
+  X, Server, CheckSquare, Layers, AlertCircle, Moon, Sun, Monitor, ShieldCheck, Database
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -77,7 +77,7 @@ export default function Page() {
 
   const saveKey = () => {
     localStorage.setItem('nemix_agent_key', apiKey.trim());
-    addLocalLog('[System] Credentials key successfully saved in client-side secure vault.');
+    addLocalLog('[System] Gateway key credentials safely cached in secure vault.');
   };
 
   const addLocalLog = (message: string) => {
@@ -85,7 +85,7 @@ export default function Page() {
     setLogs(prev => [...prev, `[${timestamp}] ${message}`]);
   };
 
-  // Toggle Dark/Light Mode
+  // Toggle Theme
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     if (isDarkMode) {
@@ -100,7 +100,7 @@ export default function Page() {
     if (!mission.trim() || !goal.trim()) return;
 
     setIsInitializing(true);
-    addLocalLog('[System] Initiating secure handshake with Nemix API Gateway...');
+    addLocalLog('[System] Contacting Nemix API Gateway to broker agent roster...');
 
     try {
       const response = await fetch('/api/orchestrator/company', {
@@ -110,7 +110,7 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to bootstrap Paperclip workspace');
+        throw new Error('Failed to bootstrap swarm workspace');
       }
 
       const data = await response.json();
@@ -134,7 +134,7 @@ export default function Page() {
 
     } catch (e: any) {
       setIsInitializing(false);
-      addLocalLog(`[Error] Handshake failed: ${e?.message || 'Gateway Timeout'}`);
+      addLocalLog(`[Error] Swarm bootstrap failed: ${e?.message || 'Gateway Timeout'}`);
     }
   };
 
@@ -264,115 +264,157 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-md-surface text-md-on-surface font-sans flex flex-col overflow-hidden relative transition-colors duration-200">
+    <div className="min-h-screen bg-nemix-bg text-nemix-text font-sans flex flex-col overflow-hidden relative selection:bg-blue-500/10 selection:text-blue-500">
       
-      {/* ─── Modern Cyber Dot Grid Overlays & Radial Lights ─── */}
+      {/* ─── Premium Ambient Radial Glow backdrops ─── */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Glowing Material design circles */}
-        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full opacity-[0.05] dark:opacity-[0.15] pointer-events-none"
-          style={{ background: 'radial-gradient(circle, var(--md-primary) 0%, transparent 70%)', filter: 'blur(100px)' }} />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full opacity-[0.04] dark:opacity-[0.1] pointer-events-none"
-          style={{ background: 'radial-gradient(circle, var(--md-secondary) 0%, transparent 70%)', filter: 'blur(100px)' }} />
+        <motion.div 
+          animate={{
+            scale: [1, 1.1, 1],
+            x: [0, 15, 0],
+            y: [0, -15, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 18, ease: "easeInOut" }}
+          className="absolute top-[-20%] left-[-15%] w-[800px] h-[800px] rounded-full opacity-[0.08] dark:opacity-[0.25] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, var(--color-purple) 0%, transparent 65%)', filter: 'blur(150px)' }} 
+        />
+        <motion.div 
+          animate={{
+            scale: [1, 1.15, 1],
+            x: [0, -25, 0],
+            y: [0, 25, 0]
+          }}
+          transition={{ repeat: Infinity, duration: 22, ease: "easeInOut" }}
+          className="absolute bottom-[-20%] right-[-15%] w-[850px] h-[850px] rounded-full opacity-[0.05] dark:opacity-[0.16] pointer-events-none"
+          style={{ background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 65%)', filter: 'blur(160px)' }} 
+        />
         
-        {/* Stripe-style developer grid lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(156,163,175,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(156,163,175,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)]" />
+        {/* Stripe Tech Operations Grid Lines */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.012)_1px,transparent_1px)]" />
       </div>
 
-      {/* ─── Main Content Row ─── */}
+      {/* ─── Main Scaffold Frame ─── */}
       <div className="flex flex-1 overflow-hidden h-screen relative z-10">
 
         {/* ======================================================== */}
-        {/* LEFT SIDEBAR: Org Hierarchy (290px)                     */}
+        {/* LEFT SIDEBAR: Org Hierarchy (310px wide for layout flow) */}
         {/* ======================================================== */}
-        <aside className="w-[290px] bg-md-surface-1 border-r border-md-outline flex flex-col shrink-0 relative z-20 transition-colors">
-          {/* Top Brand Mission */}
-          <div className="p-5.5 border-b border-md-outline space-y-4">
+        <aside className="w-[310px] bg-nemix-card backdrop-blur-2xl border-r border-nemix-border flex flex-col shrink-0 relative z-20 shadow-[10px_0_40px_-20px_rgba(0,0,0,0.5)]">
+          
+          {/* Brand Top Block */}
+          <div className="p-6 border-b border-nemix-border space-y-4 bg-black/[0.08] dark:bg-white/[0.01]">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center shadow-md">
-                  <BrainCircuit className="w-4.5 h-4.5 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25 border border-white/10 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <BrainCircuit className="w-5 h-5 text-white animate-pulse" />
                 </div>
                 <div>
-                  <span className="brand-logotype-adaptive leading-none text-base">
+                  <span className="leading-none text-[15px] block font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent dark:from-white dark:to-slate-300">
                     NEMIX SWARM
                   </span>
-                  <span className="text-[7.5px] font-black uppercase text-md-primary tracking-widest block leading-none mt-1">META-ORCHESTRATOR</span>
+                  <span className="text-[7.5px] font-black uppercase text-blue-400 tracking-widest block leading-none mt-1">META-ORCHESTRATOR</span>
                 </div>
               </div>
               
               {/* Theme Toggler */}
               <button
+                type="button"
                 onClick={toggleTheme}
-                className="w-8 h-8 rounded-full border border-md-outline hover:bg-md-surface-2 flex items-center justify-center text-md-on-surface-var hover:text-md-on-surface transition-all"
+                className="w-8.5 h-8.5 rounded-xl border border-nemix-border hover:border-nemix-borderHover hover:bg-nemix-surface flex items-center justify-center text-nemix-secondary hover:text-nemix-text transition-all shadow-sm bg-black/10 dark:bg-white/[0.02]"
               >
-                {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {isDarkMode ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
               </button>
             </div>
 
             {initialized && (
-              <div className="bg-md-surface-2 border border-md-outline-var p-4 rounded-2xl space-y-2">
-                <span className="text-[8px] font-black uppercase text-md-primary tracking-widest block">CORPORATE MISSION</span>
-                <p className="text-[10px] leading-relaxed text-md-on-surface-var font-semibold">
+              <div className="bg-black/30 dark:bg-black/50 border border-nemix-border p-4 rounded-xl shadow-inner space-y-2 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-blue-500/5 blur-xl pointer-events-none" />
+                <span className="text-[7.5px] font-black uppercase text-blue-400 tracking-widest block leading-none">CORPORATE MISSION</span>
+                <p className="text-[10px] leading-relaxed text-nemix-secondary font-medium select-text">
                   {mission}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Org Chart Tree Navigation */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
-            <div className="flex items-center justify-between px-1 mb-2">
-              <span className="text-[9px] font-black uppercase text-md-on-surface-var tracking-wider flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" /> Active Roster Hierarchy
+          {/* Org Chart Node Tree Area */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar relative">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[8px] font-black uppercase text-nemix-secondary tracking-widest flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 text-blue-500 opacity-80" /> Active Roster Hierarchy
               </span>
             </div>
 
             {agents.length === 0 ? (
-              <div className="text-center py-28 text-md-on-surface-var text-[10px] leading-relaxed border border-dashed border-md-outline rounded-2xl bg-md-surface-2/40 px-4">
-                Hive is currently offline.<br />Initialize swarm company on onboarding dashboard.
+              <div className="text-center py-24 text-nemix-secondary text-[10.5px] leading-relaxed border border-dashed border-nemix-border rounded-xl bg-black/10 dark:bg-black/20 px-5 space-y-3">
+                <div className="w-10 h-10 rounded-full bg-nemix-surface border border-nemix-border flex items-center justify-center mx-auto text-nemix-muted">
+                  <Monitor className="w-4.5 h-4.5" />
+                </div>
+                <p className="font-semibold text-nemix-secondary">
+                  Swarm Workspace Offline.<br />Initialize the Swarm console to begin.
+                </p>
               </div>
             ) : (
-              <div className="space-y-4 pl-1">
+              <div className="space-y-5 pl-1 relative">
                 
                 {/* CEO Node */}
                 {agents.filter(a => a.id === 'agent_ceo').map(ceo => (
                   <div key={ceo.id} className="relative">
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-md-surface-2 border border-md-outline shadow-md relative z-10 transition-all hover:border-md-outline-focus">
-                      <div className="w-8.5 h-8.5 rounded-lg bg-md-surface border border-md-outline flex items-center justify-center text-lg shrink-0 shadow-inner">
+                    <div className="cyber-card flex items-center gap-3.5 p-3.5 relative z-10 hover:-translate-y-0.5 hover:border-indigo-500/20 shadow-md">
+                      {/* Gradient glow edge highlight */}
+                      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+                      
+                      <div className="w-9 h-9 rounded-lg bg-black/40 border border-nemix-border flex items-center justify-center text-lg shrink-0 shadow-inner">
                         {ceo.avatar}
                       </div>
+                      
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-[10.5px] font-black uppercase text-md-on-surface truncate">{ceo.name}</h4>
-                        <p className="text-[8px] font-bold text-md-primary uppercase tracking-widest mt-0.5">{ceo.role}</p>
+                        <h4 className="text-[11px] font-extrabold uppercase tracking-wide text-nemix-text truncate font-sans">{ceo.name}</h4>
+                        <p className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">{ceo.role}</p>
                       </div>
-                      <span className={`w-2.5 h-2.5 rounded-full relative shrink-0 border border-md-surface ${
-                        ceo.status === 'working' ? 'bg-md-success animate-pulse shadow-glow-success' : 'bg-md-secondary'
-                      }`} />
+
+                      {/* CEO active pulsing status dot */}
+                      <span className="relative flex h-2.5 w-2.5 shrink-0">
+                        {ceo.status === 'working' && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nemix-success opacity-75"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 border border-nemix-card ${
+                          ceo.status === 'working' ? 'bg-nemix-success shadow-glow-success' : 'bg-nemix-muted'
+                        }`} />
+                      </span>
                     </div>
+                    
                     {/* Visual Connection line to worker agents */}
-                    <div className="absolute left-7.5 top-12 bottom-[-24px] w-[1px] bg-md-outline pointer-events-none" />
+                    <div className="absolute left-8 top-13 bottom-[-24px] w-[1px] border-l border-dashed border-nemix-border pointer-events-none opacity-80" />
                   </div>
                 ))}
 
                 {/* Worker Nodes */}
-                <div className="space-y-3 pl-7.5 pt-1.5">
+                <div className="space-y-3.5 pl-8 pt-1.5 relative">
                   {agents.filter(a => a.id !== 'agent_ceo').map(worker => (
-                    <div key={worker.id} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-md-surface-2/50 border border-md-outline-var relative hover:border-md-outline transition-all group shadow-sm">
+                    <div key={worker.id} className="flex items-center gap-3 p-3 cyber-card bg-nemix-surface/30 relative hover:-translate-y-0.5 hover:border-blue-500/20 transition-all group shadow-sm">
                       {/* Connection horizontal line */}
-                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 h-[1px] bg-md-outline pointer-events-none" />
+                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 border-t border-dashed border-nemix-border pointer-events-none opacity-85" />
                       
-                      <div className="w-7.5 h-7.5 rounded-lg bg-md-surface border border-md-outline flex items-center justify-center text-sm shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-black/30 border border-nemix-border flex items-center justify-center text-sm shrink-0 shadow-inner">
                         {worker.avatar}
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <h5 className="text-[9.5px] font-bold uppercase text-md-on-surface truncate">{worker.name}</h5>
-                        <p className="text-[8px] font-semibold text-md-on-surface-var truncate mt-0.5 uppercase tracking-wide">{worker.role.split(' ')[0]}</p>
+                        <h5 className="text-[10px] font-extrabold uppercase text-nemix-text truncate tracking-wide">{worker.name}</h5>
+                        <p className="text-[8px] font-bold text-nemix-secondary truncate mt-0.5 uppercase tracking-wider">{worker.role}</p>
                       </div>
-                      
-                      <span className={`w-2 h-2 rounded-full shrink-0 border border-md-surface ${
-                        worker.status === 'working' ? 'bg-md-success animate-pulse shadow-glow-success' : 'bg-md-secondary'
-                      }`} />
+
+                      {/* Worker active pulsing status dot */}
+                      <span className="relative flex h-2 w-2 shrink-0">
+                        {worker.status === 'working' && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nemix-success opacity-75"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2 w-2 border border-nemix-card ${
+                          worker.status === 'working' ? 'bg-nemix-success shadow-glow-success' : 'bg-nemix-muted'
+                        }`} />
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -381,15 +423,15 @@ export default function Page() {
             )}
           </div>
 
-          {/* Hire Button */}
+          {/* Sidebar Action Button */}
           {initialized && (
-            <div className="p-5 border-t border-md-outline bg-md-surface-1 shrink-0">
+            <div className="p-6 border-t border-nemix-border bg-black/[0.05] shrink-0">
               <button
                 type="button"
                 onClick={() => setIsHireModalOpen(true)}
-                className="w-full h-11 md-outlined-btn justify-center font-bold text-xs"
+                className="w-full h-11 btn-secondary justify-center text-xs font-bold shadow-md shadow-black/10"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-blue-500 animate-pulse" />
                 Hire New Agent
               </button>
             </div>
@@ -397,94 +439,101 @@ export default function Page() {
         </aside>
 
         {/* ======================================================== */}
-        {/* MAIN WORKSPACE: Upper Headers & Ticket Board            */}
+        {/* MAIN WORKSPACE: Operations Cockpit & Kanban Columns      */}
         {/* ======================================================== */}
         <main className="flex-1 flex flex-col overflow-hidden relative z-10">
           
-          {/* Header Workspace Details */}
-          <header className="px-6 py-4.5 border-b border-md-outline flex items-center justify-between shrink-0 bg-md-surface/80 backdrop-blur-3xl transition-colors">
+          {/* Header Dashboard Metrics */}
+          <header className="px-8 py-5 border-b border-nemix-border flex items-center justify-between shrink-0 bg-nemix-bg/85 backdrop-blur-2xl transition-all shadow-[0_4px_30px_-15px_rgba(0,0,0,0.6)]">
             
-            {/* Left: Active Goal */}
-            <div className="flex-1 max-w-lg min-w-0 pr-4">
-              <span className="text-[8px] font-black uppercase text-md-primary tracking-widest block">ACTIVE SWARM GOAL DIRECTIVE</span>
-              <h2 className="text-xs font-bold text-md-on-surface truncate mt-0.5 uppercase tracking-wide">
-                {initialized ? goal : "Awaiting Swarm Setup Launchpad..."}
+            {/* Active swarm goal */}
+            <div className="flex-1 max-w-lg min-w-0 pr-6">
+              <span className="text-[8px] font-black uppercase text-blue-500 tracking-widest block leading-none">ACTIVE DIRECTIVE GOAL</span>
+              <h2 className="text-[12px] font-extrabold text-nemix-text truncate mt-1.5 tracking-wider uppercase font-mono bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                {initialized ? goal : "CONSOLE STATUS: OFFLINE"}
               </h2>
             </div>
 
-            {/* Right Controls */}
+            {/* Top metrics dashboard controls */}
             {initialized && (
               <div className="flex items-center gap-4 shrink-0">
-                {/* Budget Coins */}
-                <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-md-surface-1 border border-md-outline shadow-sm">
-                  <Coins className="w-4.5 h-4.5 text-md-primary" />
+                
+                {/* Budget Used Metric widget */}
+                <div className="flex items-center gap-3 px-4 py-2 cyber-card bg-nemix-surface/30 hover:border-blue-500/10 shadow-sm shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
+                    <Coins className="w-4 h-4 text-blue-500 animate-pulse" />
+                  </div>
                   <div>
-                    <span className="text-[7px] font-black uppercase text-md-on-surface-var tracking-widest block leading-none">BUDGET USED</span>
-                    <span className="text-[11.5px] font-extrabold text-md-on-surface font-mono leading-none mt-1 block">
-                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-md-on-surface-var font-black">NMX</span>
+                    <span className="text-[7px] font-black uppercase text-nemix-secondary tracking-widest block leading-none">BUDGET USED</span>
+                    <span className="text-[11px] font-black text-nemix-text font-mono leading-none mt-1 block">
+                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-blue-500 font-extrabold">NMX</span>
                     </span>
                   </div>
                 </div>
 
-                {/* God Mode Governance Mode Toggle */}
-                <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-md-surface-1 border border-md-outline shadow-sm">
+                {/* God-Mode governance state switch */}
+                <div className="flex items-center gap-3.5 px-4 py-2 cyber-card bg-nemix-surface/30 hover:border-purple-500/10 shadow-sm shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-purple-600/10 border border-purple-500/20 flex items-center justify-center">
+                    <ShieldCheck className="w-4.5 h-4.5 text-purple-400" />
+                  </div>
                   <div>
-                    <span className="text-[7px] font-black uppercase text-md-on-surface-var tracking-widest block leading-none">GOVERNANCE MODE</span>
-                    <span className="text-[10px] font-extrabold text-md-on-surface leading-none mt-1 block">
-                      {governanceMode ? "God Mode On" : "Autonomous"}
+                    <span className="text-[7px] font-black uppercase text-nemix-secondary tracking-widest block leading-none">GOVERNANCE MODE</span>
+                    <span className="text-[10px] font-black text-nemix-text uppercase tracking-wider leading-none mt-1 block">
+                      {governanceMode ? "God Mode On" : "Fully Autonomous"}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
                       setGovernanceMode(!governanceMode);
-                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Human Board approvals required)' : 'OFF (Autonomous loops)'}`);
+                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Board approvals required)' : 'OFF (Autonomous loops)'}`);
                     }}
-                    className={`w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none shrink-0 ${
-                      governanceMode ? 'bg-md-primary' : 'bg-md-outline'
+                    className={`w-9 h-5.5 rounded-full p-0.5 transition-colors focus:outline-none shrink-0 ${
+                      governanceMode ? 'bg-gradient-to-r from-blue-500 to-indigo-500 shadow-glow-primary' : 'bg-zinc-800'
                     }`}
                   >
-                    <div className={`w-4 h-4 rounded-full bg-md-surface transition-transform duration-200 ${
-                      governanceMode ? 'translate-x-4' : 'translate-x-0'
+                    <div className={`w-4.5 h-4.5 rounded-full bg-white transition-transform duration-200 shadow-md ${
+                      governanceMode ? 'translate-x-3.5' : 'translate-x-0'
                     }`} />
                   </button>
                 </div>
 
-                {/* Heartbeat Tickers */}
+                {/* Heartbeats ticks buttons */}
                 <div className="flex items-center gap-2">
-                  {/* Auto Ticks Loop */}
+                  
+                  {/* Loop play/pause auto ticks trigger */}
                   <button
                     type="button"
                     onClick={() => {
                       setIsAutoTicking(!isAutoTicking);
                       addLocalLog(`[System] Auto-heartbeat loop execution ${!isAutoTicking ? 'STARTED' : 'PAUSED'}.`);
                     }}
-                    className={`h-10 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all text-white shadow-lg ${
+                    className={`h-11 px-4.5 rounded-xl font-extrabold text-xs flex items-center gap-2 transition-all text-white shadow-lg ${
                       isAutoTicking 
-                        ? 'bg-md-secondary hover:opacity-95' 
-                        : 'bg-md-primary hover:opacity-95 shadow-glow-primary'
+                        ? 'bg-zinc-800 hover:bg-zinc-750 border border-zinc-700' 
+                        : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:brightness-110 shadow-glow-primary'
                     }`}
                   >
                     {isAutoTicking ? (
                       <>
-                        <PauseCircle className="w-4 h-4" /> Pause Loop
+                        <PauseCircle className="w-4.5 h-4.5" /> Pause Loop
                       </>
                     ) : (
                       <>
-                        <PlayCircle className="w-4 h-4" /> Auto Run Loop
+                        <PlayCircle className="w-4.5 h-4.5" /> Auto Run Loop
                       </>
                     )}
                   </button>
 
-                  {/* Manual Single Heartbeat Tick */}
+                  {/* Manual single heartbeat tick trigger */}
                   <button
                     type="button"
                     onClick={triggerHeartbeat}
                     disabled={isHeartbeating || isAutoTicking}
-                    className="h-10 px-4 rounded-xl bg-md-surface-2 border border-md-outline hover:bg-md-surface-3 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-md-on-surface disabled:opacity-40"
+                    className="h-11 px-4 rounded-xl bg-nemix-surface border border-nemix-border hover:border-nemix-borderHover hover:bg-nemix-surface-hover transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-nemix-text disabled:opacity-40"
                   >
-                    <Zap className={`w-3.5 h-3.5 text-md-primary ${isHeartbeating ? 'animate-bounce' : ''}`} />
-                    Heartbeat Tick
+                    <Zap className={`w-4 h-4 text-blue-500 ${isHeartbeating ? 'animate-bounce' : ''}`} />
+                    Tick
                   </button>
                 </div>
 
@@ -493,145 +542,160 @@ export default function Page() {
 
           </header>
 
-          {/* Core Kanban Board Area */}
-          <div className="flex-1 overflow-hidden p-6 flex flex-col relative bg-md-surface transition-colors">
+          {/* Kanban columns content area */}
+          <div className="flex-1 overflow-hidden p-8 flex flex-col relative transition-all">
             
             {!initialized ? (
-              // Stunning Onboarding Launchpad Setup Portal
-              <div className="flex-1 flex items-center justify-center max-w-5xl mx-auto w-full">
-                <div className="md-card rounded-3xl overflow-hidden w-full grid grid-cols-1 md:grid-cols-12 max-h-[85vh] shadow-2xl">
-                  
-                  {/* Left Column: Brief info (5 spans) */}
-                  <div className="md:col-span-5 bg-md-surface-2 p-8.5 flex flex-col justify-between border-r border-md-outline relative">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(91,91,214,0.06),transparent_65%)]" />
+              // Breathtaking glowing console dashboard onboarding layout
+              <div className="flex-1 flex items-center justify-center max-w-4xl mx-auto w-full">
+                <div className="cyber-card glowing-border p-[1px] w-full shadow-premium">
+                  <div className="bg-nemix-card rounded-[22px] overflow-hidden w-full grid grid-cols-1 md:grid-cols-12 max-h-[80vh]">
                     
-                    <div className="space-y-6.5 relative z-10">
-                      <div className="w-12 h-12 rounded-xl bg-md-primary flex items-center justify-center shadow-lg shadow-glow-primary">
-                        <BrainCircuit className="w-6 h-6 text-md-on-primary animate-pulse" />
+                    {/* Left details grid block (5 columns) */}
+                    <div className="md:col-span-5 bg-gradient-to-b from-[#0a0a10]/60 to-black/80 p-8 flex flex-col justify-between border-r border-nemix-border relative">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.08),transparent_65%)]" />
+                      
+                      <div className="space-y-6.5 relative z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 border border-white/10 relative overflow-hidden">
+                          <BrainCircuit className="w-6 h-6 text-white" />
+                        </div>
+                        
+                        <div className="space-y-3.5">
+                          <h3 className="text-xl font-extrabold uppercase tracking-wider text-nemix-text font-sans">
+                            Nemix Swarm Portal
+                          </h3>
+                          <p className="text-[11px] leading-relaxed text-nemix-secondary font-medium font-sans">
+                            Deploy a recursive client-side swarm orchestration. The Meta-CEO breaks goals down into task backlogs, coordinates developers and auditors, and outputs compilation assets strictly routed through the secure Nemix API Gateway.
+                          </p>
+                        </div>
+
+                        {/* Visual Roster pipeline progress points */}
+                        <div className="space-y-4 pt-3.5">
+                          {[
+                            "CEO breaks goal into ticket backlogs",
+                            "Specialist developers code assets",
+                            "QA auditors validate compile parameters",
+                            "God-Mode human board review approval"
+                          ].map((step, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                              <span className="w-5.5 h-5.5 rounded-lg bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-[10px] font-black text-blue-400 font-mono shadow-inner shrink-0">
+                                {idx + 1}
+                              </span>
+                              <span className="text-[9.5px] font-bold text-nemix-secondary uppercase tracking-wider">{step}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="text-[8px] text-blue-500 font-black pt-6 border-t border-nemix-border uppercase tracking-widest relative z-10 flex items-center gap-2">
+                        <Database className="w-3.5 h-3.5 text-blue-500" /> CLIENT-SIDE VAULT DEPLOYMENT SECURED
+                      </div>
+                    </div>
+
+                    {/* Right onboard form entries (7 columns) */}
+                    <div className="md:col-span-7 p-9 bg-black/40 backdrop-blur-xl flex flex-col justify-center space-y-6">
+                      
+                      <div className="space-y-2">
+                        <label className="text-[8.5px] font-black uppercase tracking-widest text-blue-500 block mb-1">Company Mission Statement</label>
+                        <div className="relative">
+                          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-nemix-muted">
+                            <Compass className="w-4.5 h-4.5" />
+                          </div>
+                          <input
+                            type="text"
+                            value={mission}
+                            onChange={e => setMission(e.target.value)}
+                            placeholder="e.g. Build an autonomous multi-agent edge gateway router."
+                            className="w-full h-11.5 pl-11 pr-4 premium-input font-medium focus:border-blue-500/40"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[8.5px] font-black uppercase tracking-widest text-blue-500 block mb-1">Swarm Meta Directive / Goal</label>
+                        <div className="relative">
+                          <div className="absolute left-3.5 top-4.5 text-nemix-muted">
+                            <Rocket className="w-4.5 h-4.5" />
+                          </div>
+                          <textarea
+                            value={goal}
+                            onChange={e => setGoal(e.target.value)}
+                            placeholder="e.g. Decompose and execute Next.js edge failover schemas."
+                            className="w-full h-22 pl-11 pr-4 py-3.5 premium-input resize-none font-medium leading-relaxed focus:border-blue-500/40"
+                          />
+                        </div>
                       </div>
                       
-                      <div className="space-y-3.5">
-                        <h3 className="text-xl font-extrabold uppercase tracking-wider text-md-on-surface font-outfit">
-                          Nemix Swarm Portal
-                        </h3>
-                        <p className="text-[11px] leading-relaxed text-md-on-surface-var font-semibold font-sans">
-                          Bootstrap an autonomous corporate model using client-side recursive pipelines. The CEO plans the backlog, coordinates workers, and routes code changes using the secure Nemix Gateway API.
-                        </p>
-                      </div>
-
-                      {/* Roster Pipeline Steps */}
-                      <div className="space-y-4 pt-3.5">
-                        {[
-                          "CEO breaks master goal into Backlog",
-                          "Dispatches Developers & QA Auditors",
-                          "God Mode Human Governance review",
-                          "Fast-forward compilation checks & deploy"
-                        ].map((step, idx) => (
-                          <div key={idx} className="flex items-center gap-3">
-                            <span className="w-5.5 h-5.5 rounded-full bg-md-primary-container border border-md-outline flex items-center justify-center text-[10px] font-black text-md-on-primary-cont">
-                              {idx + 1}
-                            </span>
-                            <span className="text-[10px] font-extrabold text-md-on-surface-var uppercase tracking-wider">{step}</span>
+                      <div className="space-y-2">
+                        <label className="text-[8.5px] font-black uppercase tracking-widest text-blue-500 block mb-1">Secure Vault Gateway Key</label>
+                        <div className="relative">
+                          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-nemix-muted">
+                            <Key className="w-4.5 h-4.5" />
                           </div>
-                        ))}
+                          <input
+                            type={showKey ? 'text' : 'password'}
+                            placeholder="nex_sk_ep_xxxxxxxxxxxx"
+                            value={apiKey}
+                            onChange={e => setApiKey(e.target.value)}
+                            className="w-full h-11.5 pl-11 pr-24 premium-input font-semibold focus:border-blue-500/40"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowKey(!showKey)}
+                            className="absolute right-14 top-1/2 -translate-y-1/2 text-nemix-secondary hover:text-nemix-text transition-colors opacity-70"
+                          >
+                            {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={saveKey}
+                            disabled={!apiKey.trim()}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40 shadow-md"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="text-[9px] text-md-on-surface-var pt-6 border-t border-md-outline uppercase tracking-widest font-black relative z-10">
-                      CLIENT-SIDE SECURED HANDSHAKE GATEWAY
-                    </div>
-                  </div>
+                      <button
+                        type="button"
+                        onClick={handleStartCompany}
+                        disabled={isInitializing || !mission.trim() || !goal.trim()}
+                        className="w-full h-12.5 btn-primary justify-center uppercase tracking-widest text-xs font-black shadow-lg shadow-blue-600/10"
+                      >
+                        {isInitializing ? (
+                          <>
+                            <RefreshCw className="w-4.5 h-4.5 animate-spin text-white" />
+                            Recruiting Swarm...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4.5 h-4.5 fill-current text-white" />
+                            Initialize Swarm Company
+                          </>
+                        )}
+                      </button>
 
-                  {/* Right Column: Onboarding Fields Form (7 spans) */}
-                  <div className="md:col-span-7 p-9 bg-md-surface-1 flex flex-col justify-center space-y-5.5">
-                    
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-md-primary block mb-1">Company Mission Statement</label>
-                      <input
-                        type="text"
-                        value={mission}
-                        onChange={e => setMission(e.target.value)}
-                        placeholder="e.g. Build a high-performance Edge Router."
-                        className="w-full h-11 px-4 rounded-xl bg-md-surface-2 border border-md-outline text-xs text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
-                      />
                     </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-md-primary block mb-1">Master Swarm Directive / Goal</label>
-                      <textarea
-                        value={goal}
-                        onChange={e => setGoal(e.target.value)}
-                        placeholder="e.g. Code failover fallback gateway parameters and execute security audits."
-                        className="w-full h-22 p-3.5 rounded-xl bg-md-surface-2 border border-md-outline text-xs text-md-on-surface resize-none focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none leading-relaxed transition-all font-semibold"
-                      />
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-md-primary block mb-1">Secure Vault Gateway Key</label>
-                      <div className="relative">
-                        <input
-                          type={showKey ? 'text' : 'password'}
-                          placeholder="nex_sk_ep_xxxxxxxxxxxx"
-                          value={apiKey}
-                          onChange={e => setApiKey(e.target.value)}
-                          className="w-full h-11 pl-4 pr-20 text-xs font-mono rounded-xl bg-md-surface-2 border border-md-outline text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowKey(!showKey)}
-                          className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-                        >
-                          {showKey ? <EyeOff className="w-3.5 h-3.5 text-md-on-surface-var" /> : <Eye className="w-3.5 h-3.5 text-md-on-surface-var" />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={saveKey}
-                          disabled={!apiKey.trim()}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-md-primary hover:opacity-90 text-md-on-primary transition-colors disabled:opacity-40 shadow-sm"
-                        >
-                          <Save className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleStartCompany}
-                      disabled={isInitializing || !mission.trim() || !goal.trim()}
-                      className="w-full h-12 md-filled-btn justify-center uppercase tracking-wider font-outfit"
-                    >
-                      {isInitializing ? (
-                        <>
-                          <RefreshCw className="w-4.5 h-4.5 animate-spin" />
-                          Recruiting Swarm...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4.5 h-4.5 fill-current text-md-on-primary" />
-                          Initialize Swarm Company
-                        </>
-                      )}
-                    </button>
 
                   </div>
-
                 </div>
               </div>
             ) : (
-              // Kanban Grid Layout (4 columns)
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-5 overflow-hidden">
+              // Cyber Kanban Board Grid layout (4 columns)
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 overflow-hidden">
                 
                 {/* ─── COLUMN 1: TO DO ─── */}
-                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
-                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-md-on-surface-var tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-md-secondary" /> To Do
+                <div className="flex flex-col bg-nemix-card/20 border border-nemix-border rounded-2xl p-4.5 overflow-hidden shadow-sm backdrop-blur-2xl">
+                  <div className="flex items-center justify-between border-b border-nemix-border pb-3 mb-4 shrink-0">
+                    <span className="text-[10.5px] font-black uppercase text-nemix-secondary tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-nemix-secondary" /> To Do
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-md-on-surface-var bg-md-surface-2 border border-md-outline px-1.5 py-0.5 rounded">
+                    <span className="text-[9.5px] font-mono font-bold text-nemix-secondary bg-nemix-surface/80 border border-nemix-border px-2 py-0.5 rounded-lg shadow-inner">
                       {tickets.filter(t => t.status === 'todo').length}
                     </span>
                   </div>
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-1.5 custom-scrollbar">
                     {tickets.filter(t => t.status === 'todo').map(ticket => (
                       <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
                     ))}
@@ -639,16 +703,20 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 2: IN PROGRESS ─── */}
-                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
-                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-md-primary tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-md-primary animate-pulse shadow-glow-primary" /> In Progress
+                <div className="flex flex-col bg-nemix-card/20 border border-nemix-border rounded-2xl p-4.5 overflow-hidden shadow-sm backdrop-blur-2xl">
+                  <div className="flex items-center justify-between border-b border-nemix-border pb-3 mb-4 shrink-0">
+                    <span className="text-[10.5px] font-black uppercase text-blue-500 tracking-widest flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500 shadow-glow-primary"></span>
+                      </span>
+                      In Progress
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-md-primary bg-md-primary-container px-1.5 py-0.5 rounded border border-md-outline">
+                    <span className="text-[9.5px] font-mono font-bold text-blue-400 bg-blue-600/10 border border-blue-500/20 px-2 py-0.5 rounded-lg shadow-inner">
                       {tickets.filter(t => t.status === 'inprogress').length}
                     </span>
                   </div>
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-1.5 custom-scrollbar">
                     {tickets.filter(t => t.status === 'inprogress').map(ticket => (
                       <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
                     ))}
@@ -656,16 +724,20 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 3: AWAITING APPROVAL ─── */}
-                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
-                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-md-warning tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-md-warning animate-ping" /> Governance Review
+                <div className="flex flex-col bg-nemix-card/20 border border-nemix-border rounded-2xl p-4.5 overflow-hidden shadow-sm backdrop-blur-2xl">
+                  <div className="flex items-center justify-between border-b border-nemix-border pb-3 mb-4 shrink-0">
+                    <span className="text-[10.5px] font-black uppercase text-nemix-warning tracking-widest flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nemix-warning opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-nemix-warning shadow-glow-warning"></span>
+                      </span>
+                      Governance Review
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-md-warning bg-md-warning-cont px-1.5 py-0.5 rounded border border-md-outline">
+                    <span className="text-[9.5px] font-mono font-bold text-nemix-warning bg-nemix-warning/10 border border-nemix-warning/20 px-2 py-0.5 rounded-lg shadow-inner">
                       {tickets.filter(t => t.status === 'awaiting').length}
                     </span>
                   </div>
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-1.5 custom-scrollbar">
                     {tickets.filter(t => t.status === 'awaiting').map(ticket => (
                       <KanbanCard 
                         key={ticket.id} 
@@ -680,16 +752,20 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 4: DONE ─── */}
-                <div className="flex flex-col bg-md-surface-1 border border-md-outline rounded-2xl p-4 overflow-hidden shadow-sm">
-                  <div className="flex items-center justify-between border-b border-md-outline pb-2 mb-3 shrink-0">
-                    <span className="text-[10px] font-black uppercase text-md-success tracking-wider flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-md-success" /> Done
+                <div className="flex flex-col bg-nemix-card/20 border border-nemix-border rounded-2xl p-4.5 overflow-hidden shadow-sm backdrop-blur-2xl">
+                  <div className="flex items-center justify-between border-b border-nemix-border pb-3 mb-4 shrink-0">
+                    <span className="text-[10.5px] font-black uppercase text-nemix-success tracking-widest flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nemix-success opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-nemix-success shadow-glow-success"></span>
+                      </span>
+                      Done
                     </span>
-                    <span className="text-[9px] font-mono font-bold text-md-success bg-md-success-cont px-1.5 py-0.5 rounded border border-md-outline">
+                    <span className="text-[9.5px] font-mono font-bold text-nemix-success bg-nemix-success/10 border border-nemix-success/20 px-2 py-0.5 rounded-lg shadow-inner">
                       {tickets.filter(t => t.status === 'done').length}
                     </span>
                   </div>
-                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-1.5 custom-scrollbar">
                     {tickets.filter(t => t.status === 'done').map(ticket => (
                       <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
                     ))}
@@ -701,19 +777,19 @@ export default function Page() {
 
           </div>
 
-          {/* Bottom Execution Shell Drawer */}
+          {/* Bottom Execution shell log panel */}
           {initialized && (
-            <div className="h-[200px] bg-md-surface-2 border-t border-md-outline flex flex-col shrink-0 relative z-10 p-5 transition-colors">
-              <div className="flex items-center justify-between border-b border-md-outline pb-2.5 mb-2.5 shrink-0">
-                <span className="text-[9px] font-black uppercase text-md-on-surface-var tracking-widest flex items-center gap-1.5 font-sans">
-                  <Terminal className="w-3.5 h-3.5 text-md-primary" /> Live Swarm Execution Log
+            <div className="h-[230px] bg-nemix-card/90 border-t border-nemix-border flex flex-col shrink-0 relative z-10 p-6 backdrop-blur-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.6)]">
+              <div className="flex items-center justify-between border-b border-nemix-border pb-3 mb-3.5 shrink-0">
+                <span className="text-[9px] font-black uppercase text-nemix-secondary tracking-widest flex items-center gap-2 font-mono">
+                  <Terminal className="w-4.5 h-4.5 text-blue-500 animate-pulse" /> Live Swarm Console Execution logs
                 </span>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-md-success animate-ping" />
-                  <span className="text-[8px] font-mono text-md-success font-extrabold tracking-widest uppercase">STREAM ACTIVE</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-nemix-success animate-ping" />
+                  <span className="text-[8px] font-mono text-nemix-success font-black tracking-widest uppercase">STREAM ACTIVE</span>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9.5px] text-md-on-surface-var custom-scrollbar select-text leading-relaxed">
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-2 font-mono text-[10px] text-nemix-secondary custom-scrollbar select-text leading-relaxed bg-black/40 border border-nemix-border rounded-xl p-4.5 shadow-inner">
                 {logs.map((log, idx) => {
                   const isError = log.includes('[Error]');
                   const isCEO = log.includes('[CEO]');
@@ -722,19 +798,20 @@ export default function Page() {
                   return (
                     <div 
                       key={idx}
-                      className={`p-2.5 rounded-xl border ${
+                      className={`p-3 rounded-lg border flex items-start gap-2.5 transition-all hover:bg-white/[0.01] ${
                         isError 
-                          ? 'bg-md-error-cont border-md-error/20 text-md-error' 
+                          ? 'bg-red-500/10 border-red-500/20 text-red-400' 
                           : isCEO 
-                          ? 'bg-md-primary-container border-md-primary/20 text-md-primary'
+                          ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 font-extrabold'
                           : isSystem 
-                          ? 'bg-md-surface-3/50 border-md-outline-var text-md-on-surface-var'
+                          ? 'bg-zinc-500/5 border-nemix-border text-slate-400'
                           : isBroker
-                          ? 'bg-md-success-cont border-md-success/20 text-md-success'
-                          : 'bg-md-surface border-transparent text-md-on-surface-var'
+                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                          : 'bg-nemix-surface/30 border-transparent text-nemix-secondary'
                       }`}
                     >
-                      {log}
+                      <span className="opacity-40 select-none text-[8.5px] font-semibold shrink-0 mt-0.5">{(idx+1).toString().padStart(3, '0')}</span>
+                      <span className="flex-1 break-all">{log}</span>
                     </div>
                   );
                 })}
@@ -748,68 +825,69 @@ export default function Page() {
       </div>
 
       {/* ======================================================== */}
-      {/* GOVERNANCE MODAL OVERLAY: User Board decisions           */}
+      {/* GOVERNANCE MODAL OVERLAY (God Mode Human Votes)          */}
       {/* ======================================================== */}
       <AnimatePresence>
         {activeApprovalTicket && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-md-scrim backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-md-surface border border-md-outline rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden text-left"
+              className="bg-nemix-card border border-nemix-border rounded-3xl max-w-xl w-full p-7 space-y-6 shadow-2xl relative overflow-hidden text-left"
             >
-              {/* Alert background glow */}
-              <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-md-primary/5 blur-2xl pointer-events-none" />
+              {/* Vibrant radial decoration */}
+              <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-purple-500/5 blur-3xl pointer-events-none" />
 
-              <div className="flex items-center justify-between border-b border-md-outline pb-3">
-                <div className="flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-md-warning animate-pulse" />
-                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-md-warning font-outfit">
-                    GOVERNANCE VOTE REQUIRED
+              <div className="flex items-center justify-between border-b border-nemix-border pb-4">
+                <div className="flex items-center gap-2.5">
+                  <ShieldAlert className="w-5.5 h-5.5 text-yellow-500 animate-pulse" />
+                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-yellow-500 font-sans">
+                    GOVERNANCE BOARD DECISION REQUIRED
                   </h3>
                 </div>
-                <span className="text-[8px] font-black uppercase bg-md-primary-container text-md-on-primary-cont px-2 py-0.5 rounded border border-md-outline">
+                <span className="text-[8px] font-black uppercase bg-purple-600/10 text-purple-400 px-2 py-0.5 rounded-lg border border-purple-500/25">
                   GOD MODE HIERARCHY
                 </span>
               </div>
 
-              <div className="space-y-1">
-                <span className="text-[8.5px] text-md-on-surface-var uppercase tracking-widest block font-bold">Target backlog Ticket</span>
-                <h4 className="text-xs font-black text-md-on-surface font-outfit uppercase leading-tight">{activeApprovalTicket.title}</h4>
+              <div className="space-y-1.5">
+                <span className="text-[8.5px] text-nemix-secondary uppercase tracking-widest block font-black">Target backlog Ticket</span>
+                <h4 className="text-sm font-black text-nemix-text font-sans uppercase leading-tight select-text">{activeApprovalTicket.title}</h4>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[8.5px] text-md-on-surface-var uppercase tracking-widest block font-bold">Agent Synthesis Thought Reasoning</span>
-                <p className="text-[10px] leading-relaxed text-md-on-surface bg-md-surface-2 border border-md-outline p-3.5 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar font-sans font-medium">
+                <span className="text-[8.5px] text-nemix-secondary uppercase tracking-widest block font-black">Agent Synthesis Reasonings</span>
+                <p className="text-[10px] leading-relaxed text-nemix-text bg-black/40 border border-nemix-border p-4 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar font-sans font-medium select-text shadow-inner">
                   {activeApprovalTicket.thought}
                 </p>
               </div>
 
               {activeApprovalTicket.output && (
-                <div className="space-y-1.5">
-                  <span className="text-[8.5px] text-md-on-surface-var uppercase tracking-widest block font-bold">Generated Output Code Vault</span>
-                  <pre className="text-[9.5px] font-mono text-md-success bg-md-surface-3/80 border border-md-outline p-3 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar select-text leading-relaxed">
-                    <code>{activeApprovalTicket.output}</code>
-                  </pre>
+                <div className="space-y-2">
+                  <span className="text-[8.5px] text-nemix-secondary uppercase tracking-widest block font-black font-mono">Generated Compilation Code Vault</span>
+                  <div className="relative">
+                    <pre className="text-[9.5px] font-mono text-emerald-400 bg-black/60 border border-nemix-border p-4 rounded-xl max-h-[150px] overflow-y-auto custom-scrollbar select-text leading-relaxed shadow-inner">
+                      <code>{activeApprovalTicket.output}</code>
+                    </pre>
+                  </div>
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3.5 pt-2">
+              <div className="grid grid-cols-2 gap-4 pt-2">
                 <button
                   type="button"
                   onClick={() => handleBoardApproval('approved')}
-                  className="h-11 rounded-xl bg-md-success hover:opacity-90 transition-all flex items-center justify-center gap-1.5 text-xs font-bold text-md-on-primary shadow-sm"
-                  style={{ backgroundColor: 'var(--md-success)', color: '#fff' }}
+                  className="h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-emerald-600/20"
                 >
-                  <ThumbsUp className="w-4 h-4" /> Approve Deploy
+                  <ThumbsUp className="w-4 h-4 text-white" /> Approve & Deploy
                 </button>
                 <button
                   type="button"
                   onClick={() => handleBoardApproval('rejected')}
-                  className="h-11 rounded-xl bg-md-error-cont border border-md-error/30 hover:opacity-90 transition-all flex items-center justify-center gap-1.5 text-xs font-bold text-md-error"
+                  className="h-12 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 text-red-400 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-wider shadow-sm"
                 >
-                  <ThumbsDown className="w-4 h-4" /> Reject Code
+                  <ThumbsDown className="w-4 h-4" /> Reject Code Output
                 </button>
               </div>
             </motion.div>
@@ -822,29 +900,34 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {activeCodePreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-md-scrim backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-md-surface border border-md-outline rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] text-left"
+              className="bg-nemix-card border border-nemix-border rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] text-left"
             >
-              {/* Window Header */}
-              <div className="bg-md-surface-2 px-5 py-4 flex items-center justify-between border-b border-md-outline">
-                <div className="flex items-center gap-2">
-                  <Code className="w-4 h-4 text-md-primary" />
-                  <span className="text-xs font-mono text-md-on-surface">Workspace Code Output</span>
+              {/* IDE top bar */}
+              <div className="bg-black/[0.15] px-5 py-4 flex items-center justify-between border-b border-nemix-border">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex gap-1.5 mr-2">
+                    <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
+                  </div>
+                  <FileCode className="w-4.5 h-4.5 text-blue-500" />
+                  <span className="text-[10px] font-mono font-bold tracking-wide text-nemix-text">SWARM_WORKSPACE_OUTPUT.md</span>
                 </div>
                 <button
                   onClick={() => setActiveCodePreview(null)}
-                  className="w-7 h-7 rounded-lg hover:bg-md-surface-3 flex items-center justify-center text-md-on-surface-var hover:text-md-on-surface transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-nemix-surface flex items-center justify-center text-nemix-secondary hover:text-nemix-text transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Body */}
-              <div className="flex-1 p-5 overflow-y-auto bg-md-surface-3 font-mono text-[11px] leading-relaxed text-md-primary custom-scrollbar select-text">
+              {/* Code output shell body */}
+              <div className="flex-1 p-6 overflow-y-auto bg-black/60 font-mono text-[11px] leading-relaxed text-blue-400 custom-scrollbar select-text shadow-inner">
                 <pre><code>{activeCodePreview}</code></pre>
               </div>
             </motion.div>
@@ -857,43 +940,43 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {isHireModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-md-scrim backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/75 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-md-surface border border-md-outline rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-left"
+              className="bg-nemix-card border border-nemix-border rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-left"
             >
-              <div className="flex items-center justify-between border-b border-md-outline pb-2.5">
-                <h4 className="text-xs font-black uppercase text-md-on-surface font-outfit">Recruit Swarm Employee</h4>
+              <div className="flex items-center justify-between border-b border-nemix-border pb-3">
+                <h4 className="text-xs font-black uppercase text-nemix-text font-sans tracking-wider">Recruit Swarm Agent</h4>
                 <button 
                   onClick={() => setIsHireModalOpen(false)}
-                  className="w-7 h-7 rounded-lg hover:bg-md-surface-2 flex items-center justify-center text-md-on-surface-var hover:text-md-on-surface transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-nemix-surface flex items-center justify-center text-nemix-secondary hover:text-nemix-text transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-md-on-surface-var">Agent Name</label>
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[8.5px] font-black uppercase tracking-widest text-nemix-secondary block">Agent Roster Identifier</label>
                   <input
                     type="text"
                     value={newAgentName}
                     onChange={e => setNewAgentName(e.target.value)}
                     placeholder="e.g. Scribe-v2, Traffic-Optimizer..."
-                    className="w-full h-9.5 px-3 rounded-lg bg-md-surface-2 border border-md-outline text-xs text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
+                    className="w-full h-10 px-3.5 premium-input font-semibold focus:border-blue-500/40"
                   />
                 </div>
                 
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-md-on-surface-var">Agent Role / Specialty</label>
+                <div className="space-y-1.5">
+                  <label className="text-[8.5px] font-black uppercase tracking-widest text-nemix-secondary block">Agent Specialty / Role</label>
                   <input
                     type="text"
                     value={newAgentRole}
                     onChange={e => setNewAgentRole(e.target.value)}
-                    placeholder="e.g. Lead Copywriter, SEO Optimizer..."
-                    className="w-full h-9.5 px-3 rounded-lg bg-md-surface-2 border border-md-outline text-xs text-md-on-surface focus:border-md-primary focus:ring-1 focus:ring-md-primary outline-none transition-all font-semibold"
+                    placeholder="e.g. Lead Copywriter, QA Auditor..."
+                    className="w-full h-10 px-3.5 premium-input font-semibold focus:border-blue-500/40"
                   />
                 </div>
               </div>
@@ -902,7 +985,7 @@ export default function Page() {
                 type="button"
                 onClick={handleHireAgent}
                 disabled={!newAgentName.trim() || !newAgentRole.trim()}
-                className="w-full h-11 md-filled-btn justify-center font-bold text-xs"
+                className="w-full h-11.5 btn-primary justify-center font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-600/10"
               >
                 Hire Employee
               </button>
@@ -911,16 +994,16 @@ export default function Page() {
         )}
       </AnimatePresence>
 
-      {/* Footer copyright */}
-      <footer className="py-2.5 border-t border-md-outline text-center text-[9px] font-medium text-md-on-surface-var bg-md-surface-1 shrink-0 relative z-20 transition-colors">
-        © {new Date().getFullYear()} Nemix Corporation. All private client-side agent configurations encrypted in sandbox.
+      {/* Footer corporate bar */}
+      <footer className="py-3.5 border-t border-nemix-border text-center text-[9px] font-semibold text-nemix-secondary bg-nemix-card/65 backdrop-blur-2xl shrink-0 relative z-20">
+        © {new Date().getFullYear()} Nemix Corporation. All private client-side agent configurations encrypted in Vercel sandbox.
       </footer>
 
     </div>
   );
 }
 
-// ─── Custom Kanban Card Sub-Component ───
+// ─── Custom Cyber Kanban Card Component ───
 function KanbanCard({ 
   ticket, 
   agents, 
@@ -941,52 +1024,57 @@ function KanbanCard({
   return (
     <motion.div
       layoutId={ticket.id}
-      transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-      className="p-4.5 md-card flex flex-col space-y-4 text-left hover:border-md-primary transition-all group"
+      transition={{ type: 'spring', damping: 28, stiffness: 240 }}
+      className="p-5 cyber-card bg-nemix-card/45 flex flex-col space-y-4 text-left hover:-translate-y-0.5 hover:border-blue-500/25 shadow-sm group relative overflow-hidden"
     >
-      <h4 className="text-[10.5px] font-black uppercase text-md-on-surface tracking-wide font-outfit leading-tight group-hover:text-md-primary transition-colors">
+      {/* Light edge decoration */}
+      <div className="absolute top-0 left-0 w-2 h-full bg-nemix-primary opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+      <h4 className="text-[11px] font-extrabold uppercase text-nemix-text tracking-wide font-sans leading-tight group-hover:text-blue-400 transition-colors">
         {ticket.title}
       </h4>
-      <p className="text-[9.5px] text-md-on-surface-var leading-relaxed font-semibold font-sans">
+      <p className="text-[10px] text-nemix-secondary leading-relaxed font-medium font-sans select-text">
         {ticket.description}
       </p>
 
-      {/* Reasoning log snippet */}
-      <div className="bg-md-surface-2 border border-md-outline-var p-3 rounded-xl text-[9px] font-mono text-md-on-surface-var leading-relaxed shadow-inner">
-        <span className="text-[8px] font-black text-md-primary uppercase tracking-widest block mb-1">Reasoning Log</span>
-        {ticket.thought}
+      {/* High-fidelity glowing inner reasoning log */}
+      <div className="bg-black/55 border border-nemix-border p-3.5 rounded-xl text-[9px] font-mono text-slate-400 leading-relaxed shadow-inner relative overflow-hidden">
+        <span className="text-[8.5px] font-extrabold text-blue-500 uppercase tracking-widest block mb-1 font-mono">Thought Reasoning</span>
+        <div className="select-text truncate-lines max-h-[75px] overflow-y-auto custom-scrollbar">
+          {ticket.thought}
+        </div>
       </div>
 
-      <div className="flex items-center justify-between border-t border-md-outline-var pt-3.5 gap-2 shrink-0">
-        {/* Agent Avatar info */}
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded bg-md-surface-3 border border-md-outline flex items-center justify-center text-xs shrink-0 shadow-inner">
+      <div className="flex items-center justify-between border-t border-nemix-border pt-4 gap-2.5 shrink-0">
+        
+        {/* Agent Info card inside Kanban card */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-black/40 border border-nemix-border flex items-center justify-center text-sm shrink-0 shadow-inner">
             {agent?.avatar || '🤖'}
           </div>
           <div className="min-w-0">
-            <p className="text-[8.5px] font-bold text-md-on-surface truncate leading-tight font-outfit uppercase">{agent?.name || 'Worker-Bot'}</p>
-            <p className="text-[7.5px] text-md-on-surface-var truncate leading-tight mt-0.5 uppercase tracking-wider">{agent?.role.split(' ')[0] || 'Worker'}</p>
+            <p className="text-[9px] font-extrabold text-nemix-text truncate leading-tight font-sans uppercase tracking-wide">{agent?.name || 'Worker-Bot'}</p>
+            <p className="text-[7.5px] text-nemix-secondary truncate leading-tight mt-0.5 uppercase tracking-wider">{agent?.role || 'Developer'}</p>
           </div>
         </div>
 
-        {/* Action button inside card */}
+        {/* Dynamic code compile actions */}
         <div className="flex items-center gap-1.5 shrink-0">
           {hasOutput && (
             <button
               onClick={() => onCodePreview(ticket.output!)}
-              className="h-6 px-2 rounded bg-md-primary-container border border-md-outline hover:opacity-90 text-md-on-primary-cont text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5 transition-colors"
+              className="h-6.5 px-2.5 rounded-lg bg-blue-600/10 border border-blue-500/20 hover:bg-blue-600/20 text-blue-400 text-[8.5px] font-black uppercase tracking-wider flex items-center gap-1 transition-all"
             >
-              <Code className="w-2.5 h-2.5" /> Output
+              <Code className="w-3 h-3 text-blue-400" /> Output
             </button>
           )}
 
           {isAwaiting && onApproveRequest && governanceMode && (
             <button
               onClick={() => onApproveRequest(ticket)}
-              className="h-6 px-2 rounded bg-md-success-cont border border-md-success/20 hover:opacity-90 text-md-success text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5 transition-colors"
-              style={{ color: 'var(--md-success)' }}
+              className="h-6.5 px-2.5 rounded-lg bg-emerald-600/10 border border-emerald-500/20 hover:bg-emerald-600/20 text-emerald-400 text-[8.5px] font-black uppercase tracking-widest flex items-center gap-1 transition-all"
             >
-              Vote
+              <ThumbsUp className="w-2.5 h-2.5" /> Vote
             </button>
           )}
         </div>
