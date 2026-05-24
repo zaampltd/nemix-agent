@@ -62,11 +62,13 @@ export default function Page() {
   const [newAgentRole, setNewAgentRole] = useState("");
   const [newAgentName, setNewAgentName] = useState("");
 
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logs
+  // Auto-scroll logs container ONLY without shifting page viewport
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   // Load API Key and active db.json state from backend on mount
@@ -872,7 +874,10 @@ export default function Page() {
                   <span className="text-[8px] font-mono text-nemix-success font-black tracking-widest uppercase">STREAM ACTIVE</span>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-2.5 pr-2 font-mono text-[10px] text-nemix-secondary custom-scrollbar select-text leading-relaxed bg-black/40 border border-nemix-border rounded-xl p-4.5 shadow-inner">
+              <div 
+                ref={logContainerRef}
+                className="flex-1 overflow-y-auto space-y-2.5 pr-2 font-mono text-[10px] text-nemix-secondary custom-scrollbar select-text leading-relaxed bg-black/40 border border-nemix-border rounded-xl p-4.5 shadow-inner"
+              >
                 {logs.map((log, idx) => {
                   const isError = log.includes('[Error]');
                   const isCEO = log.includes('[CEO]');
@@ -898,7 +903,6 @@ export default function Page() {
                     </div>
                   );
                 })}
-                <div ref={logsEndRef} />
               </div>
             </div>
           )}
