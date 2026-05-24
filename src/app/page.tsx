@@ -6,7 +6,8 @@ import {
   BrainCircuit, Terminal, Play, CheckCircle2, Cpu, Activity, Lock, Key,
   Eye, EyeOff, Save, Sparkles, ChevronRight, UserCheck, ThumbsUp, ThumbsDown,
   ShieldAlert, Clock, Compass, Rocket, Zap, RefreshCw, FileCode,
-  Coins, Users, Kanban, Plus, PlayCircle, PauseCircle, Code, Copy, Check
+  Coins, Users, Kanban, Plus, PlayCircle, PauseCircle, Code, Copy, Check,
+  X, Server, CheckSquare, Layers, AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -29,16 +30,9 @@ interface Ticket {
   output?: string;
 }
 
-interface LogEntry {
-  timestamp: string;
-  source: string;
-  message: string;
-  type: 'system' | 'agent' | 'success' | 'alert' | 'error';
-}
-
 export default function Page() {
-  // ─── State Management ───
-  const [mission, setMission] = useState("Build an autonomous multi-agent gateway router.");
+  // ─── Swarm State ───
+  const [mission, setMission] = useState("Build an autonomous multi-agent edge gateway router.");
   const [goal, setGoal] = useState("Decompose and execute Next.js edge failover schemas.");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
@@ -80,11 +74,12 @@ export default function Page() {
 
   const saveKey = () => {
     localStorage.setItem('nemix_agent_key', apiKey.trim());
-    addLocalLog('[System] Gateway key securely hashed and cached client-side.');
+    addLocalLog('[System] Credentials key successfully saved in client-side secure vault.');
   };
 
   const addLocalLog = (message: string) => {
-    setLogs(prev => [...prev, message]);
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs(prev => [...prev, `[${timestamp}] ${message}`]);
   };
 
   // ─── Initialize Swarm ───
@@ -92,7 +87,7 @@ export default function Page() {
     if (!mission.trim() || !goal.trim()) return;
 
     setIsInitializing(true);
-    addLocalLog('[System] Handshaking Nemix swarm gateway...');
+    addLocalLog('[System] Initiating secure handshake with Nemix API Gateway...');
 
     try {
       const response = await fetch('/api/orchestrator/company', {
@@ -117,10 +112,10 @@ export default function Page() {
         setIsInitializing(false);
         
         confetti({
-          particleCount: 80,
-          spread: 60,
-          origin: { y: 0.8 },
-          colors: ['#3b82f6', '#10b981', '#ffffff']
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.7 },
+          colors: ['#3b82f6', '#10b981', '#7c6af7', '#ffffff']
         });
       }, 1500);
 
@@ -256,27 +251,50 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#f3f3f7] font-sans flex flex-col overflow-hidden selection:bg-blue-500/30 selection:text-blue-200">
+    <div className="min-h-screen bg-[#050505] text-[#f3f3f7] font-sans flex flex-col overflow-hidden relative selection:bg-blue-500/30 selection:text-blue-200">
       
-      {/* ─── Outer Shell Container ─── */}
-      <div className="flex flex-1 overflow-hidden h-[calc(100vh-42px)]">
+      {/* ─── Modern Cyber Dot Grid Overlays & Radial Lights ─── */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {/* Subtle rotating glow lights */}
+        <div className="absolute top-[-10%] left-[-15%] w-[60%] h-[60%] rounded-full opacity-[0.08]"
+          style={{ background: 'radial-gradient(circle, #7c6af7 0%, transparent 70%)', filter: 'blur(100px)' }} />
+        <div className="absolute bottom-[-10%] right-[-15%] w-[60%] h-[60%] rounded-full opacity-[0.06]"
+          style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)', filter: 'blur(100px)' }} />
+        
+        {/* Dot pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+            backgroundSize: '24px 24px'
+          }}
+        />
+      </div>
+
+      {/* ─── Main Layout Row ─── */}
+      <div className="flex flex-1 overflow-hidden h-screen relative z-10">
 
         {/* ======================================================== */}
-        {/* LEFT SIDEBAR: Org Hierarchy (250px)                     */}
+        {/* LEFT SIDEBAR: Org Hierarchy (280px)                     */}
         {/* ======================================================== */}
-        <aside className="w-[280px] bg-[#111111]/70 border-r border-white/10 flex flex-col shrink-0 relative z-20 backdrop-blur-md">
+        <aside className="w-[290px] bg-[#0c0c0e]/85 border-r border-white/[0.08] flex flex-col shrink-0 relative z-20 backdrop-blur-xl">
           {/* Top Brand Mission */}
-          <div className="p-5 border-b border-white/10 space-y-3">
-            <div className="flex items-center gap-2">
-              <BrainCircuit className="w-5.5 h-5.5 text-blue-400" />
-              <span className="font-extrabold text-xs tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-outfit">
-                NEMIX SWARM
-              </span>
+          <div className="p-5 border-b border-white/[0.08] space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-600/10">
+                <BrainCircuit className="w-4.5 h-4.5 text-white" />
+              </div>
+              <div>
+                <span className="font-black text-sm tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-outfit">
+                  NEMIX SWARM
+                </span>
+                <span className="text-[8px] font-black uppercase text-blue-400/80 tracking-widest block leading-none mt-0.5">META-ORCHESTRATOR</span>
+              </div>
             </div>
+
             {initialized && (
-              <div className="bg-black/40 border border-white/5 p-3 rounded-xl space-y-1">
-                <span className="text-[8px] font-black uppercase text-blue-400 tracking-wider">Mission Statement</span>
-                <p className="text-[10px] leading-relaxed text-zinc-400 line-clamp-3">
+              <div className="bg-white/[0.02] border border-white/[0.06] p-4 rounded-xl space-y-2 shadow-inner">
+                <span className="text-[8px] font-black uppercase text-blue-400/80 tracking-widest block">CORPORATE MISSION</span>
+                <p className="text-[10px] leading-relaxed text-zinc-400 font-medium">
                   {mission}
                 </p>
               </div>
@@ -284,53 +302,53 @@ export default function Page() {
           </div>
 
           {/* Org Chart Tree Navigation */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1">
-                <Users className="w-3 h-3" /> Swarm Hierarchy
+              <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-zinc-600" /> Active Roster Hierarchy
               </span>
             </div>
 
             {agents.length === 0 ? (
-              <div className="text-center py-20 text-zinc-600 text-[10px] leading-relaxed border border-dashed border-white/5 rounded-xl">
-                Hive inactive. Establish company details to hire agents.
+              <div className="text-center py-24 text-zinc-600 text-[10px] leading-relaxed border border-dashed border-white/[0.06] rounded-2xl bg-white/[0.01]">
+                Hive is offline.<br />Initialize swarm company to spawn agent roster.
               </div>
             ) : (
-              <div className="space-y-3.5 pl-1.5">
+              <div className="space-y-4 pl-1">
                 
                 {/* CEO Node */}
                 {agents.filter(a => a.id === 'agent_ceo').map(ceo => (
-                  <div key={ceo.id} className="relative group">
-                    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-zinc-900 border border-white/5 shadow-md">
-                      <div className="w-8 h-8 rounded-lg bg-black border border-white/10 flex items-center justify-center text-base shrink-0">
+                  <div key={ceo.id} className="relative">
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/90 border border-white/[0.08] shadow-md relative z-10 transition-all hover:border-white/20">
+                      <div className="w-8.5 h-8.5 rounded-lg bg-black border border-white/10 flex items-center justify-center text-lg shrink-0">
                         {ceo.avatar}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-[10px] font-black uppercase text-white truncate">{ceo.name}</h4>
-                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-wide mt-0.5">{ceo.role}</p>
+                        <h4 className="text-[10.5px] font-black uppercase text-white truncate font-outfit">{ceo.name}</h4>
+                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">{ceo.role}</p>
                       </div>
                       <span className={`w-2 h-2 rounded-full relative shrink-0 ${
                         ceo.status === 'working' ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-700'
                       }`} />
                     </div>
                     {/* Visual Connection line to worker agents */}
-                    <div className="absolute left-6 top-11 bottom-[-20px] w-0.5 bg-white/5 pointer-events-none" />
+                    <div className="absolute left-7.5 top-12 bottom-[-24px] w-[1px] bg-white/[0.08] pointer-events-none" />
                   </div>
                 ))}
 
                 {/* Worker Nodes */}
-                <div className="space-y-2.5 pl-6 pt-2">
+                <div className="space-y-3 pl-7.5 pt-1.5">
                   {agents.filter(a => a.id !== 'agent_ceo').map(worker => (
-                    <div key={worker.id} className="flex items-center gap-2.5 p-2 rounded-xl bg-black/40 border border-white/5 group relative">
+                    <div key={worker.id} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04] relative hover:border-white/[0.1] transition-all group">
                       {/* Connection horizontal line */}
-                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 h-0.5 bg-white/5 pointer-events-none" />
+                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 h-[1px] bg-white/[0.08] pointer-events-none" />
                       
                       <div className="w-7.5 h-7.5 rounded-lg bg-zinc-950 border border-white/5 flex items-center justify-center text-sm shrink-0">
                         {worker.avatar}
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <h5 className="text-[9px] font-black uppercase text-zinc-300 truncate">{worker.name}</h5>
+                        <h5 className="text-[9.5px] font-bold uppercase text-zinc-300 truncate font-outfit">{worker.name}</h5>
                         <p className="text-[8px] font-medium text-zinc-500 truncate mt-0.5">{worker.role}</p>
                       </div>
                       
@@ -347,11 +365,11 @@ export default function Page() {
 
           {/* Hire Button */}
           {initialized && (
-            <div className="p-4 border-t border-white/10 shrink-0">
+            <div className="p-5 border-t border-white/[0.08] bg-[#0c0c0e]/95 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsHireModalOpen(true)}
-                className="w-full h-10 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300"
+                className="w-full h-10.5 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300 hover:text-white"
               >
                 <Plus className="w-4 h-4 text-blue-400" />
                 Hire New Agent
@@ -361,40 +379,40 @@ export default function Page() {
         </aside>
 
         {/* ======================================================== */}
-        {/* MAIN CONTENT AREA: Workspace & Kanban Board              */}
+        {/* MAIN WORKSPACE: Upper Headers & Ticket Board            */}
         {/* ======================================================== */}
-        <main className="flex-1 flex flex-col bg-[#050505] overflow-hidden relative z-10">
+        <main className="flex-1 flex flex-col overflow-hidden relative z-10 bg-[#050505]/40">
           
-          {/* Header Workspace Options */}
-          <header className="px-6 py-4.5 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#050505]/90 backdrop-blur-md">
+          {/* Header Workspace Details */}
+          <header className="px-6 py-4.5 border-b border-white/[0.08] flex items-center justify-between shrink-0 bg-[#050505]/75 backdrop-blur-xl">
             
             {/* Left: Active Goal */}
             <div className="flex-1 max-w-lg min-w-0 pr-4">
-              <span className="text-[8px] font-black uppercase text-blue-400 tracking-wider">Active Corporate Directive</span>
-              <h2 className="text-xs font-bold text-zinc-200 truncate mt-0.5">
-                {initialized ? goal : "Awaiting Swarm Initialization..."}
+              <span className="text-[8px] font-black uppercase text-blue-400/80 tracking-widest">ACTIVE DIRECTIVE GOAL</span>
+              <h2 className="text-xs font-bold text-zinc-200 truncate mt-0.5 font-outfit uppercase">
+                {initialized ? goal : "Awaiting Swarm Initialization Roster..."}
               </h2>
             </div>
 
             {/* Right Controls */}
             {initialized && (
-              <div className="flex items-center gap-5 shrink-0">
+              <div className="flex items-center gap-4 shrink-0">
                 {/* Budget Coins */}
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
-                  <Coins className="w-4 h-4 text-blue-400" />
+                <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl bg-zinc-900/60 border border-white/[0.06] shadow-sm">
+                  <Coins className="w-4.5 h-4.5 text-blue-400" />
                   <div>
-                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-wider block">Budget Tokens</span>
-                    <span className="text-xs font-bold text-white font-mono leading-none">
-                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-zinc-500">NMX</span>
+                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-widest block">BUDGET USED</span>
+                    <span className="text-[11px] font-bold text-white font-mono leading-none">
+                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-zinc-500 font-bold">NMX</span>
                     </span>
                   </div>
                 </div>
 
                 {/* God Mode Governance Mode Toggle */}
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
+                <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl bg-zinc-900/60 border border-white/[0.06] shadow-sm">
                   <div>
-                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-wider block">Governance Mode</span>
-                    <span className="text-[10px] font-bold text-white leading-none">
+                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-widest block">GOVERNANCE MODE</span>
+                    <span className="text-[9.5px] font-bold text-zinc-300 leading-none">
                       {governanceMode ? "God Mode On" : "Autonomous"}
                     </span>
                   </div>
@@ -402,13 +420,13 @@ export default function Page() {
                     type="button"
                     onClick={() => {
                       setGovernanceMode(!governanceMode);
-                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Board Yes/No required)' : 'OFF (Autonomous auto-merge)'}`);
+                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Human Board approval active)' : 'OFF (Autonomous loop)'}`);
                     }}
                     className={`w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none shrink-0 ${
                       governanceMode ? 'bg-blue-600' : 'bg-zinc-800'
                     }`}
                   >
-                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
                       governanceMode ? 'translate-x-4' : 'translate-x-0'
                     }`} />
                   </button>
@@ -421,9 +439,9 @@ export default function Page() {
                     type="button"
                     onClick={() => {
                       setIsAutoTicking(!isAutoTicking);
-                      addLocalLog(`[System] Auto heartbeat execution loop ${!isAutoTicking ? 'STARTED' : 'PAUSED'}.`);
+                      addLocalLog(`[System] Auto-heartbeat simulation loop ${!isAutoTicking ? 'STARTED' : 'PAUSED'}.`);
                     }}
-                    className={`h-9 px-3.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all text-white shadow-lg ${
+                    className={`h-9.5 px-4 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all text-white shadow-lg ${
                       isAutoTicking 
                         ? 'bg-zinc-800 hover:bg-zinc-700' 
                         : 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-600/10'
@@ -435,7 +453,7 @@ export default function Page() {
                       </>
                     ) : (
                       <>
-                        <PlayCircle className="w-4 h-4" /> Auto Run Loop
+                        <PlayCircle className="w-4 h-4" /> Auto Run Swarm
                       </>
                     )}
                   </button>
@@ -445,9 +463,9 @@ export default function Page() {
                     type="button"
                     onClick={triggerHeartbeat}
                     disabled={isHeartbeating || isAutoTicking}
-                    className="h-9 px-3.5 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300 disabled:opacity-40"
+                    className="h-9.5 px-4 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300 disabled:opacity-40"
                   >
-                    <Zap className={`w-3.5 h-3.5 text-blue-400 ${isHeartbeating ? 'animate-bounce' : ''}`} />
+                    <Zap className={`w-3.5 h-3.5 text-blue-400 ${isHeartbeating ? 'animate-pulse' : ''}`} />
                     Heartbeat Tick
                   </button>
                 </div>
@@ -457,99 +475,137 @@ export default function Page() {
 
           </header>
 
-          {/* Core Swarm Workspace Kanban View */}
+          {/* Core Kanban Board Area */}
           <div className="flex-1 overflow-hidden p-6 flex flex-col">
             
             {!initialized ? (
-              // Empty Uninitialized Workspace State
-              <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto text-center space-y-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-600/15 animate-pulse">
-                  <Kanban className="w-8 h-8 text-white" />
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-lg font-black uppercase tracking-wider text-white font-outfit">
-                    Initialize Swarm Company Pipeline
-                  </h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Set up your enterprise profile and define the goal to automatically spin up a CEO and worker roster, break down tickets, and execute code using the Nemix API.
-                  </p>
-                </div>
-
-                <div className="w-full bg-[#111111] border border-white/10 p-5 rounded-2xl space-y-4 text-left">
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Company Mission</label>
-                    <input
-                      type="text"
-                      value={mission}
-                      onChange={e => setMission(e.target.value)}
-                      placeholder="e.g. Build an autonomous modular SaaS compiler firm."
-                      className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Master Swarm Goal</label>
-                    <textarea
-                      value={goal}
-                      onChange={e => setGoal(e.target.value)}
-                      placeholder="e.g. Create a fast-fallback gateway routing script and verify compilation static checks."
-                      className="w-full h-16 p-3 rounded-lg bg-black border border-white/10 text-xs text-white resize-none focus:ring-1 focus:ring-blue-500/50 outline-none leading-relaxed"
-                    />
-                  </div>
+              // Stunning Two-Column Launchpad Setup Panel
+              <div className="flex-1 flex items-center justify-center max-w-5xl mx-auto w-full">
+                <div className="glass-panel rounded-3xl border border-white/[0.08] shadow-2xl overflow-hidden w-full grid grid-cols-1 md:grid-cols-12 max-h-[90vh]">
                   
-                  {/* Secure Key Vault inline */}
-                  <div className="relative">
-                    <input
-                      type={showKey ? 'text' : 'password'}
-                      placeholder="nex_sk_ep_xxxxxxxxxxxx"
-                      value={apiKey}
-                      onChange={e => setApiKey(e.target.value)}
-                      className="w-full h-10 pl-3 pr-20 text-xs font-mono rounded-xl bg-black border border-white/10 text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowKey(!showKey)}
-                      className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-                    >
-                      {showKey ? <EyeOff className="w-3.5 h-3.5 text-zinc-400" /> : <Eye className="w-3.5 h-3.5 text-zinc-400" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={saveKey}
-                      disabled={!apiKey.trim()}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40"
-                    >
-                      <Save className="w-3.5 h-3.5" />
-                    </button>
+                  {/* Left Column: Swarm Introduction (5 spans) */}
+                  <div className="md:col-span-5 bg-gradient-to-b from-zinc-900 to-black p-8 flex flex-col justify-between border-r border-white/[0.08] relative">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.06),transparent_60%)]" />
+                    
+                    <div className="space-y-6 relative z-10">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <Layers className="w-6 h-6 text-white" />
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <h3 className="text-xl font-extrabold uppercase tracking-wider text-white font-outfit">
+                          Nemix Swarm Launchpad
+                        </h3>
+                        <p className="text-[11px] leading-relaxed text-zinc-400 font-medium">
+                          Spawns an autonomous meta-agent swarm simulating standard enterprise pipeline structures. The CEO coordinates worker backlogs using the high-performance Nemix API.
+                        </p>
+                      </div>
+
+                      {/* Technical Steps list */}
+                      <div className="space-y-3.5 pt-2">
+                        {[
+                          "CEO breaks directive into Kanban Backlog",
+                          "Dispatches Developers & Quality Auditors",
+                          "Board God Mode Governance review",
+                          "Fast-forward compilation merge checks"
+                        ].map((step, idx) => (
+                          <div key={idx} className="flex items-center gap-3">
+                            <span className="w-5 h-5 rounded-full bg-blue-950 border border-blue-500/20 flex items-center justify-center text-[9px] font-black text-blue-400">
+                              {idx + 1}
+                            </span>
+                            <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-wide">{step}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="text-[9px] text-zinc-500 pt-6 border-t border-white/5 uppercase tracking-wider relative z-10">
+                      SANDBOX SECURED Handshake Gateway
+                    </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleStartCompany}
-                    disabled={isInitializing || !mission.trim() || !goal.trim()}
-                    className="w-full h-10.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/10 hover:opacity-95 disabled:opacity-40"
-                  >
-                    {isInitializing ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Generating Backlog & Roster...
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4 h-4 fill-current text-white" />
-                        Initialize Swarm Pipeline
-                      </>
-                    )}
-                  </button>
+                  {/* Right Column: Setup Fields Form (7 spans) */}
+                  <div className="md:col-span-7 p-8 bg-[#111111]/30 backdrop-blur-xl flex flex-col justify-center space-y-5">
+                    
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">Company Mission Statement</label>
+                      <input
+                        type="text"
+                        value={mission}
+                        onChange={e => setMission(e.target.value)}
+                        placeholder="e.g. Build a high-performance modular Edge Router."
+                        className="w-full h-10 px-4 rounded-xl bg-black border border-white/10 text-xs text-white focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all glow-border leading-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">Master Swarm Directive / Goal</label>
+                      <textarea
+                        value={goal}
+                        onChange={e => setGoal(e.target.value)}
+                        placeholder="e.g. Code failover fallback gateway parameters and execute security audits."
+                        className="w-full h-20 p-3.5 rounded-xl bg-black border border-white/10 text-xs text-white resize-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none leading-relaxed transition-all glow-border"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 block mb-1">Nemix API Key Credentials</label>
+                      <div className="relative">
+                        <input
+                          type={showKey ? 'text' : 'password'}
+                          placeholder="nex_sk_ep_xxxxxxxxxxxx"
+                          value={apiKey}
+                          onChange={e => setApiKey(e.target.value)}
+                          className="w-full h-10 pl-4 pr-20 text-xs font-mono rounded-xl bg-black border border-white/10 text-white focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all glow-border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowKey(!showKey)}
+                          className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                          {showKey ? <EyeOff className="w-3.5 h-3.5 text-zinc-400" /> : <Eye className="w-3.5 h-3.5 text-zinc-400" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={saveKey}
+                          disabled={!apiKey.trim()}
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleStartCompany}
+                      disabled={isInitializing || !mission.trim() || !goal.trim()}
+                      className="w-full h-11 rounded-xl font-bold text-xs flex items-center justify-center gap-2 text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/15 hover:opacity-95 disabled:opacity-40 transition-all select-none"
+                    >
+                      {isInitializing ? (
+                        <>
+                          <RefreshCw className="w-4.5 h-4.5 animate-spin" />
+                          Hiring Roster & Breaking Backlog...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 fill-current text-white" />
+                          Initialize Swarm Pipeline
+                        </>
+                      )}
+                    </button>
+
+                  </div>
+
                 </div>
               </div>
             ) : (
               // Kanban Grid Layout (4 columns)
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4.5 overflow-hidden">
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-5 overflow-hidden">
                 
                 {/* ─── COLUMN 1: TO DO ─── */}
-                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                <div className="flex flex-col bg-[#111111]/30 border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
                     <span className="text-[10px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" /> To Do
                     </span>
@@ -565,8 +621,8 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 2: IN PROGRESS ─── */}
-                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                <div className="flex flex-col bg-[#111111]/30 border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
                     <span className="text-[10px] font-black uppercase text-blue-400 tracking-wider flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> In Progress
                     </span>
@@ -582,8 +638,8 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 3: AWAITING APPROVAL ─── */}
-                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                <div className="flex flex-col bg-[#111111]/30 border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
                     <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" /> Governance Review
                     </span>
@@ -606,8 +662,8 @@ export default function Page() {
                 </div>
 
                 {/* ─── COLUMN 4: DONE ─── */}
-                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                <div className="flex flex-col bg-[#111111]/30 border border-white/[0.06] rounded-2xl p-4 overflow-hidden shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-3 shrink-0">
                     <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Done
                     </span>
@@ -629,31 +685,34 @@ export default function Page() {
 
           {/* Bottom Execution Shell Drawer */}
           {initialized && (
-            <div className="h-[180px] bg-black border-t border-white/10 flex flex-col shrink-0 relative z-10 p-5">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2.5 shrink-0">
-                <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest flex items-center gap-1">
-                  <Terminal className="w-3.5 h-3.5 text-blue-400 animate-pulse" /> Live Swarm execution log
+            <div className="h-[200px] bg-[#0c0c0e] border-t border-white/[0.08] flex flex-col shrink-0 relative z-10 p-5">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2.5 mb-2.5 shrink-0">
+                <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest flex items-center gap-1.5">
+                  <Terminal className="w-3.5 h-3.5 text-blue-400" /> Live Swarm Execution Log
                 </span>
-                <div className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-50 animate-ping" />
-                  <span className="text-[8px] font-mono text-emerald-400 font-extrabold tracking-widest uppercase">STREAMING</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span className="text-[8px] font-mono text-emerald-400 font-extrabold tracking-widest uppercase">STREAM ACTIVE</span>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9px] text-zinc-400 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9.5px] text-zinc-400 custom-scrollbar select-text leading-relaxed">
                 {logs.map((log, idx) => {
                   const isError = log.includes('[Error]');
                   const isCEO = log.includes('[CEO]');
                   const isSystem = log.includes('[System]');
+                  const isBroker = log.includes('[Broker]');
                   return (
                     <div 
                       key={idx}
-                      className={`p-2 rounded-lg border leading-relaxed ${
+                      className={`p-2.5 rounded-xl border ${
                         isError 
-                          ? 'bg-red-950/20 border-red-900/30 text-red-400' 
+                          ? 'bg-red-950/15 border-red-900/20 text-red-400' 
                           : isCEO 
                           ? 'bg-blue-950/15 border-blue-900/20 text-blue-300'
                           : isSystem 
                           ? 'bg-zinc-900/40 border-white/5 text-zinc-400'
+                          : isBroker
+                          ? 'bg-emerald-950/10 border-emerald-900/20 text-emerald-400'
                           : 'bg-zinc-950/20 border-transparent text-zinc-300'
                       }`}
                     >
@@ -675,17 +734,17 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {activeApprovalTicket && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#111111] border border-blue-500/30 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative overflow-hidden"
+              className="bg-[#111113] border border-blue-500/20 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative overflow-hidden text-left"
             >
-              {/* Alert pulses */}
-              <div className="absolute top-0 right-0 w-28 h-28 rounded-full bg-blue-500/5 blur-xl pointer-events-none" />
+              {/* Alert background glow */}
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-blue-500/5 blur-2xl pointer-events-none" />
 
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 text-blue-400 animate-pulse" />
                   <h3 className="text-xs font-extrabold uppercase tracking-widest text-blue-400 font-outfit">
@@ -693,26 +752,26 @@ export default function Page() {
                   </h3>
                 </div>
                 <span className="text-[8px] font-black uppercase bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20">
-                  GOD MODE ACTIVED
+                  GOD MODE HIERARCHY
                 </span>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[9px] text-zinc-500 uppercase tracking-wider block">Target backlogged Ticket</span>
-                <h4 className="text-xs font-bold text-white uppercase">{activeApprovalTicket.title}</h4>
+                <span className="text-[8.5px] text-zinc-500 uppercase tracking-widest block font-bold">Target backlog Ticket</span>
+                <h4 className="text-xs font-black text-white font-outfit uppercase leading-tight">{activeApprovalTicket.title}</h4>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[9px] text-zinc-500 uppercase tracking-wider block">Agent Reasoning & Synthesis Output</span>
-                <p className="text-[10.5px] leading-relaxed text-zinc-400 bg-black border border-white/5 p-3 rounded-lg max-h-[140px] overflow-y-auto custom-scrollbar">
+                <span className="text-[8.5px] text-zinc-500 uppercase tracking-widest block font-bold">Agent Synthesis Thought Reasoning</span>
+                <p className="text-[10px] leading-relaxed text-zinc-400 bg-black/60 border border-white/5 p-3.5 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar">
                   {activeApprovalTicket.thought}
                 </p>
               </div>
 
               {activeApprovalTicket.output && (
                 <div className="space-y-1.5">
-                  <span className="text-[9px] text-zinc-500 uppercase tracking-wider block">Generated Code Preview</span>
-                  <pre className="text-[9px] font-mono text-emerald-400 bg-black/80 border border-white/5 p-3 rounded-lg max-h-[120px] overflow-y-auto custom-scrollbar select-text">
+                  <span className="text-[8.5px] text-zinc-500 uppercase tracking-widest block font-bold">Generated Output Code Vault</span>
+                  <pre className="text-[9.5px] font-mono text-emerald-400 bg-black/80 border border-white/5 p-3 rounded-xl max-h-[140px] overflow-y-auto custom-scrollbar select-text leading-relaxed">
                     <code>{activeApprovalTicket.output}</code>
                   </pre>
                 </div>
@@ -729,7 +788,7 @@ export default function Page() {
                 <button
                   type="button"
                   onClick={() => handleBoardApproval('rejected')}
-                  className="h-11 rounded-xl bg-red-950/50 border border-red-500/30 hover:bg-red-950 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold text-red-400"
+                  className="h-11 rounded-xl bg-red-950/40 border border-red-500/20 hover:bg-red-950/60 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold text-red-400"
                 >
                   <ThumbsDown className="w-4 h-4" /> Reject Code
                 </button>
@@ -744,24 +803,24 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {activeCodePreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#111111] border border-white/10 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[80vh] text-left"
+              className="bg-[#111113] border border-white/10 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] text-left"
             >
               {/* Window Header */}
-              <div className="bg-black/60 px-5 py-3.5 flex items-center justify-between border-b border-white/5">
+              <div className="bg-black/60 px-5 py-4 flex items-center justify-between border-b border-white/[0.08]">
                 <div className="flex items-center gap-2">
                   <Code className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs font-mono text-zinc-300">Code Explorer Preview</span>
+                  <span className="text-xs font-mono text-zinc-300">Workspace Code Output</span>
                 </div>
                 <button
                   onClick={() => setActiveCodePreview(null)}
-                  className="text-zinc-500 hover:text-white text-xs font-bold transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
                 >
-                  Close
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
@@ -779,43 +838,43 @@ export default function Page() {
       {/* ======================================================== */}
       <AnimatePresence>
         {isHireModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#111111] border border-white/10 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl text-left"
+              className="bg-[#111113] border border-white/10 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-left"
             >
-              <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
-                <h4 className="text-xs font-black uppercase text-white font-outfit">Recruit Specialized Agent</h4>
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+                <h4 className="text-xs font-black uppercase text-white font-outfit">Recruit Swarm Employee</h4>
                 <button 
                   onClick={() => setIsHireModalOpen(false)}
-                  className="text-zinc-500 hover:text-white text-xs transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
                 >
-                  Cancel
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Agent Name</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Agent Name</label>
                   <input
                     type="text"
                     value={newAgentName}
                     onChange={e => setNewAgentName(e.target.value)}
                     placeholder="e.g. Scribe-v2, Traffic-Optimizer..."
-                    className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
                   />
                 </div>
                 
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Agent Role / Specialty</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Agent Role / Specialty</label>
                   <input
                     type="text"
                     value={newAgentRole}
                     onChange={e => setNewAgentRole(e.target.value)}
                     placeholder="e.g. Lead Copywriter, SEO Optimizer..."
-                    className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -824,7 +883,7 @@ export default function Page() {
                 type="button"
                 onClick={handleHireAgent}
                 disabled={!newAgentName.trim() || !newAgentRole.trim()}
-                className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white transition-colors disabled:opacity-40"
+                className="w-full h-10.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white transition-colors disabled:opacity-40 shadow-lg shadow-blue-600/10"
               >
                 Hire Employee
               </button>
@@ -864,39 +923,39 @@ function KanbanCard({
     <motion.div
       layoutId={ticket.id}
       transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-      className="p-3.5 rounded-xl border border-white/5 bg-[#111111]/90 shadow-md flex flex-col space-y-3 text-left"
+      className="p-4 rounded-2xl border border-white/[0.06] bg-[#0c0c0e]/95 shadow-md flex flex-col space-y-3.5 text-left hover:border-white/[0.12] transition-all group"
     >
-      <h4 className="text-[10.5px] font-black uppercase text-zinc-100 tracking-wide leading-tight">
+      <h4 className="text-[10.5px] font-black uppercase text-zinc-100 tracking-wide font-outfit leading-tight group-hover:text-white transition-colors">
         {ticket.title}
       </h4>
-      <p className="text-[9.5px] text-zinc-400 leading-relaxed">
+      <p className="text-[9.5px] text-zinc-400 leading-relaxed font-medium">
         {ticket.description}
       </p>
 
       {/* Reasoning log snippet */}
-      <div className="bg-black/60 border border-white/5 p-2 rounded-lg text-[9px] font-mono text-zinc-500 leading-relaxed">
-        <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest block mb-0.5">Reasoning Log</span>
+      <div className="bg-black/60 border border-white/[0.04] p-3 rounded-xl text-[9px] font-mono text-zinc-500 leading-relaxed shadow-inner">
+        <span className="text-[8px] font-black text-blue-400/80 uppercase tracking-widest block mb-1">Reasoning Log</span>
         {ticket.thought}
       </div>
 
-      <div className="flex items-center justify-between border-t border-white/5 pt-2.5 gap-2 shrink-0">
+      <div className="flex items-center justify-between border-t border-white/[0.06] pt-3 gap-2 shrink-0">
         {/* Agent Avatar info */}
-        <div className="flex items-center gap-1.5 min-w-0">
-          <div className="w-6 h-6 rounded bg-zinc-950 border border-white/5 flex items-center justify-center text-xs shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded bg-zinc-950 border border-white/10 flex items-center justify-center text-xs shrink-0 shadow-inner">
             {agent?.avatar || '🤖'}
           </div>
           <div className="min-w-0">
-            <p className="text-[8px] font-bold text-zinc-300 truncate leading-tight">{agent?.name || 'Worker-Bot'}</p>
-            <p className="text-[7.5px] text-zinc-500 truncate leading-tight">{agent?.role || 'Worker'}</p>
+            <p className="text-[8.5px] font-bold text-zinc-200 truncate leading-tight font-outfit uppercase">{agent?.name || 'Worker-Bot'}</p>
+            <p className="text-[7.5px] text-zinc-500 truncate leading-tight mt-0.5 uppercase tracking-wider">{agent?.role.split(' ')[0] || 'Worker'}</p>
           </div>
         </div>
 
         {/* Action button inside card */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {hasOutput && (
             <button
               onClick={() => onCodePreview(ticket.output!)}
-              className="p-1 px-1.5 rounded bg-blue-950/20 border border-blue-500/10 hover:border-blue-500/30 text-blue-400 text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5"
+              className="h-6 px-2 rounded bg-blue-950/20 border border-blue-500/10 hover:border-blue-500/30 text-blue-400 text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5 transition-colors"
             >
               <Code className="w-2.5 h-2.5" /> Output
             </button>
@@ -905,7 +964,7 @@ function KanbanCard({
           {isAwaiting && onApproveRequest && governanceMode && (
             <button
               onClick={() => onApproveRequest(ticket)}
-              className="p-1 px-1.5 rounded bg-emerald-950/30 border border-emerald-500/20 hover:bg-emerald-950 text-emerald-400 text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5"
+              className="h-6 px-2 rounded bg-emerald-950/30 border border-emerald-500/20 hover:bg-emerald-950 text-emerald-400 text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5 transition-colors"
             >
               Vote
             </button>
