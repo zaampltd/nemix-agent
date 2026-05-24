@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { writeFileSync, existsSync } from 'fs';
+import path from 'path';
 
-const DB_PATH = 'C:/Users/shahi/.gemini/antigravity/scratch/nemix-agent/db.json';
+const DB_PATH = path.join(process.cwd(), 'db.json');
 
 // Helper to save initial state to db.json
 const initializeDB = (state: any) => {
