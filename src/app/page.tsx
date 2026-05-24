@@ -712,13 +712,21 @@ class GatewayRouter:
             {activeTab === 'Dashboard' && (
               <>
                 {/* Mission controls goal */}
-                <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col flex-1 overflow-hidden">
-                  <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-4">Mission Control</h2>
-                  <div className="flex-1 bg-[#151a23] border border-panelBorder rounded-lg p-4 mb-4 overflow-y-auto custom-scrollbar shadow-inner select-text leading-relaxed text-xs font-mono text-gray-300 space-y-4">
-                    <p className="border-b border-panelBorder/30 pb-2 flex items-center gap-2"><i className="fa-solid fa-compass text-cyan-400"></i> MISSION STATEMENT:</p>
-                    <p className="text-white uppercase font-sans tracking-wide font-medium">{mission}</p>
-                    <p className="border-b border-panelBorder/30 pb-2 pt-2 flex items-center gap-2"><i className="fa-solid fa-rocket text-cyan-400"></i> ACTIVE GOAL DIRECTIVE:</p>
-                    <p className="text-white uppercase font-sans tracking-wide font-medium">{goal}</p>
+                <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col flex-1 overflow-hidden relative shadow-lg">
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+                  <div className="flex items-center gap-2 mb-4 shrink-0">
+                    <i className="fa-solid fa-compass text-cyan-400 animate-pulse"></i>
+                    <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest">Mission Control</h2>
+                  </div>
+                  <div className="flex-1 bg-[#050608]/70 border border-white/[0.03] rounded-lg p-4 mb-4 overflow-y-auto custom-scrollbar shadow-inner select-text leading-relaxed text-xs text-gray-300 space-y-4">
+                    <div>
+                      <p className="pb-1.5 flex items-center gap-2 text-[9px] font-bold text-cyan-400 uppercase tracking-widest"><i className="fa-solid fa-circle-notch text-[7px] animate-spin text-cyan-400/40"></i> Mission Statement</p>
+                      <p className="text-white font-sans text-xs tracking-wide leading-relaxed font-medium select-text">{mission}</p>
+                    </div>
+                    <div className="border-t border-panelBorder/40 pt-3">
+                      <p className="pb-1.5 flex items-center gap-2 text-[9px] font-bold text-cyan-400 uppercase tracking-widest"><i className="fa-solid fa-bolt text-[7px] text-cyan-400/40"></i> Active Swarm Goal</p>
+                      <p className="text-white font-sans text-xs tracking-wide leading-relaxed font-medium select-text">{goal}</p>
+                    </div>
                   </div>
                   
                   {/* Action buttons inside sidebar */}
@@ -726,7 +734,7 @@ class GatewayRouter:
                     <button
                       onClick={triggerHeartbeat}
                       disabled={isHeartbeating || isAutoTicking}
-                      className="h-11 rounded-lg border border-neonCyan bg-[#082f49] hover:bg-[#0c4a6e] text-cyan-300 text-[10px] font-bold tracking-widest uppercase transition-all glow-cyan disabled:opacity-40"
+                      className="h-11 rounded-lg border border-neonCyan bg-[#082f49] hover:bg-[#0c4a6e] text-cyan-300 text-[10px] font-bold tracking-widest uppercase transition-all glow-cyan disabled:opacity-40 cursor-pointer"
                     >
                       <i className="fa-solid fa-bolt mr-1"></i> Heartbeat Tick
                     </button>
@@ -735,7 +743,7 @@ class GatewayRouter:
                         setIsAutoTicking(!isAutoTicking);
                         addLocalLog(`[System] Auto-heartbeat loop execution ${!isAutoTicking ? 'STARTED' : 'PAUSED'}.`);
                       }}
-                      className={`h-11 rounded-lg border text-[10px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-1 ${
+                      className={`h-11 rounded-lg border text-[10px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-1 cursor-pointer ${
                         isAutoTicking 
                           ? 'bg-zinc-800 border-zinc-700 text-gray-400' 
                           : 'bg-emerald-950/40 border-neonGreen/30 text-neonGreen hover:bg-emerald-900/60 shadow-[0_0_10px_rgba(16,185,129,0.15)]'
@@ -751,35 +759,46 @@ class GatewayRouter:
                 </div>
 
                 {/* Governance Queue (Pending votes) */}
-                <div className="bg-panelBg border border-panelBorder rounded-xl p-5 shrink-0">
-                  <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-4">Governance Queue</h2>
+                <div className="bg-panelBg border border-panelBorder rounded-xl p-5 shrink-0 relative shadow-lg">
+                  <div className="flex items-center justify-between mb-4 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-shield-halved text-cyan-400"></i>
+                      <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest">Governance</h2>
+                    </div>
+                    {activeApprovalTicket && (
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    )}
+                  </div>
                   {activeApprovalTicket && governanceMode ? (
-                    <div className="border border-amber-600/50 bg-[#291711] rounded-lg p-4 relative overflow-hidden shadow-lg animate-pulse">
-                      <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider">Approval Required</h3>
-                      </div>
-                      <p className="text-[11px] text-gray-300 mb-1">Action Task: <span className="text-white font-bold uppercase">{activeApprovalTicket.title}</span></p>
-                      <p className="text-[9.5px] text-gray-400 font-mono line-clamp-2 select-text">{activeApprovalTicket.thought}</p>
+                    <div className="border border-amber-500/20 bg-amber-950/20 rounded-lg p-4 relative overflow-hidden shadow-lg animate-pulse">
+                      <div className="absolute top-0 left-0 w-[3px] h-full bg-amber-500"></div>
+                      <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <i className="fa-solid fa-triangle-exclamation animate-pulse"></i> Review Pending
+                      </p>
+                      <p className="text-xs text-gray-200 mb-2 font-medium">
+                        Agent needs your approval to merge: <span className="text-white font-bold block mt-1 uppercase select-all">"{activeApprovalTicket.title}"</span>
+                      </p>
+                      <p className="text-[10px] text-gray-400 font-mono line-clamp-2 select-text bg-black/30 p-2 rounded border border-white/[0.02]">{activeApprovalTicket.thought}</p>
                       
-                      <div className="flex gap-2 mt-3.5">
+                      <div className="flex gap-2 mt-4">
                         <button
                           onClick={() => handleBoardApproval('approved')}
-                          className="flex-1 py-2 rounded-md border border-neonGreen/50 bg-[#064e3b]/40 hover:bg-[#064e3b] text-neonGreen text-[10px] font-bold tracking-wider transition-all uppercase"
+                          className="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold tracking-wider transition-all uppercase cursor-pointer"
                         >
-                          Accept
+                          Approve
                         </button>
                         <button
                           onClick={() => handleBoardApproval('rejected')}
-                          className="flex-1 py-2 rounded-md border border-slate-600 bg-slate-800 hover:bg-red-900/40 text-gray-300 text-[10px] font-bold tracking-wider transition-all uppercase"
+                          className="flex-1 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-350 text-[10px] font-bold tracking-wider transition-all uppercase cursor-pointer"
                         >
                           Reject
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="border border-panelBorder bg-[#111827]/40 rounded-lg p-4 text-center text-xs text-textMuted py-7 font-bold uppercase tracking-wider">
-                      <i className="fa-solid fa-shield-halved mr-1.5 text-slate-500 animate-pulse"></i> Queue Empty
+                    <div className="border border-white/[0.03] bg-[#090b10]/40 rounded-lg p-4 text-center text-xs text-textMuted py-5 font-bold uppercase tracking-wider flex flex-col items-center justify-center gap-2">
+                      <i className="fa-solid fa-circle-check text-cyan-400 text-lg"></i> 
+                      <span className="text-[9px] tracking-widest text-slate-400 font-bold">ALL SYSTEMS SECURED</span>
                     </div>
                   )}
                 </div>
@@ -992,42 +1011,42 @@ class GatewayRouter:
           <main className="flex-1 flex flex-col bg-panelBg border border-panelBorder rounded-xl p-6 overflow-hidden shadow-2xl relative">
             
             {/* Header section in Panel 3 */}
-            <header className="flex justify-between items-end border-b border-panelBorder pb-4 mb-6 shrink-0">
+            <header className="flex justify-between items-center border-b border-panelBorder pb-5 mb-6 shrink-0">
               <div>
-                <h1 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <span className="text-white font-sans text-xl tracking-normal font-black">{companyName} Swarm Command Center</span>
+                <h1 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3.5 flex items-center gap-2">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-350 font-sans text-xl tracking-wide font-black">{companyName} Swarm Command Center</span>
                 </h1>
-                <div className="flex gap-12">
-                  <div>
-                    <p className="text-[9px] text-textMuted uppercase mb-1 font-bold tracking-wider">Active Swarm Directive:</p>
-                    <p className="text-sm font-semibold text-white uppercase tracking-wide truncate max-w-sm">
+                <div className="flex gap-4 items-center">
+                  <div className="bg-[#050608]/40 border border-white/[0.03] rounded-full px-3.5 py-1.5 flex items-center gap-2">
+                    <span className="text-[9px] text-cyan-400 font-extrabold uppercase tracking-widest">Active Swarm Directive:</span>
+                    <span className="text-xs font-semibold text-slate-200 truncate max-w-[280px]">
                       {goal}
-                    </p>
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-[9px] text-textMuted uppercase mb-1 font-bold tracking-wider font-sans">Compute Budget Used:</p>
-                    <p className="text-sm font-bold text-white font-mono flex items-center gap-1.5">
+                  <div className="bg-[#050608]/40 border border-white/[0.03] rounded-full px-3.5 py-1.5 flex items-center gap-2">
+                    <span className="text-[9px] text-textMuted font-extrabold uppercase tracking-widest">Compute Budget Used:</span>
+                    <span className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
                       <i className="fa-solid fa-coins text-cyan-400 animate-pulse"></i> {budgetUsed.toLocaleString()} <span className="text-[9px] text-cyan-400 font-sans font-black">NMX</span>
-                    </p>
+                    </span>
                   </div>
                 </div>
               </div>
               
               {/* God mode switch */}
-              <div className="flex items-center gap-3 bg-[#111827] px-4 py-2 rounded-lg border border-panelBorder shrink-0 shadow-inner">
-                <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">God Mode / Board Auth</span>
+              <div className="flex items-center gap-3 bg-[#050608]/40 px-4 py-2 rounded-xl border border-panelBorder shrink-0 shadow-inner">
+                <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">GOD MODE / AUTH</span>
                 <button
                   type="button"
                   onClick={() => {
                     setGovernanceMode(!governanceMode);
-                    addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Board approvals required)' : 'OFF (Autonomous loops)'}`);
+                    addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON' : 'OFF'}`);
                   }}
-                  className={`w-10 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 ${
-                    governanceMode ? 'bg-[#064e3b] shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-slate-800'
+                  className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer ${
+                    governanceMode ? 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]' : 'bg-slate-800'
                   }`}
                 >
                   <div className={`w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md ${
-                    governanceMode ? 'translate-x-5' : 'translate-x-0'
+                    governanceMode ? 'translate-x-4' : 'translate-x-0'
                   }`} />
                 </button>
               </div>
@@ -1037,21 +1056,21 @@ class GatewayRouter:
             
             {activeTab === 'Dashboard' && (
               <div className="flex-1 flex flex-col overflow-hidden gap-4">
-                {/* Active board view */}
-                <div className="flex-1 flex gap-5 overflow-hidden">
+                         {/* Active board view */}
+                <div className="flex-1 flex gap-5 overflow-hidden pb-2">
                   
                   {/* To Do Column */}
-                  <div className="w-[280px] flex-shrink-0 flex flex-col gap-3 h-full overflow-hidden">
-                    <div className="flex justify-between items-center mb-2 px-1 shrink-0">
-                      <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-500" /> To Do
+                  <div className="w-[290px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
+                    <div className="flex justify-between items-center px-1 shrink-0">
+                      <h3 className="text-xs font-bold text-slate-350 uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-slate-500" /> To Do
                       </h3>
-                      <span className="text-[9px] font-mono font-bold text-textMuted bg-[#151a23] border border-panelBorder px-2 py-0.5 rounded-lg">
+                      <span className="text-[9px] font-mono font-bold text-textMuted bg-[#050608] border border-panelBorder px-2.5 py-0.5 rounded-lg shadow-inner">
                         {tickets.filter(t => t.status === 'todo').length}
                       </span>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1.5 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1.5 custom-scrollbar pb-2">
                       {tickets.filter(t => t.status === 'todo').map(ticket => (
                         <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
                       ))}
@@ -1059,17 +1078,21 @@ class GatewayRouter:
                   </div>
 
                   {/* In Progress Column */}
-                  <div className="w-[280px] flex-shrink-0 flex flex-col gap-3 h-full overflow-hidden">
-                    <div className="flex justify-between items-center mb-2 px-1 shrink-0">
-                      <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-neonGreen animate-pulse shadow-glow-success" /> In Progress
+                  <div className="w-[290px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
+                    <div className="flex justify-between items-center px-1 shrink-0">
+                      <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400 shadow-glow-cyan"></span>
+                        </span>
+                        In Progress
                       </h3>
-                      <span className="text-[9px] font-mono font-bold text-neonGreen bg-emerald-950/40 border border-neonGreen/20 px-2 py-0.5 rounded-lg">
+                      <span className="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-950/20 border border-cyan-500/20 px-2.5 py-0.5 rounded-lg">
                         {tickets.filter(t => t.status === 'inprogress').length}
                       </span>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1.5 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1.5 custom-scrollbar pb-2">
                       {tickets.filter(t => t.status === 'inprogress').map(ticket => (
                         <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} isActive />
                       ))}
@@ -1077,17 +1100,17 @@ class GatewayRouter:
                   </div>
 
                   {/* Completed Column */}
-                  <div className="w-[280px] flex-shrink-0 flex flex-col gap-3 h-full overflow-hidden">
-                    <div className="flex justify-between items-center mb-2 px-1 shrink-0">
-                      <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-glow-cyan" /> Completed
+                  <div className="w-[290px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
+                    <div className="flex justify-between items-center px-1 shrink-0">
+                      <h3 className="text-xs font-bold text-neonGreen uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-neonGreen animate-pulse shadow-glow-success" /> Completed
                       </h3>
-                      <span className="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-950/40 border border-cyan-400/20 px-2 py-0.5 rounded-lg">
+                      <span className="text-[9px] font-mono font-bold text-neonGreen bg-emerald-950/20 border border-neonGreen/20 px-2.5 py-0.5 rounded-lg">
                         {tickets.filter(t => t.status === 'done' || t.status === 'awaiting').length}
                       </span>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1.5 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1.5 custom-scrollbar pb-2">
                       {tickets.filter(t => t.status === 'done' || t.status === 'awaiting').map(ticket => (
                         <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} isCompleted />
                       ))}
@@ -1097,42 +1120,68 @@ class GatewayRouter:
                 </div>
 
                 {/* Shell Logs terminal */}
-                <div className="h-[180px] bg-black/40 border border-panelBorder rounded-xl p-4 flex flex-col shrink-0 overflow-hidden shadow-inner relative z-10">
-                  <div className="flex items-center justify-between border-b border-panelBorder/40 pb-2 mb-2 shrink-0">
-                    <span className="text-[9px] font-black uppercase text-cyan-400 tracking-widest flex items-center gap-2 font-mono">
-                      <i className="fa-solid fa-terminal animate-pulse"></i> Swarm Shell Operations Streams
+                <div className="h-[180px] bg-[#050608]/80 border border-panelBorder rounded-xl flex flex-col shrink-0 overflow-hidden shadow-2xl relative z-10">
+                  <div className="flex justify-between items-center bg-[#090b11] px-4 py-2 border-b border-panelBorder shrink-0 select-none">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+                    </div>
+                    <span className="text-[9px] font-extrabold uppercase text-cyan-400 tracking-widest font-mono flex items-center gap-1.5">
+                      <Terminal className="w-3.5 h-3.5 text-cyan-400" /> Swarm Shell Operations Streams
                     </span>
-                    <span className="text-[8px] font-mono text-neonGreen font-black tracking-widest uppercase flex items-center gap-1 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-neonGreen animate-ping" /> STREAM_ACTIVE
+                    <span className="text-[8px] font-mono text-neonGreen font-black tracking-widest uppercase flex items-center gap-1.5 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-neonGreen animate-pulse shadow-[0_0_5px_#10b981]" /> STREAM_ACTIVE
                     </span>
                   </div>
                   
                   <div 
                     ref={logContainerRef}
-                    className="flex-1 overflow-y-auto space-y-2 pr-1 font-mono text-[9.5px] text-slate-300 custom-scrollbar select-text leading-relaxed p-1"
+                    className="flex-1 overflow-y-auto space-y-1.5 pr-2 pl-4 py-3.5 font-mono text-[10.5px] text-gray-300 custom-scrollbar select-text leading-relaxed"
                   >
                     {logs.map((log, idx) => {
                       const isError = log.includes('[Error]');
                       const isCEO = log.includes('[CEO]');
                       const isSystem = log.includes('[System]');
                       const isBroker = log.includes('[Broker]');
+                      
+                      let time = "";
+                      let msg = log;
+                      const timeMatch = log.match(/^\[(.*?)\]/);
+                      if (timeMatch) {
+                        time = timeMatch[1];
+                        msg = log.substring(timeMatch[0].length).trim();
+                      }
+
                       return (
                         <div 
                           key={idx}
-                          className={`p-2 rounded border flex items-start gap-2 transition-all hover:bg-white/[0.01] ${
+                          className={`flex items-start gap-3 py-0.5 border-l-2 border-transparent transition-all hover:bg-white/[0.01] ${
                             isError 
-                              ? 'bg-red-500/10 border-red-500/20 text-red-400' 
+                              ? 'border-l-red-500/40 text-red-450' 
                               : isCEO 
-                              ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400 font-bold'
+                              ? 'border-l-cyan-500/40 text-cyan-300/90 font-medium'
                               : isSystem 
-                              ? 'bg-[#151a23] border-panelBorder text-slate-400'
+                              ? 'text-gray-400/80'
                               : isBroker
-                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                              : 'bg-[#151a23]/30 border-transparent text-slate-400'
+                              ? 'border-l-emerald-500/40 text-emerald-350'
+                              : 'text-gray-400/80'
                           }`}
                         >
-                          <span className="opacity-30 select-none text-[8px] font-semibold shrink-0 mt-0.5">{(idx+1).toString().padStart(3, '0')}</span>
-                          <span className="flex-1 break-all select-text">{log}</span>
+                          <span className="opacity-25 select-none text-[8.5px] font-mono font-black shrink-0 mt-0.5">{(idx+1).toString().padStart(3, '0')}</span>
+                          {time && <span className="opacity-30 select-none text-[9px] font-mono shrink-0 mt-0.5">[{time}]</span>}
+                          <span className="flex-1 select-text leading-relaxed font-semibold">
+                            {msg.startsWith('[CEO]') ? (
+                              <span className="bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none">CEO</span>
+                            ) : msg.startsWith('[System]') ? (
+                              <span className="bg-slate-950/40 border border-slate-700/20 text-slate-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none">System</span>
+                            ) : msg.startsWith('[Error]') ? (
+                              <span className="bg-red-950/40 border border-red-500/20 text-red-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none animate-pulse">Error</span>
+                            ) : msg.startsWith('[Broker]') ? (
+                              <span className="bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none">Broker</span>
+                            ) : null}
+                            {msg.replace(/^\[(CEO|System|Error|Broker)\]\s*/, '')}
+                          </span>
                         </div>
                       );
                     })}
@@ -1511,63 +1560,68 @@ function KanbanCard({
   const hasOutput = !!ticket.output;
 
   const borderClass = isCompleted 
-    ? 'border-panelBorder bg-[#151a23]/60' 
+    ? 'border-panelBorder/30 bg-[#0e111a]/40 opacity-75' 
     : isActive 
-    ? 'bg-[#022c22] border-neonGreen/40 glow-green' 
-    : 'bg-[#151a23] border-panelBorder';
+    ? 'bg-[#0c1f24] border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.06)]' 
+    : 'bg-[#0e111a]/85 border-white/[0.03] shadow-lg';
 
   const titleClass = isCompleted 
     ? 'text-gray-400 font-bold line-through' 
-    : 'text-white font-semibold';
+    : 'text-white font-extrabold tracking-wide';
 
   return (
     <motion.div
       layoutId={ticket.id}
       transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-      className={`border rounded-xl p-4.5 flex flex-col space-y-3.5 text-left hover:border-cyan-500/20 transition-all ${borderClass}`}
+      className={`border rounded-2xl p-5 flex flex-col space-y-4 text-left hover:border-cyan-500/20 transition-all ${borderClass}`}
     >
       <div className="flex justify-between items-start gap-2">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded bg-[#0b0f19] border border-panelBorder flex items-center justify-center text-xs shrink-0 select-none">
+          <div className="w-6.5 h-6.5 rounded-lg bg-[#050608] border border-panelBorder/60 flex items-center justify-center text-xs shrink-0 select-none shadow-inner">
             {agent?.avatar || '🤖'}
           </div>
-          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wide truncate max-w-[120px]">
-            {agent?.name || 'Worker-Bot'}
+          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest truncate max-w-[120px]">
+            {agent?.name || 'AI Specialist'}
           </span>
         </div>
         
         {isActive && (
-          <div className="w-2.5 h-2.5 rounded-full bg-neonGreen shadow-[0_0_8px_#10b981] animate-pulse"></div>
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+          </span>
         )}
       </div>
 
       <h4 className={`text-xs uppercase tracking-wide leading-tight ${titleClass}`}>
         {ticket.title}
       </h4>
-      <p className="text-[10px] text-textMuted leading-relaxed select-text">
+      <p className="text-[10px] text-textMuted leading-relaxed select-text font-medium">
         {ticket.description}
       </p>
 
       {/* Embedded monospaced Thought Snippet logs */}
-      <div className="bg-black/40 border border-panelBorder/30 p-2.5 rounded-lg text-[9px] font-mono text-slate-400 leading-relaxed shadow-inner">
-        <span className="text-[8px] font-black text-cyan-400 uppercase tracking-wider block mb-1">Thought Snippet:</span>
-        <div className="select-text overflow-y-auto max-h-[70px] custom-scrollbar">
+      <div className="bg-[#050608]/50 border border-panelBorder/30 p-3 rounded-xl text-[10px] font-mono text-slate-350 leading-relaxed shadow-inner border-l-2 border-l-cyan-500/40 relative">
+        <span className="text-[8px] font-black text-cyan-400 uppercase tracking-widest block mb-1">Active Reasoning</span>
+        <div className="select-text overflow-y-auto max-h-[70px] custom-scrollbar font-medium">
           {ticket.thought}
         </div>
       </div>
 
       {isActive && (
-        <div className="pt-1.5 shrink-0">
-          <div className="w-full bg-[#064e3b] rounded-full h-1.5 mb-1.5 overflow-hidden">
-            <div className="bg-neonCyan h-full rounded-full animate-pulse" style={{ width: '65%' }}></div>
+        <div className="pt-1 shrink-0">
+          <div className="w-full bg-[#082f49]/40 rounded-full h-1.5 mb-1.5 overflow-hidden border border-cyan-500/10">
+            <div className="bg-cyan-500 h-full rounded-full animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.4)]" style={{ width: '65%' }}></div>
           </div>
-          <span className="text-[9.5px] text-cyan-400 font-bold uppercase tracking-wider">65% Compiling...</span>
+          <span className="text-[9.5px] text-cyan-400 font-extrabold uppercase tracking-wider flex items-center gap-1">
+            <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping mr-0.5" /> 65% Compiling...
+          </span>
         </div>
       )}
 
       {isCompleted && (
-        <div className="w-full bg-[#1f2937] rounded-full h-1.5 mt-2 shrink-0">
-          <div className="bg-blue-900 h-full rounded-full" style={{ width: '100%' }}></div>
+        <div className="w-full bg-slate-950 rounded-full h-1.5 mt-1 shrink-0 border border-white/[0.01]">
+          <div className="bg-emerald-500 h-full rounded-full shadow-[0_0_6px_rgba(16,185,129,0.3)]" style={{ width: '100%' }}></div>
         </div>
       )}
 
@@ -1575,7 +1629,7 @@ function KanbanCard({
         <div className="pt-2 border-t border-panelBorder/40 flex justify-end shrink-0">
           <button
             onClick={() => onCodePreview(ticket.output!)}
-            className="h-6 px-2.5 rounded bg-cyan-950/40 border border-cyan-400/20 hover:bg-cyan-900/60 text-cyan-400 text-[8.5px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors"
+            className="h-7 px-3.5 rounded-lg bg-cyan-950/20 border border-cyan-500/20 hover:bg-cyan-600/15 hover:border-cyan-500/40 text-cyan-400 text-[8.5px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer shadow-md"
           >
             <i className="fa-solid fa-code"></i> Output Code
           </button>
