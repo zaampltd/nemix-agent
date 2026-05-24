@@ -1055,12 +1055,13 @@ class GatewayRouter:
             {/* TAB CONTENTS RENDER SECTION */}
             
             {activeTab === 'Dashboard' && (
-              <div className="flex-1 flex flex-col overflow-hidden gap-4">
-                         {/* Active board view */}
-                <div className="flex-1 flex gap-5 overflow-hidden pb-2">
+              <div className="flex-1 flex gap-5 overflow-hidden">
+                
+                {/* Left side: The Kanban board columns */}
+                <div className="flex-1 flex gap-4 overflow-hidden">
                   
                   {/* To Do Column */}
-                  <div className="w-[290px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
+                  <div className="w-[280px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
                     <div className="flex justify-between items-center px-1 shrink-0">
                       <h3 className="text-xs font-bold text-slate-350 uppercase tracking-widest flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-slate-500" /> To Do
@@ -1078,7 +1079,7 @@ class GatewayRouter:
                   </div>
 
                   {/* In Progress Column */}
-                  <div className="w-[290px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
+                  <div className="w-[280px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
                     <div className="flex justify-between items-center px-1 shrink-0">
                       <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
                         <span className="relative flex h-2 w-2">
@@ -1100,7 +1101,7 @@ class GatewayRouter:
                   </div>
 
                   {/* Completed Column */}
-                  <div className="w-[290px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
+                  <div className="w-[280px] flex-shrink-0 flex flex-col gap-3.5 h-full overflow-hidden bg-[#050608]/20 border border-white/[0.01] backdrop-blur-xl rounded-2xl p-3.5 shadow-lg shadow-black/10">
                     <div className="flex justify-between items-center px-1 shrink-0">
                       <h3 className="text-xs font-bold text-neonGreen uppercase tracking-widest flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-neonGreen animate-pulse shadow-glow-success" /> Completed
@@ -1119,16 +1120,16 @@ class GatewayRouter:
 
                 </div>
 
-                {/* Shell Logs terminal */}
-                <div className="h-[180px] bg-[#050608]/80 border border-panelBorder rounded-xl flex flex-col shrink-0 overflow-hidden shadow-2xl relative z-10">
-                  <div className="flex justify-between items-center bg-[#090b11] px-4 py-2 border-b border-panelBorder shrink-0 select-none">
+                {/* Right side: Vertical Swarm Shell Operations streams */}
+                <div className="w-[330px] flex-shrink-0 bg-[#050608]/80 border border-panelBorder rounded-2xl flex flex-col overflow-hidden shadow-2xl relative h-full">
+                  <div className="flex justify-between items-center bg-[#090b11] px-4 py-3 border-b border-panelBorder shrink-0 select-none">
                     <div className="flex items-center gap-1.5">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
                       <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
                       <span className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
                     </div>
                     <span className="text-[9px] font-extrabold uppercase text-cyan-400 tracking-widest font-mono flex items-center gap-1.5">
-                      <Terminal className="w-3.5 h-3.5 text-cyan-400" /> Swarm Shell Operations Streams
+                      <Terminal className="w-3.5 h-3.5 text-cyan-400" /> Swarm Shell streams
                     </span>
                     <span className="text-[8px] font-mono text-neonGreen font-black tracking-widest uppercase flex items-center gap-1.5 shrink-0">
                       <span className="w-1.5 h-1.5 rounded-full bg-neonGreen animate-pulse shadow-[0_0_5px_#10b981]" /> STREAM_ACTIVE
@@ -1137,7 +1138,7 @@ class GatewayRouter:
                   
                   <div 
                     ref={logContainerRef}
-                    className="flex-1 overflow-y-auto space-y-1.5 pr-2 pl-4 py-3.5 font-mono text-[10.5px] text-gray-300 custom-scrollbar select-text leading-relaxed"
+                    className="flex-1 overflow-y-auto space-y-2 pr-2 pl-4 py-4 bg-[#050608]/30 font-mono text-[10px] text-gray-300 custom-scrollbar select-text leading-relaxed"
                   >
                     {logs.map((log, idx) => {
                       const isError = log.includes('[Error]');
@@ -1156,7 +1157,7 @@ class GatewayRouter:
                       return (
                         <div 
                           key={idx}
-                          className={`flex items-start gap-3 py-0.5 border-l-2 border-transparent transition-all hover:bg-white/[0.01] ${
+                          className={`flex items-start gap-2.5 py-0.5 border-l-2 border-transparent transition-all hover:bg-white/[0.01] ${
                             isError 
                               ? 'border-l-red-500/40 text-red-450' 
                               : isCEO 
@@ -1168,17 +1169,17 @@ class GatewayRouter:
                               : 'text-gray-400/80'
                           }`}
                         >
-                          <span className="opacity-25 select-none text-[8.5px] font-mono font-black shrink-0 mt-0.5">{(idx+1).toString().padStart(3, '0')}</span>
-                          {time && <span className="opacity-30 select-none text-[9px] font-mono shrink-0 mt-0.5">[{time}]</span>}
+                          <span className="opacity-25 select-none text-[8px] font-mono font-black shrink-0 mt-0.5">{(idx+1).toString().padStart(3, '0')}</span>
+                          {time && <span className="opacity-30 select-none text-[8.5px] font-mono shrink-0 mt-0.5">[{time}]</span>}
                           <span className="flex-1 select-text leading-relaxed font-semibold">
                             {msg.startsWith('[CEO]') ? (
-                              <span className="bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none">CEO</span>
+                              <span className="bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 text-[8px] font-extrabold uppercase px-1 py-0.5 rounded-md mr-1 select-none">CEO</span>
                             ) : msg.startsWith('[System]') ? (
-                              <span className="bg-slate-950/40 border border-slate-700/20 text-slate-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none">System</span>
+                              <span className="bg-slate-950/40 border border-slate-700/20 text-slate-400 text-[8px] font-extrabold uppercase px-1 py-0.5 rounded-md mr-1 select-none">System</span>
                             ) : msg.startsWith('[Error]') ? (
-                              <span className="bg-red-950/40 border border-red-500/20 text-red-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none animate-pulse">Error</span>
+                              <span className="bg-red-950/40 border border-red-500/20 text-red-400 text-[8px] font-extrabold uppercase px-1 py-0.5 rounded-md mr-1 select-none animate-pulse">Error</span>
                             ) : msg.startsWith('[Broker]') ? (
-                              <span className="bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-md mr-1.5 select-none">Broker</span>
+                              <span className="bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 text-[8px] font-extrabold uppercase px-1 py-0.5 rounded-md mr-1 select-none">Broker</span>
                             ) : null}
                             {msg.replace(/^\[(CEO|System|Error|Broker)\]\s*/, '')}
                           </span>
@@ -1187,6 +1188,7 @@ class GatewayRouter:
                     })}
                   </div>
                 </div>
+
               </div>
             )}
 
