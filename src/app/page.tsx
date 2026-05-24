@@ -90,17 +90,25 @@ export default function Page() {
   const logContainerRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logs
+  // Auto-scroll logs helper with paint safety timeout
   useEffect(() => {
-    if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    const container = logContainerRef.current;
+    if (container) {
+      const scrollTimeout = setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 50);
+      return () => clearTimeout(scrollTimeout);
     }
   }, [logs, activeTab]);
 
-  // Auto-scroll chat
+  // Auto-scroll chat helper with paint safety timeout
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    const container = chatContainerRef.current;
+    if (container) {
+      const scrollTimeout = setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 50);
+      return () => clearTimeout(scrollTimeout);
     }
   }, [chatMessages, activeTab]);
 
@@ -706,7 +714,7 @@ class GatewayRouter:
           {/* ======================================================== */}
           {/* PANEL 2: CONTEXTUAL SIDEBAR (Middle, 360px wide)        */}
           {/* ======================================================== */}
-          <aside className="w-[360px] flex-shrink-0 flex flex-col gap-4 h-full">
+          <aside className="w-[360px] flex-shrink-0 flex flex-col gap-4 h-full order-last">
             
             {/* Contextual Side Panel View Toggles */}
             {activeTab === 'Dashboard' && (
@@ -820,9 +828,9 @@ class GatewayRouter:
                   </div>
 
                   {/* Connectors lines */}
-                  <div className="w-64 h-6 border-t-2 border-l-2 border-r-2 border-slate-700 rounded-t-xl absolute top-[100px]"></div>
-                  <div className="w-[2px] h-4 bg-slate-700 absolute top-[88px]"></div>
-                  <div className="w-[2px] h-4 bg-slate-700 absolute top-[100px] left-1/2 -translate-x-1/2"></div>
+                  <div className="w-64 h-6 border-t-2 border-l-2 border-r-2 border-cyan-500/30 rounded-t-xl absolute top-[100px]"></div>
+                  <div className="w-[2px] h-4 bg-cyan-500/30 absolute top-[88px]"></div>
+                  <div className="w-[2px] h-4 bg-cyan-500/30 absolute top-[100px] left-1/2 -translate-x-1/2"></div>
                   
                   {/* Worker Nodes row */}
                   <div className="flex justify-between w-72 mt-2 shrink-0">
