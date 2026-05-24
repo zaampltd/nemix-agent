@@ -69,10 +69,33 @@ export default function Page() {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  // Load API Key from local storage on mount
+  // Load API Key and active db.json state from backend on mount
   useEffect(() => {
     const saved = localStorage.getItem('nemix_agent_key');
     if (saved) setApiKey(saved);
+
+    const loadState = async () => {
+      try {
+        const response = await fetch('/api/orchestrator/company');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.state) {
+            setMission(data.state.mission);
+            setGoal(data.state.goal);
+            setAgents(data.state.agents);
+            setTickets(data.state.tickets);
+            setLogs(data.state.logs);
+            setBudgetUsed(data.state.budgetUsed);
+            setGovernanceMode(data.state.governanceMode);
+            setInitialized(true);
+            addLocalLog('[System] Re-connected to active swarm operations console.');
+          }
+        }
+      } catch (e: any) {
+        addLocalLog(`[System] Failed to restore previous session state: ${e.message}`);
+      }
+    };
+    loadState();
   }, []);
 
   const saveKey = () => {
@@ -135,6 +158,54 @@ export default function Page() {
     } catch (e: any) {
       setIsInitializing(false);
       addLocalLog(`[Error] Swarm bootstrap failed: ${e?.message || 'Gateway Timeout'}`);
+    }
+  };
+
+  // ─── Initialize Swarm in Demo Mode ───
+  const handleDemoMode = async () => {
+    setIsInitializing(true);
+    addLocalLog('[System] Launching Demo Mode: Bootstrapping pre-configured Swarm Company...');
+    
+    // Set default demo inputs
+    const demoMission = "Build an autonomous multi-agent edge gateway router.";
+    const demoGoal = "Decompose and execute Next.js edge failover schemas.";
+    setMission(demoMission);
+    setGoal(demoGoal);
+
+    try {
+      const response = await fetch('/api/orchestrator/company', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mission: demoMission, goal: demoGoal })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to bootstrap demo workspace');
+      }
+
+      const data = await response.json();
+      
+      setTimeout(() => {
+        setAgents(data.state.agents);
+        setTickets(data.state.tickets);
+        setLogs(data.state.logs);
+        setBudgetUsed(data.state.budgetUsed);
+        setGovernanceMode(data.state.governanceMode);
+        setInitialized(true);
+        setIsInitializing(false);
+        
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.7 },
+          colors: ['#3b82f6', '#10b981', '#7c6af7', '#ffffff']
+        });
+        addLocalLog('[System] Demo Swarm successfully loaded. Swarm Roster and Kanban board are active!');
+      }, 1000);
+
+    } catch (e: any) {
+      setIsInitializing(false);
+      addLocalLog(`[Error] Demo Mode launch failed: ${e?.message}`);
     }
   };
 
@@ -657,24 +728,36 @@ export default function Page() {
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={handleStartCompany}
-                        disabled={isInitializing || !mission.trim() || !goal.trim()}
-                        className="w-full h-12.5 btn-primary justify-center uppercase tracking-widest text-xs font-black shadow-lg shadow-blue-600/10"
-                      >
-                        {isInitializing ? (
-                          <>
-                            <RefreshCw className="w-4.5 h-4.5 animate-spin text-white" />
-                            Recruiting Swarm...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-4.5 h-4.5 fill-current text-white" />
-                            Initialize Swarm Company
-                          </>
-                        )}
-                      </button>
+                      <div className="flex flex-col gap-3">
+                        <button
+                          type="button"
+                          onClick={handleStartCompany}
+                          disabled={isInitializing || !mission.trim() || !goal.trim()}
+                          className="w-full h-12.5 btn-primary justify-center uppercase tracking-widest text-xs font-black shadow-lg shadow-blue-600/10"
+                        >
+                          {isInitializing ? (
+                            <>
+                              <RefreshCw className="w-4.5 h-4.5 animate-spin text-white" />
+                              Recruiting Swarm...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-4.5 h-4.5 fill-current text-white" />
+                              Initialize Swarm Company
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleDemoMode}
+                          disabled={isInitializing}
+                          className="w-full h-12.5 btn-secondary justify-center uppercase tracking-widest text-xs font-black border border-indigo-500/20 hover:border-indigo-500/40 text-indigo-400 bg-indigo-500/5 hover:bg-indigo-500/10 shadow-sm"
+                        >
+                          <Sparkles className="w-4.5 h-4.5 text-indigo-400 animate-pulse animate-duration-1000" />
+                          Simulate Swarm (Demo Mode)
+                        </button>
+                      </div>
 
                     </div>
 

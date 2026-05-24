@@ -128,3 +128,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error?.message || 'Failed to initialize company' }, { status: 500 });
   }
 }
+
+// ─── GET Handler to Load Existing State ───
+export async function GET() {
+  try {
+    const fs = require('fs');
+    if (fs.existsSync(DB_PATH)) {
+      const data = fs.readFileSync(DB_PATH, 'utf-8');
+      return NextResponse.json({ success: true, state: JSON.parse(data) });
+    }
+    return NextResponse.json({ success: false, message: 'No active state found' });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || 'Failed to read state' }, { status: 500 });
+  }
+}
+
