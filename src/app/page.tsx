@@ -940,46 +940,66 @@ class GatewayRouter:
             )}
 
             {activeTab === 'Files' && (
-              <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col h-full overflow-hidden">
-                <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-4">Knowledge Structure</h2>
+              <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col h-full overflow-hidden relative shadow-2xl">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+                <h2 className="text-xs font-bold text-gray-150 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <FolderOpen className="w-4.5 h-4.5 text-cyan-400" /> Knowledge Structure
+                </h2>
                 
                 {/* Search query box */}
-                <div className="relative mb-4 shrink-0">
+                <div className="relative mb-5 shrink-0 select-none">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search files..."
-                    className="w-full p-2 pl-8 bg-[#111827] border border-panelBorder rounded-lg text-xs font-mono text-gray-300 outline-none"
+                    className="w-full py-2.5 pl-9 pr-4 bg-[#050508]/80 border border-panelBorder/75 rounded-xl text-xs font-mono text-gray-300 outline-none focus:border-cyan-500/40 transition-colors shadow-inner"
                   />
-                  <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[10px]"></i>
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 flex items-center">
+                    <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
+                  </div>
                 </div>
 
                 {/* Directory structures */}
-                <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto space-y-2.5 pr-1.5 custom-scrollbar select-none">
                   {[
-                    { label: "All Drives", icon: "fa-hard-drive", count: knowledgeFiles.length },
-                    { label: "Datasets", icon: "fa-database", count: knowledgeFiles.filter(f=>f.folder==="Datasets").length },
-                    { label: "Prompts", icon: "fa-feather", count: knowledgeFiles.filter(f=>f.folder==="Prompts").length },
-                    { label: "Blueprints", icon: "fa-project-diagram", count: knowledgeFiles.filter(f=>f.folder==="Blueprints").length },
-                    { label: "Drives", icon: "fa-folder-open", count: knowledgeFiles.filter(f=>f.folder==="Drives").length }
-                  ].map((folder) => (
-                    <button
-                      key={folder.label}
-                      onClick={() => setSelectedFolder(folder.label)}
-                      className={`w-full flex items-center justify-between p-2.5 rounded-lg text-xs font-bold uppercase transition-colors ${
-                        selectedFolder === folder.label 
-                          ? 'bg-cyan-950/20 border border-cyan-500/30 text-cyan-400' 
-                          : 'hover:bg-white/5 border border-transparent text-gray-400'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <i className={`fa-solid ${folder.icon} text-sm ${selectedFolder === folder.label ? 'text-cyan-400' : 'text-gray-500'}`}></i>
-                        {folder.label}
-                      </span>
-                      <span className="text-[10px] font-mono opacity-60 bg-black/30 px-1.5 py-0.5 rounded">{folder.count}</span>
-                    </button>
-                  ))}
+                    { label: "All Drives", icon: <HardDrive className="w-4 h-4" />, count: knowledgeFiles.length },
+                    { label: "Datasets", icon: <Database className="w-4 h-4" />, count: knowledgeFiles.filter(f=>f.folder==="Datasets").length },
+                    { label: "Prompts", icon: <Sliders className="w-4 h-4" />, count: knowledgeFiles.filter(f=>f.folder==="Prompts").length },
+                    { label: "Blueprints", icon: <Layers className="w-4 h-4" />, count: knowledgeFiles.filter(f=>f.folder==="Blueprints").length },
+                    { label: "Drives", icon: <Folder className="w-4 h-4" />, count: knowledgeFiles.filter(f=>f.folder==="Drives").length }
+                  ].map((folder) => {
+                    const isSelected = selectedFolder === folder.label;
+                    
+                    return (
+                      <button
+                        key={folder.label}
+                        onClick={() => setSelectedFolder(folder.label)}
+                        className={`w-full flex items-center justify-between p-3.5 rounded-xl text-xs font-black uppercase transition-all relative overflow-hidden group border ${
+                          isSelected 
+                            ? 'bg-[#091b24]/40 border-cyan-500/25 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.03)]' 
+                            : 'hover:bg-[#151a23]/35 hover:border-panelBorder/60 border-transparent text-gray-400'
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="absolute left-0 top-0 w-[2.5px] h-full bg-cyan-400 rounded-r shadow-[0_0_8px_#06b6d4]"></div>
+                        )}
+                        
+                        <span className="flex items-center gap-2.5 relative z-10">
+                          <span className={isSelected ? "text-cyan-400" : "text-gray-500 group-hover:text-cyan-450 transition-colors"}>
+                            {folder.icon}
+                          </span>
+                          <span className={isSelected ? "text-white" : "group-hover:text-cyan-400 transition-colors"}>{folder.label}</span>
+                        </span>
+                        
+                        <span className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-lg border relative z-10 transition-colors ${
+                          isSelected 
+                            ? 'bg-cyan-950/40 border-cyan-500/25 text-cyan-400 shadow-inner' 
+                            : 'bg-black/35 border-panelBorder/40 text-gray-550'
+                        }`}>{folder.count}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -1365,46 +1385,92 @@ class GatewayRouter:
 
             {activeTab === 'Files' && (
               <div className="flex-1 flex flex-col overflow-hidden space-y-4">
-                <div className="flex justify-between items-center shrink-0 border-b border-panelBorder/40 pb-3">
-                  <h3 className="text-xs font-bold text-white uppercase tracking-widest font-sans flex items-center gap-2">
-                    <Folder className="w-4.5 h-4.5 text-cyan-400" /> Knowledge base drives explorer
-                  </h3>
+                <div className="flex justify-between items-center shrink-0 border-b border-panelBorder/30 pb-4 select-none">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-cyan-950/20 border border-cyan-500/20 flex items-center justify-center">
+                      <Folder className="w-4.5 h-4.5 text-cyan-400 animate-pulse" />
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black text-white uppercase tracking-wider block leading-none">Knowledge base drives</h3>
+                      <span className="text-[8px] text-textMuted uppercase font-mono tracking-widest mt-1 block">autonomous files & prompts vault</span>
+                    </div>
+                  </div>
+                  
                   <div className="flex gap-2">
-                    <button className="btn-secondary h-8.5 text-xs px-3 flex items-center gap-1.5 uppercase font-bold text-cyan-400 bg-cyan-950/10 border border-cyan-500/20 shadow-glow-cyan">
-                      <Upload className="w-3.5 h-3.5" /> Upload File
+                    <button className="h-9 px-4.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:brightness-110 text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 transition-all hover:scale-[1.01] active:scale-100 shadow-glow-cyan shrink-0 cursor-pointer">
+                      <Upload className="w-3.5 h-3.5 text-white" /> Upload Asset
                     </button>
                   </div>
                 </div>
 
                 {/* files grid list explorer */}
-                <div className="flex-1 overflow-y-auto pr-1.5 custom-scrollbar space-y-3 select-none">
+                <div className="flex-1 overflow-y-auto pr-1.5 custom-scrollbar space-y-3.5 select-none">
                   {filteredFiles.length === 0 ? (
                     <div className="text-center py-20 text-textMuted text-xs font-bold uppercase tracking-wider">
                       No files matching filters
                     </div>
                   ) : (
-                    filteredFiles.map((file, idx) => (
-                      <div key={idx} className="bg-[#151a23]/35 border border-panelBorder rounded-xl p-4 flex items-center justify-between hover:border-cyan-500/20 transition-all group">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 bg-black/40 border border-panelBorder rounded-lg flex items-center justify-center shrink-0 group-hover:text-cyan-400 transition-colors">
-                            <FileText className="w-5 h-5 text-gray-400 group-hover:text-cyan-400 transition-colors" />
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="text-xs font-bold text-white truncate max-w-sm group-hover:text-cyan-400 transition-colors select-text">{file.name}</h4>
-                            <p className="text-[8px] text-textMuted uppercase mt-1 font-mono">{file.type} • {file.size} • Uploaded {file.date}</p>
-                          </div>
-                        </div>
+                    filteredFiles.map((file, idx) => {
+                      const isJson = file.name.endsWith('.json');
+                      const isPdf = file.name.endsWith('.pdf');
+                      const isCsv = file.name.endsWith('.csv');
+                      
+                      const fileIcon = isJson 
+                        ? <FileCode className="w-5 h-5 text-cyan-400 animate-pulse" />
+                        : isPdf 
+                        ? <Layers className="w-5 h-5 text-rose-400 animate-pulse" />
+                        : isCsv
+                        ? <Database className="w-5 h-5 text-emerald-400" />
+                        : <FileText className="w-5 h-5 text-indigo-400" />;
                         
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[8.5px] font-black uppercase bg-[#111827] border border-panelBorder px-2.5 py-0.5 rounded-lg text-cyan-400 shadow-inner">
-                            {file.folder}
-                          </span>
-                          <button className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-                            <Code className="w-4 h-4" />
-                          </button>
+                      const folderColorClass = file.folder === "Datasets"
+                        ? "bg-emerald-950/30 border-emerald-500/20 text-emerald-400"
+                        : file.folder === "Prompts"
+                        ? "bg-purple-950/30 border-purple-500/20 text-purple-400"
+                        : file.folder === "Blueprints"
+                        ? "bg-cyan-950/30 border-cyan-500/20 text-cyan-400"
+                        : "bg-indigo-950/30 border-indigo-500/20 text-indigo-400";
+                        
+                      return (
+                        <div 
+                          key={idx} 
+                          className="bg-[#0e111a]/85 border border-panelBorder rounded-2xl p-4.5 flex items-center justify-between hover:border-cyan-500/25 hover:bg-[#151a23]/60 transition-all duration-300 group shadow-md"
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="w-10 h-10 bg-black/40 border border-panelBorder rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-inner">
+                              {fileIcon}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-black uppercase text-white truncate max-w-sm group-hover:text-cyan-400 transition-colors select-text leading-tight">{file.name}</h4>
+                              <p className="text-[8px] text-textMuted uppercase mt-1.5 font-mono font-medium tracking-wide">
+                                {file.type} • {file.size} • Synced {file.date}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className={`text-[8px] font-black uppercase border px-2.5 py-0.5 rounded-lg shadow-inner ${folderColorClass}`}>
+                              {file.folder}
+                            </span>
+                            
+                            <button 
+                              onClick={() => {
+                                // Dynamic code preview contents for file
+                                const codeContent = isJson 
+                                  ? `{\n  "schema": "nemix_edge_gateway_router",\n  "version": "1.0.4",\n  "active_failover": true,\n  "fallback_hosts": ["together.nemix.ai", "backup.gateway.ai"],\n  "retry_timeout_ms": 500\n}`
+                                  : isCsv
+                                  ? `Date,Tokens,ComputeCost,APIKeyUsed\n21-05-2026,1.4M,4200 NMX,nex_sk_ep_***\n22-05-2026,890K,2800 NMX,nex_sk_ep_***\n23-05-2026,2.1M,6400 NMX,nex_sk_ep_***`
+                                  : `// Direct System Document Asset: ${file.name}\n// Loaded into agent prompt context successfully.\n\ndef load_context():\n    return "Swarm company active configuration specifications."`;
+                                setActiveCodePreview(codeContent);
+                              }}
+                              className="h-8 px-3.5 rounded-lg bg-cyan-950/20 border border-cyan-500/20 hover:bg-cyan-600/15 hover:border-cyan-500/40 text-cyan-400 text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                            >
+                              <i className="fa-solid fa-code"></i> Preview Source
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
