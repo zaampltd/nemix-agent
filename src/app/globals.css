@@ -79,7 +79,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.03em;
 }
 
-/* ── Sleek Custom Scrollbars ───────────────────────── */
+/* ── Sci-fi Custom Scrollbars ──────────────────────── */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -88,12 +88,19 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.08);
-  border-radius: 99px;
-  transition: background 0.3s ease;
+  background: #334155;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.2);
+  background: #06b6d4;
+}
+
+/* Neon Glow Utilities */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+}
+.glow-green {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
 }
 
 /* ── Cyber Card Glassmorphism ──────────────────────── */

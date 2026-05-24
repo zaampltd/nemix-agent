@@ -26,7 +26,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable} dark`}>
-      <body className="antialiased bg-[#030305] text-[#f8fafc] min-h-screen">
+      <head>
+        {/* Load FontAwesome v6 for identical visual fidelity matching user mockup */}
+        <link 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+          rel="stylesheet" 
+          crossOrigin="anonymous" 
+          referrerPolicy="no-referrer"
+        />
+      </head>
+      <body className="antialiased bg-nemixBg text-[#f8fafc] min-h-screen">
         {children}
       </body>
     </html>

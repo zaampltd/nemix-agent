@@ -9,12 +9,18 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'sans-serif'],
+        sans: ['Inter', 'var(--font-sans)', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       colors: {
+        nemixBg: '#050505',
+        panelBg: '#0e1015',
+        panelBorder: 'rgba(255, 255, 255, 0.08)',
+        neonCyan: '#06b6d4',
+        neonGreen: '#10b981',
+        textMuted: '#94a3b8',
         nemix: {
-          bg: 'var(--bg-primary)',
+          bg: '#050505',
           surface: 'var(--bg-surface)',
           card: 'var(--bg-card)',
           border: 'var(--border-primary)',
@@ -37,6 +43,8 @@ module.exports = {
         'glow-warning': '0 0 25px rgba(245, 158, 11, 0.25), 0 0 10px rgba(245, 158, 11, 0.1)',
         'glow-purple': '0 0 25px rgba(129, 140, 248, 0.25), 0 0 10px rgba(129, 140, 248, 0.1)',
         'glow-error': '0 0 25px rgba(239, 68, 68, 0.25), 0 0 10px rgba(239, 68, 68, 0.1)',
+        'glow-cyan': '0 0 20px rgba(6, 182, 212, 0.25)',
+        'glow-green': '0 0 20px rgba(16, 185, 129, 0.15)',
       },
       transitionTimingFunction: {
         'premium-ease': 'cubic-bezier(0.16, 1, 0.3, 1)',
