@@ -3,173 +3,74 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Terminal, Play, Bot, BrainCircuit, Code, Search, CheckCircle2,
-  Cpu, Activity, Lock, Key, Eye, EyeOff, Save, Sparkles, FolderCode,
-  FileCode, RefreshCw, X, ArrowRight, CornerDownRight, PlayCircle,
-  HelpCircle, ShieldCheck, AlertCircle, ChevronRight, Copy
+  BrainCircuit, Terminal, Play, CheckCircle2, Cpu, Activity, Lock, Key,
+  Eye, EyeOff, Save, Sparkles, ChevronRight, UserCheck, ThumbsUp, ThumbsDown,
+  ShieldAlert, Clock, Compass, Rocket, Zap, RefreshCw, FileCode,
+  Coins, Users, Kanban, Plus, PlayCircle, PauseCircle, Code, Copy, Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-// ─── Constants & Mock Data ───
-const PRESETS = [
-  "Build a fast-fallback Edge Router with Together AI",
-  "Write an automated vulnerability scan scanner",
-  "Generate a SQLite vector store search function",
-  "Configure a unified slack notification webhook"
-];
-
-interface SubAgent {
+// ─── Interfaces ───
+interface Agent {
   id: string;
-  name: string;
   role: string;
-  icon: React.ComponentType<any>;
-  color: string;
-  status: 'idle' | 'thinking' | 'working' | 'done' | 'error';
-  progress: number;
-  description: string;
+  name: string;
+  avatar: string;
+  status: 'working' | 'sleeping';
 }
 
-const INITIAL_AGENTS: SubAgent[] = [
-  { id: 'ceo', name: 'Orchestrator CEO', role: 'Chief Agent', icon: BrainCircuit, color: 'var(--md-primary)', status: 'idle', progress: 0, description: 'Breaks goals into visual DAG trees and delegates tasks' },
-  { id: 'res', name: 'Web Researcher', role: 'Knowledge Scraper', icon: Search, color: 'var(--md-success)', status: 'idle', progress: 0, description: 'Queries public APIs and scrapes documentation sources' },
-  { id: 'cod', name: 'Code Engine', role: 'Software Architect', icon: Code, color: '#f59e0b', status: 'idle', progress: 0, description: 'Writes optimized, type-safe Next.js/Python code bases' },
-  { id: 'qa', name: 'Security & QA Auditor', role: 'Vulnerability Inspector', icon: ShieldCheck, color: 'var(--md-error)', status: 'idle', progress: 0, description: 'Runs compiler static checks and checks credentials leaks' },
-  { id: 'wri', name: 'Technical Writer', role: 'Documentation Builder', icon: FileCode, color: '#e2e8f0', status: 'idle', progress: 0, description: 'Composes clean markdown guides and API references' }
-];
+interface Ticket {
+  id: string;
+  title: string;
+  description: string;
+  assignedTo: string;
+  status: 'todo' | 'inprogress' | 'awaiting' | 'done';
+  thought: string;
+  output?: string;
+}
 
-const GOAL_TASKS = [
-  { id: 1, text: 'Analyze goal & map API dependencies tree', agent: 'Orchestrator CEO' },
-  { id: 2, text: 'Query public documentation schemas for libraries', agent: 'Web Researcher' },
-  { id: 3, text: 'Bootstrap modular codebase structures', agent: 'Code Engine' },
-  { id: 4, text: 'Execute static compiler validation and test suites', agent: 'Security & QA Auditor' },
-  { id: 5, text: 'Draft complete usage README markdown manuals', agent: 'Technical Writer' }
-];
+interface LogEntry {
+  timestamp: string;
+  source: string;
+  message: string;
+  type: 'system' | 'agent' | 'success' | 'alert' | 'error';
+}
 
-const CODE_VAULT: Record<string, string> = {
-  'edge_router.py': `import os
-from nemix import NemixEdgeRouter
-
-# Initialize the Nemix-powered Failover Router
-router = NemixEdgeRouter(
-    config={
-        "configName": "Secure Edge API Gateway",
-        "fallbackChain": [
-            {
-                "provider": "Together AI",
-                "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-                "trigger": "Rate Limit (429)"
-            },
-            {
-                "provider": "Groq",
-                "model": "llama-3.3-70b-versatile",
-                "trigger": "Any Failure (Trigger on any error)"
-            }
-        ]
-    },
-    credentials={
-        "TOGETHER_AI_API_KEY": os.getenv("TOGETHER_AI_API_KEY"),
-        "GROQ_API_KEY": os.getenv("GROQ_API_KEY")
-    }
-)
-
-# Run secure edge inference in real time
-response = router.generate(
-    prompt="Perform high-speed sentiment classification on user payload.",
-    temperature=0.1
-)
-
-print(f"Status: 200 OK | Response: {response.text}")`,
-
-  'index.tsx': `import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, ShieldCheck } from 'lucide-react';
-
-export default function SecureControlBoard() {
-  const [active, setActive] = useState(false);
-
-  return (
-    <div className="glass-panel p-6 rounded-3xl max-w-sm w-full mx-auto relative overflow-hidden">
-      <div className="flex items-center gap-3 mb-4">
-        <Cpu className="w-5 h-5 text-purple-400" />
-        <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-          Node Shield Active
-        </span>
-      </div>
-      <button 
-        onClick={() => setActive(!active)}
-        className="w-full py-2.5 rounded-xl text-xs font-bold text-white transition-opacity hover:opacity-95"
-        style={{ background: 'var(--md-primary)' }}
-      >
-        {active ? 'Secure Connection Verified' : 'Handshake Gateway'}
-      </button>
-    </div>
-  );
-}`,
-
-  'test_runner.js': `const { test } = require('node:test');
-const assert = require('node:assert');
-
-test('Verify Nemix API router fallbacks', async (t) => {
-  await t.test('Secure auth credentials check', () => {
-    const key = "nex_sk_ep_test_key_123";
-    assert.match(key, /^nex_sk_ep_[a-z0-9_]+/);
-  });
-  
-  await t.test('Simulate rate limit fallback', () => {
-    const activeRoute = "Together AI";
-    const status = 429;
-    
-    let resolvedRoute = activeRoute;
-    if (status === 429) {
-      resolvedRoute = "Groq";
-    }
-    
-    assert.strictEqual(resolvedRoute, "Groq");
-  });
-});`,
-
-  'README.md': `# Nemix Agent Output Docs
-
-This autonomous package was completely generated by **Nemix Agent** utilizing multi-agent recursive prompt structures and verified on local Next.js static compiler modules.
-
-## Deployment Stack
-* **LLM Engine**: Meta Llama 3.1 70B
-* **Orchestrator**: Nemix Edge Router API
-* **Security Model**: Client-side AES-256 vault credentials key storage
-
-## Setup instructions
-1. Export your local secure API Key:
-   \`\`\`bash
-   export NEMIX_API_KEY="your_nex_sk_..."
-   \`\`\`
-2. Launch the server node:
-   \`\`\`bash
-   python edge_router.py
-   \`\`\`
-`
-};
-
-export default function Home() {
+export default function Page() {
   // ─── State Management ───
-  const [goal, setGoal] = useState("");
+  const [mission, setMission] = useState("Build an autonomous multi-agent gateway router.");
+  const [goal, setGoal] = useState("Decompose and execute Next.js edge failover schemas.");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
-  const [activeTab, setActiveTab] = useState<'visualizer' | 'terminal' | 'explorer'>('visualizer');
   
-  // Simulation Loop States
-  const [agents, setAgents] = useState<SubAgent[]>(INITIAL_AGENTS);
-  const [completedTasks, setCompletedTasks] = useState<number[]>([]);
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
-  const [currentFile, setCurrentFile] = useState<string>('README.md');
-  const [activeStep, setActiveStep] = useState(0);
+  const [initialized, setInitialized] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [budgetUsed, setBudgetUsed] = useState(4200);
+  const [governanceMode, setGovernanceMode] = useState(true);
+  
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [logs, setLogs] = useState<string[]>([]);
+  
+  // Simulation Controls
+  const [isAutoTicking, setIsAutoTicking] = useState(false);
+  const [isHeartbeating, setIsHeartbeating] = useState(false);
+  
+  // Overlays & Previews
+  const [activeCodePreview, setActiveCodePreview] = useState<string | null>(null);
+  const [activeApprovalTicket, setActiveApprovalTicket] = useState<Ticket | null>(null);
+  const [isHireModalOpen, setIsHireModalOpen] = useState(false);
+  
+  // Custom Hire New Agent Fields
+  const [newAgentRole, setNewAgentRole] = useState("");
+  const [newAgentName, setNewAgentName] = useState("");
 
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logs terminal
+  // Auto-scroll logs
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [terminalLogs]);
+  }, [logs]);
 
   // Load API Key from local storage on mount
   useEffect(() => {
@@ -179,674 +80,838 @@ export default function Home() {
 
   const saveKey = () => {
     localStorage.setItem('nemix_agent_key', apiKey.trim());
-    addLog(`[System] Credentials key saved securely in AES-256 client-side local cache storage.`);
+    addLocalLog('[System] Gateway key securely hashed and cached client-side.');
   };
 
-  const addLog = (log: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setTerminalLogs(prev => [...prev, `[${timestamp}] ${log}`]);
+  const addLocalLog = (message: string) => {
+    setLogs(prev => [...prev, message]);
   };
 
-  // ─── Autonomous Loop Simulation ───
-  const handleLaunch = () => {
-    if (!goal.trim()) return;
-    setIsRunning(true);
-    setCompletedTasks([]);
-    setActiveStep(1);
-    setCurrentFile('README.md');
-    setAgents(INITIAL_AGENTS);
-    setTerminalLogs([]);
+  // ─── Initialize Swarm ───
+  const handleStartCompany = async () => {
+    if (!mission.trim() || !goal.trim()) return;
 
-    addLog(`[CEO] Initializing Orchestration Engine... Goal: "${goal}"`);
-    addLog(`[System] Handshaking secure Nemix API Gateway... Latency: 94ms.`);
+    setIsInitializing(true);
+    addLocalLog('[System] Handshaking Nemix swarm gateway...');
 
-    // Start Phase 1: CEO Analysis
-    setAgents(prev => prev.map(a => a.id === 'ceo' ? { ...a, status: 'thinking', progress: 20 } : a));
-    setTimeout(() => {
-      addLog(`[CEO] Goal parsed successfully. Created 5-step checklist. Spawning sub-agent pipelines.`);
-      setCompletedTasks(prev => [...prev, 1]);
-      setAgents(prev => prev.map(a => a.id === 'ceo' ? { ...a, status: 'working', progress: 100 } : a));
-      
-      // Start Phase 2: Researcher
-      setActiveStep(2);
-      setAgents(prev => prev.map(a => a.id === 'res' ? { ...a, status: 'thinking', progress: 40 } : a));
-      addLog(`[Researcher] Spawning... Active target: Scrape Together AI & Groq documentation models.`);
+    try {
+      const response = await fetch('/api/orchestrator/company', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mission: mission.trim(), goal: goal.trim() })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to bootstrap Paperclip workspace');
+      }
+
+      const data = await response.json();
       
       setTimeout(() => {
-        addLog(`[Researcher] Scraping successful. Found 2 fallback model schemas. Passing weight structures to CEO.`);
-        setCompletedTasks(prev => [...prev, 2]);
-        setAgents(prev => prev.map(a => a.id === 'res' ? { ...a, status: 'done', progress: 100 } : a));
-
-        // Start Phase 3: Coder
-        setActiveStep(3);
-        setAgents(prev => prev.map(a => a.id === 'cod' ? { ...a, status: 'working', progress: 30 } : a));
-        addLog(`[Coder] Bootstrapping modular directories... Generating "edge_router.py" and "index.tsx".`);
+        setAgents(data.state.agents);
+        setTickets(data.state.tickets);
+        setLogs(data.state.logs);
+        setBudgetUsed(data.state.budgetUsed);
+        setGovernanceMode(data.state.governanceMode);
+        setInitialized(true);
+        setIsInitializing(false);
         
-        setTimeout(() => {
-          addLog(`[Coder] Base codes populated in generated vault folder.`);
-          setAgents(prev => prev.map(a => a.id === 'cod' ? { ...a, progress: 75 } : a));
-          addLog(`[Coder] Resolving import schemas. Adding "test_runner.js" pipeline files.`);
-          
-          setTimeout(() => {
-            addLog(`[Coder] Code compilation completed. Written 3 key files to storage.`);
-            setCompletedTasks(prev => [...prev, 3]);
-            setAgents(prev => prev.map(a => a.id === 'cod' ? { ...a, status: 'done', progress: 100 } : a));
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          origin: { y: 0.8 },
+          colors: ['#3b82f6', '#10b981', '#ffffff']
+        });
+      }, 1500);
 
-            // Start Phase 4: QA / Security
-            setActiveStep(4);
-            setAgents(prev => prev.map(a => a.id === 'qa' ? { ...a, status: 'thinking', progress: 50 } : a));
-            addLog(`[QA Auditor] Bootstrapping security checks. Running static Next.js compilation verify tests.`);
-            
-            setTimeout(() => {
-              addLog(`[QA Auditor] tsc compilation check: 0 errors. ESLint: clean. Credentials check: Safe, zero plaintext keys found!`);
-              setCompletedTasks(prev => [...prev, 4]);
-              setAgents(prev => prev.map(a => a.id === 'qa' ? { ...a, status: 'done', progress: 100 } : a));
+    } catch (e: any) {
+      setIsInitializing(false);
+      addLocalLog(`[Error] Handshake failed: ${e?.message || 'Gateway Timeout'}`);
+    }
+  };
 
-              // Start Phase 5: Technical Writer
-              setActiveStep(5);
-              setAgents(prev => prev.map(a => a.id === 'wri' ? { ...a, status: 'working', progress: 60 } : a));
-              addLog(`[Writer] Composing README markdown usage manuals and setting up CLI dependencies lists.`);
-              
-              setTimeout(() => {
-                addLog(`[Writer] README files written to vault.`);
-                setCompletedTasks(prev => [...prev, 5]);
-                setAgents(prev => prev.map(a => a.id === 'wri' ? { ...a, status: 'done', progress: 100 } : a));
-                setAgents(prev => prev.map(a => a.id === 'ceo' ? { ...a, status: 'done' } : a));
+  // ─── Trigger Heartbeat Tick ───
+  const triggerHeartbeat = async () => {
+    if (isHeartbeating) return;
+    
+    // Check if there is an active approval request blocking the loop
+    const awaitingTicket = tickets.find(t => t.status === 'awaiting');
+    if (awaitingTicket && governanceMode) {
+      setActiveApprovalTicket(awaitingTicket);
+      setIsAutoTicking(false); // pause auto ticks
+      addLocalLog('[System] Heartbeat paused: Swarm awaits governance board decision.');
+      return;
+    }
 
-                addLog(`[CEO] MISSION ACCOMPLISHED! All agentic modules successfully executed and verified. Output packages are ready!`);
-                confetti({
-                  particleCount: 120,
-                  spread: 80,
-                  origin: { y: 0.6 },
-                  colors: ['#7c6af7', '#10b981', '#ffffff']
-                });
-                setIsRunning(false);
-                setActiveTab('explorer');
-              }, 2500);
-            }, 2500);
-          }, 2000);
-        }, 2000);
-      }, 2000);
-    }, 2000);
+    setIsHeartbeating(true);
+
+    try {
+      const response = await fetch('/api/orchestrator/heartbeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Heartbeat sync failed');
+      }
+
+      const data = await response.json();
+      
+      setTickets(data.state.tickets);
+      setAgents(data.state.agents);
+      setLogs(data.state.logs);
+      setBudgetUsed(data.state.budgetUsed);
+      
+      // Auto-open approval overlay if governance mode is active
+      const nextAwaiting = data.state.tickets.find((t: any) => t.status === 'awaiting');
+      if (nextAwaiting && governanceMode) {
+        setActiveApprovalTicket(nextAwaiting);
+        setIsAutoTicking(false);
+      }
+
+      // Check if all tickets done
+      const allDone = data.state.tickets.every((t: any) => t.status === 'done');
+      if (allDone && tickets.some(t => t.status !== 'done')) {
+        confetti({
+          particleCount: 150,
+          spread: 85,
+          colors: ['#10b981', '#3b82f6', '#ffffff']
+        });
+        setIsAutoTicking(false);
+      }
+
+    } catch (e: any) {
+      addLocalLog(`[Error] Heartbeat sync failure: ${e?.message}`);
+      setIsAutoTicking(false);
+    } finally {
+      setIsHeartbeating(false);
+    }
+  };
+
+  // ─── Auto Run Loop ───
+  useEffect(() => {
+    let interval: any;
+    if (isAutoTicking) {
+      interval = setInterval(() => {
+        triggerHeartbeat();
+      }, 4000);
+    }
+    return () => clearInterval(interval);
+  }, [isAutoTicking, tickets, governanceMode]);
+
+  // ─── Human Board Approval Decision ───
+  const handleBoardApproval = async (decision: 'approved' | 'rejected') => {
+    if (!activeApprovalTicket) return;
+    
+    const ticket = activeApprovalTicket;
+    setActiveApprovalTicket(null);
+
+    try {
+      const response = await fetch('/api/orchestrator/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId: ticket.id, decision })
+      });
+
+      if (!response.ok) {
+        throw new Error('Approval registration failed');
+      }
+
+      const data = await response.json();
+      setTickets(data.state.tickets);
+      setAgents(data.state.agents);
+      setLogs(data.state.logs);
+
+      if (decision === 'approved') {
+        confetti({
+          particleCount: 50,
+          spread: 40,
+          colors: ['#10b981', '#ffffff']
+        });
+      }
+
+    } catch (e: any) {
+      addLocalLog(`[Error] Board decision failed to register: ${e?.message}`);
+    }
+  };
+
+  // ─── Hire Custom Worker Agent ───
+  const handleHireAgent = () => {
+    if (!newAgentName.trim() || !newAgentRole.trim()) return;
+
+    const newAgent: Agent = {
+      id: `agent_${Math.random().toString(36).substring(2, 9)}`,
+      role: newAgentRole,
+      name: newAgentName,
+      avatar: '🤖',
+      status: 'sleeping'
+    };
+
+    setAgents(prev => [...prev, newAgent]);
+    addLocalLog(`[CEO] Swarm expanded! Recruited specialized agent "${newAgentName}" as "${newAgentRole}".`);
+    
+    setIsHireModalOpen(false);
+    setNewAgentName("");
+    setNewAgentRole("");
   };
 
   return (
-    <DashboardLayout>
-      <main className="space-y-6 max-w-7xl mx-auto py-2">
+    <div className="min-h-screen bg-[#050505] text-[#f3f3f7] font-sans flex flex-col overflow-hidden selection:bg-blue-500/30 selection:text-blue-200">
+      
+      {/* ─── Outer Shell Container ─── */}
+      <div className="flex flex-1 overflow-hidden h-[calc(100vh-42px)]">
 
-        {/* ─── Control Header ─── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--md-outline-var)] pb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
-              style={{
-                background: 'linear-gradient(135deg, var(--md-primary) 0%, #ef4444 100%)',
-                boxShadow: '0 4px 14px var(--md-primary-glow)'
-              }}>
-              <Bot className="w-6 h-6 text-white" />
+        {/* ======================================================== */}
+        {/* LEFT SIDEBAR: Org Hierarchy (250px)                     */}
+        {/* ======================================================== */}
+        <aside className="w-[280px] bg-[#111111]/70 border-r border-white/10 flex flex-col shrink-0 relative z-20 backdrop-blur-md">
+          {/* Top Brand Mission */}
+          <div className="p-5 border-b border-white/10 space-y-3">
+            <div className="flex items-center gap-2">
+              <BrainCircuit className="w-5.5 h-5.5 text-blue-400" />
+              <span className="font-extrabold text-xs tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400 font-outfit">
+                NEMIX SWARM
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--md-on-surface)' }}>
-                  Nemix Agent
-                </h1>
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-purple-950 text-purple-200 border border-purple-500/20">
-                  AUTONOMOUS MULTI-AGENT V1.0
-                </span>
+            {initialized && (
+              <div className="bg-black/40 border border-white/5 p-3 rounded-xl space-y-1">
+                <span className="text-[8px] font-black uppercase text-blue-400 tracking-wider">Mission Statement</span>
+                <p className="text-[10px] leading-relaxed text-zinc-400 line-clamp-3">
+                  {mission}
+                </p>
               </div>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--md-on-surface-var)' }}>
-                Chief-Agent Orchestrated recursive software builder powered exclusively by Nemix Edge APIs.
-              </p>
-            </div>
+            )}
           </div>
 
-          {/* Latency & Status Stats */}
-          <div className="flex items-center gap-3.5">
-            <div className="glass-panel rounded-xl px-4 py-2 flex items-center gap-2 text-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-semibold text-zinc-400">Status:</span>
-              <span className="font-bold text-emerald-400">Stable</span>
-            </div>
-            <div className="glass-panel rounded-xl px-4 py-2 flex items-center gap-2 text-xs">
-              <Activity className="w-3.5 h-3.5 text-purple-400" />
-              <span className="font-semibold text-zinc-400">Gateway Latency:</span>
-              <span className="font-mono font-bold text-zinc-200">94ms</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── Main Grid Layout ─── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* Left Column: Command & Inputs (1-Span) */}
-          <div className="lg:col-span-1 space-y-6">
-            
-            {/* Nemix API Credentials Credentials Card */}
-            <div className="glass-panel rounded-3xl p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-[var(--md-outline-var)] pb-3">
-                <div className="flex items-center gap-2">
-                  <Key className="w-4 h-4 text-purple-400" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                    Nemix Credentials Vault
-                  </h3>
-                </div>
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <p className="text-[11px] leading-relaxed" style={{ color: 'var(--md-on-surface-var)' }}>
-                Nemix Agent runs autonomously directly on your client browser nodes, connecting through secure APIs. Key is saved locally in encrypted memory.
-              </p>
-              <div className="relative">
-                <input
-                  type={showKey ? 'text' : 'password'}
-                  placeholder="nex_sk_ep_xxxxxxxxxxxx"
-                  value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
-                  className="w-full h-10 pl-3 pr-20 text-xs font-mono rounded-xl bg-[var(--md-surface-2)] border border-[var(--md-outline)] text-[var(--md-on-surface)] glow-border"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowKey(!showKey)}
-                  className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-                >
-                  {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={saveKey}
-                  disabled={!apiKey.trim()}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-[var(--md-primary)] text-white hover:opacity-90 transition-opacity disabled:opacity-40"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                </button>
-              </div>
+          {/* Org Chart Tree Navigation */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[9px] font-black uppercase text-zinc-500 tracking-wider flex items-center gap-1">
+                <Users className="w-3 h-3" /> Swarm Hierarchy
+              </span>
             </div>
 
-            {/* Launch Console input card */}
-            <div className="glass-panel rounded-3xl p-5 space-y-5">
-              <div className="flex items-center justify-between border-b border-[var(--md-outline-var)] pb-3">
-                <div className="flex items-center gap-2">
-                  <PlayCircle className="w-4 h-4 text-purple-400" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                    Command Console
-                  </h3>
-                </div>
-                <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+            {agents.length === 0 ? (
+              <div className="text-center py-20 text-zinc-600 text-[10px] leading-relaxed border border-dashed border-white/5 rounded-xl">
+                Hive inactive. Establish company details to hire agents.
               </div>
+            ) : (
+              <div className="space-y-3.5 pl-1.5">
+                
+                {/* CEO Node */}
+                {agents.filter(a => a.id === 'agent_ceo').map(ceo => (
+                  <div key={ceo.id} className="relative group">
+                    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-zinc-900 border border-white/5 shadow-md">
+                      <div className="w-8 h-8 rounded-lg bg-black border border-white/10 flex items-center justify-center text-base shrink-0">
+                        {ceo.avatar}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-[10px] font-black uppercase text-white truncate">{ceo.name}</h4>
+                        <p className="text-[8px] font-bold text-blue-400 uppercase tracking-wide mt-0.5">{ceo.role}</p>
+                      </div>
+                      <span className={`w-2 h-2 rounded-full relative shrink-0 ${
+                        ceo.status === 'working' ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-700'
+                      }`} />
+                    </div>
+                    {/* Visual Connection line to worker agents */}
+                    <div className="absolute left-6 top-11 bottom-[-20px] w-0.5 bg-white/5 pointer-events-none" />
+                  </div>
+                ))}
 
-              <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider mb-2 block" style={{ color: 'var(--md-on-surface-var)' }}>
-                  Assign Goal / Prompt Objective
-                </label>
-                <textarea
-                  value={goal}
-                  onChange={e => setGoal(e.target.value)}
-                  placeholder="e.g. Build an auto-fallback Edge Router routing metadata module and inspect it for local credentials leaks."
-                  disabled={isRunning}
-                  className="w-full h-28 p-3 rounded-2xl text-xs bg-[var(--md-surface-2)] border border-[var(--md-outline)] text-[var(--md-on-surface)] resize-none glow-border leading-relaxed"
-                />
-              </div>
-
-              {/* Goal presets tags */}
-              <div className="space-y-1.5">
-                <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: 'var(--md-on-surface-var)', opacity: 0.8 }}>
-                  Preset Objective Presets
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {PRESETS.map(preset => (
-                    <button
-                      key={preset}
-                      type="button"
-                      disabled={isRunning}
-                      onClick={() => setGoal(preset)}
-                      className="px-2.5 py-1.5 rounded-lg text-[10px] font-semibold text-zinc-400 border border-[var(--md-outline)] hover:text-zinc-200 hover:border-purple-500/40 transition-colors bg-[var(--md-surface-2)] text-left"
-                    >
-                      {preset}
-                    </button>
+                {/* Worker Nodes */}
+                <div className="space-y-2.5 pl-6 pt-2">
+                  {agents.filter(a => a.id !== 'agent_ceo').map(worker => (
+                    <div key={worker.id} className="flex items-center gap-2.5 p-2 rounded-xl bg-black/40 border border-white/5 group relative">
+                      {/* Connection horizontal line */}
+                      <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 w-4 h-0.5 bg-white/5 pointer-events-none" />
+                      
+                      <div className="w-7.5 h-7.5 rounded-lg bg-zinc-950 border border-white/5 flex items-center justify-center text-sm shrink-0">
+                        {worker.avatar}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h5 className="text-[9px] font-black uppercase text-zinc-300 truncate">{worker.name}</h5>
+                        <p className="text-[8px] font-medium text-zinc-500 truncate mt-0.5">{worker.role}</p>
+                      </div>
+                      
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                        worker.status === 'working' ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-700'
+                      }`} />
+                    </div>
                   ))}
+                </div>
+
+              </div>
+            )}
+          </div>
+
+          {/* Hire Button */}
+          {initialized && (
+            <div className="p-4 border-t border-white/10 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsHireModalOpen(true)}
+                className="w-full h-10 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300"
+              >
+                <Plus className="w-4 h-4 text-blue-400" />
+                Hire New Agent
+              </button>
+            </div>
+          )}
+        </aside>
+
+        {/* ======================================================== */}
+        {/* MAIN CONTENT AREA: Workspace & Kanban Board              */}
+        {/* ======================================================== */}
+        <main className="flex-1 flex flex-col bg-[#050505] overflow-hidden relative z-10">
+          
+          {/* Header Workspace Options */}
+          <header className="px-6 py-4.5 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#050505]/90 backdrop-blur-md">
+            
+            {/* Left: Active Goal */}
+            <div className="flex-1 max-w-lg min-w-0 pr-4">
+              <span className="text-[8px] font-black uppercase text-blue-400 tracking-wider">Active Corporate Directive</span>
+              <h2 className="text-xs font-bold text-zinc-200 truncate mt-0.5">
+                {initialized ? goal : "Awaiting Swarm Initialization..."}
+              </h2>
+            </div>
+
+            {/* Right Controls */}
+            {initialized && (
+              <div className="flex items-center gap-5 shrink-0">
+                {/* Budget Coins */}
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
+                  <Coins className="w-4 h-4 text-blue-400" />
+                  <div>
+                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-wider block">Budget Tokens</span>
+                    <span className="text-xs font-bold text-white font-mono leading-none">
+                      {budgetUsed.toLocaleString()} <span className="text-[9px] text-zinc-500">NMX</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* God Mode Governance Mode Toggle */}
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
+                  <div>
+                    <span className="text-[7px] font-black uppercase text-zinc-500 tracking-wider block">Governance Mode</span>
+                    <span className="text-[10px] font-bold text-white leading-none">
+                      {governanceMode ? "God Mode On" : "Autonomous"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGovernanceMode(!governanceMode);
+                      addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON (Board Yes/No required)' : 'OFF (Autonomous auto-merge)'}`);
+                    }}
+                    className={`w-9 h-5 rounded-full p-0.5 transition-colors focus:outline-none shrink-0 ${
+                      governanceMode ? 'bg-blue-600' : 'bg-zinc-800'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                      governanceMode ? 'translate-x-4' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* Heartbeat Tickers */}
+                <div className="flex items-center gap-2">
+                  {/* Auto Ticks Loop */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAutoTicking(!isAutoTicking);
+                      addLocalLog(`[System] Auto heartbeat execution loop ${!isAutoTicking ? 'STARTED' : 'PAUSED'}.`);
+                    }}
+                    className={`h-9 px-3.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all text-white shadow-lg ${
+                      isAutoTicking 
+                        ? 'bg-zinc-800 hover:bg-zinc-700' 
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-600/10'
+                    }`}
+                  >
+                    {isAutoTicking ? (
+                      <>
+                        <PauseCircle className="w-4 h-4" /> Pause Loop
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="w-4 h-4" /> Auto Run Loop
+                      </>
+                    )}
+                  </button>
+
+                  {/* Manual Single Heartbeat Tick */}
+                  <button
+                    type="button"
+                    onClick={triggerHeartbeat}
+                    disabled={isHeartbeating || isAutoTicking}
+                    className="h-9 px-3.5 rounded-xl bg-zinc-900 border border-white/10 hover:border-white/20 transition-all font-bold text-xs flex items-center justify-center gap-1.5 text-zinc-300 disabled:opacity-40"
+                  >
+                    <Zap className={`w-3.5 h-3.5 text-blue-400 ${isHeartbeating ? 'animate-bounce' : ''}`} />
+                    Heartbeat Tick
+                  </button>
+                </div>
+
+              </div>
+            )}
+
+          </header>
+
+          {/* Core Swarm Workspace Kanban View */}
+          <div className="flex-1 overflow-hidden p-6 flex flex-col">
+            
+            {!initialized ? (
+              // Empty Uninitialized Workspace State
+              <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto text-center space-y-6">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-blue-600/15 animate-pulse">
+                  <Kanban className="w-8 h-8 text-white" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black uppercase tracking-wider text-white font-outfit">
+                    Initialize Swarm Company Pipeline
+                  </h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Set up your enterprise profile and define the goal to automatically spin up a CEO and worker roster, break down tickets, and execute code using the Nemix API.
+                  </p>
+                </div>
+
+                <div className="w-full bg-[#111111] border border-white/10 p-5 rounded-2xl space-y-4 text-left">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Company Mission</label>
+                    <input
+                      type="text"
+                      value={mission}
+                      onChange={e => setMission(e.target.value)}
+                      placeholder="e.g. Build an autonomous modular SaaS compiler firm."
+                      className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Master Swarm Goal</label>
+                    <textarea
+                      value={goal}
+                      onChange={e => setGoal(e.target.value)}
+                      placeholder="e.g. Create a fast-fallback gateway routing script and verify compilation static checks."
+                      className="w-full h-16 p-3 rounded-lg bg-black border border-white/10 text-xs text-white resize-none focus:ring-1 focus:ring-blue-500/50 outline-none leading-relaxed"
+                    />
+                  </div>
+                  
+                  {/* Secure Key Vault inline */}
+                  <div className="relative">
+                    <input
+                      type={showKey ? 'text' : 'password'}
+                      placeholder="nex_sk_ep_xxxxxxxxxxxx"
+                      value={apiKey}
+                      onChange={e => setApiKey(e.target.value)}
+                      className="w-full h-10 pl-3 pr-20 text-xs font-mono rounded-xl bg-black border border-white/10 text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowKey(!showKey)}
+                      className="absolute right-12 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
+                    >
+                      {showKey ? <EyeOff className="w-3.5 h-3.5 text-zinc-400" /> : <Eye className="w-3.5 h-3.5 text-zinc-400" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={saveKey}
+                      disabled={!apiKey.trim()}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleStartCompany}
+                    disabled={isInitializing || !mission.trim() || !goal.trim()}
+                    className="w-full h-10.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/10 hover:opacity-95 disabled:opacity-40"
+                  >
+                    {isInitializing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Generating Backlog & Roster...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 fill-current text-white" />
+                        Initialize Swarm Pipeline
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Kanban Grid Layout (4 columns)
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4.5 overflow-hidden">
+                
+                {/* ─── COLUMN 1: TO DO ─── */}
+                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" /> To Do
+                    </span>
+                    <span className="text-[9px] font-mono font-bold text-zinc-500 bg-zinc-900 px-1.5 py-0.5 rounded">
+                      {tickets.filter(t => t.status === 'todo').length}
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                    {tickets.filter(t => t.status === 'todo').map(ticket => (
+                      <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* ─── COLUMN 2: IN PROGRESS ─── */}
+                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-blue-400 tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> In Progress
+                    </span>
+                    <span className="text-[9px] font-mono font-bold text-blue-400/80 bg-blue-950/20 border border-blue-500/10 px-1.5 py-0.5 rounded">
+                      {tickets.filter(t => t.status === 'inprogress').length}
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                    {tickets.filter(t => t.status === 'inprogress').map(ticket => (
+                      <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* ─── COLUMN 3: AWAITING APPROVAL ─── */}
+                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" /> Governance Review
+                    </span>
+                    <span className="text-[9px] font-mono font-bold text-amber-400/80 bg-amber-950/20 border border-amber-500/10 px-1.5 py-0.5 rounded">
+                      {tickets.filter(t => t.status === 'awaiting').length}
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                    {tickets.filter(t => t.status === 'awaiting').map(ticket => (
+                      <KanbanCard 
+                        key={ticket.id} 
+                        ticket={ticket} 
+                        agents={agents} 
+                        onCodePreview={setActiveCodePreview} 
+                        onApproveRequest={setActiveApprovalTicket}
+                        governanceMode={governanceMode}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* ─── COLUMN 4: DONE ─── */}
+                <div className="flex flex-col bg-[#111111]/40 border border-white/5 rounded-2xl p-4 overflow-hidden">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3 shrink-0">
+                    <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Done
+                    </span>
+                    <span className="text-[9px] font-mono font-bold text-emerald-400/80 bg-emerald-950/20 border border-emerald-500/10 px-1.5 py-0.5 rounded">
+                      {tickets.filter(t => t.status === 'done').length}
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 custom-scrollbar">
+                    {tickets.filter(t => t.status === 'done').map(ticket => (
+                      <KanbanCard key={ticket.id} ticket={ticket} agents={agents} onCodePreview={setActiveCodePreview} />
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+          </div>
+
+          {/* Bottom Execution Shell Drawer */}
+          {initialized && (
+            <div className="h-[180px] bg-black border-t border-white/10 flex flex-col shrink-0 relative z-10 p-5">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2.5 shrink-0">
+                <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest flex items-center gap-1">
+                  <Terminal className="w-3.5 h-3.5 text-blue-400 animate-pulse" /> Live Swarm execution log
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-50 animate-ping" />
+                  <span className="text-[8px] font-mono text-emerald-400 font-extrabold tracking-widest uppercase">STREAMING</span>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9px] text-zinc-400 custom-scrollbar">
+                {logs.map((log, idx) => {
+                  const isError = log.includes('[Error]');
+                  const isCEO = log.includes('[CEO]');
+                  const isSystem = log.includes('[System]');
+                  return (
+                    <div 
+                      key={idx}
+                      className={`p-2 rounded-lg border leading-relaxed ${
+                        isError 
+                          ? 'bg-red-950/20 border-red-900/30 text-red-400' 
+                          : isCEO 
+                          ? 'bg-blue-950/15 border-blue-900/20 text-blue-300'
+                          : isSystem 
+                          ? 'bg-zinc-900/40 border-white/5 text-zinc-400'
+                          : 'bg-zinc-950/20 border-transparent text-zinc-300'
+                      }`}
+                    >
+                      {log}
+                    </div>
+                  );
+                })}
+                <div ref={logsEndRef} />
+              </div>
+            </div>
+          )}
+
+        </main>
+
+      </div>
+
+      {/* ======================================================== */}
+      {/* GOVERNANCE MODAL OVERLAY: User Board decisions           */}
+      {/* ======================================================== */}
+      <AnimatePresence>
+        {activeApprovalTicket && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#111111] border border-blue-500/30 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative overflow-hidden"
+            >
+              {/* Alert pulses */}
+              <div className="absolute top-0 right-0 w-28 h-28 rounded-full bg-blue-500/5 blur-xl pointer-events-none" />
+
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-5 h-5 text-blue-400 animate-pulse" />
+                  <h3 className="text-xs font-extrabold uppercase tracking-widest text-blue-400 font-outfit">
+                    GOVERNANCE VOTE REQUIRED
+                  </h3>
+                </div>
+                <span className="text-[8px] font-black uppercase bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20">
+                  GOD MODE ACTIVED
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[9px] text-zinc-500 uppercase tracking-wider block">Target backlogged Ticket</span>
+                <h4 className="text-xs font-bold text-white uppercase">{activeApprovalTicket.title}</h4>
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-[9px] text-zinc-500 uppercase tracking-wider block">Agent Reasoning & Synthesis Output</span>
+                <p className="text-[10.5px] leading-relaxed text-zinc-400 bg-black border border-white/5 p-3 rounded-lg max-h-[140px] overflow-y-auto custom-scrollbar">
+                  {activeApprovalTicket.thought}
+                </p>
+              </div>
+
+              {activeApprovalTicket.output && (
+                <div className="space-y-1.5">
+                  <span className="text-[9px] text-zinc-500 uppercase tracking-wider block">Generated Code Preview</span>
+                  <pre className="text-[9px] font-mono text-emerald-400 bg-black/80 border border-white/5 p-3 rounded-lg max-h-[120px] overflow-y-auto custom-scrollbar select-text">
+                    <code>{activeApprovalTicket.output}</code>
+                  </pre>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleBoardApproval('approved')}
+                  className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold text-white shadow-lg shadow-emerald-600/10"
+                >
+                  <ThumbsUp className="w-4 h-4" /> Approve Deploy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleBoardApproval('rejected')}
+                  className="h-11 rounded-xl bg-red-950/50 border border-red-500/30 hover:bg-red-950 transition-colors flex items-center justify-center gap-1.5 text-xs font-bold text-red-400"
+                >
+                  <ThumbsDown className="w-4 h-4" /> Reject Code
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ======================================================== */}
+      {/* CODE PREVIEW MODAL OVERLAY                              */}
+      {/* ======================================================== */}
+      <AnimatePresence>
+        {activeCodePreview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#111111] border border-white/10 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[80vh] text-left"
+            >
+              {/* Window Header */}
+              <div className="bg-black/60 px-5 py-3.5 flex items-center justify-between border-b border-white/5">
+                <div className="flex items-center gap-2">
+                  <Code className="w-4 h-4 text-blue-400" />
+                  <span className="text-xs font-mono text-zinc-300">Code Explorer Preview</span>
+                </div>
+                <button
+                  onClick={() => setActiveCodePreview(null)}
+                  className="text-zinc-500 hover:text-white text-xs font-bold transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 p-5 overflow-y-auto bg-black font-mono text-[11px] leading-relaxed text-emerald-400 custom-scrollbar select-text">
+                <pre><code>{activeCodePreview}</code></pre>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ======================================================== */}
+      {/* HIRE NEW AGENT MODAL OVERLAY                              */}
+      {/* ======================================================== */}
+      <AnimatePresence>
+        {isHireModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#111111] border border-white/10 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl text-left"
+            >
+              <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                <h4 className="text-xs font-black uppercase text-white font-outfit">Recruit Specialized Agent</h4>
+                <button 
+                  onClick={() => setIsHireModalOpen(false)}
+                  className="text-zinc-500 hover:text-white text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Agent Name</label>
+                  <input
+                    type="text"
+                    value={newAgentName}
+                    onChange={e => setNewAgentName(e.target.value)}
+                    placeholder="e.g. Scribe-v2, Traffic-Optimizer..."
+                    className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Agent Role / Specialty</label>
+                  <input
+                    type="text"
+                    value={newAgentRole}
+                    onChange={e => setNewAgentRole(e.target.value)}
+                    placeholder="e.g. Lead Copywriter, SEO Optimizer..."
+                    className="w-full h-9 px-3 rounded-lg bg-black border border-white/10 text-xs text-white focus:ring-1 focus:ring-blue-500/50 outline-none"
+                  />
                 </div>
               </div>
 
               <button
                 type="button"
-                onClick={handleLaunch}
-                disabled={isRunning || !goal.trim()}
-                className="w-full h-11 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 text-white hover:opacity-90 disabled:opacity-40 transition-all select-none"
-                style={{
-                  background: 'linear-gradient(135deg, var(--md-primary) 0%, #a24bcf 100%)',
-                  boxShadow: '0 4px 14px var(--md-primary-glow)'
-                }}
+                onClick={handleHireAgent}
+                disabled={!newAgentName.trim() || !newAgentRole.trim()}
+                className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-xs text-white transition-colors disabled:opacity-40"
               >
-                {isRunning ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Executing Agentic Loop...
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 fill-current text-white" />
-                    Launch Agentic Loop
-                  </>
-                )}
+                Hire Employee
               </button>
-            </div>
-
-            {/* CEO Action Steps checklist board */}
-            <div className="glass-panel rounded-3xl p-5 space-y-4">
-              <div className="flex items-center gap-2 border-b border-[var(--md-outline-var)] pb-3">
-                <BrainCircuit className="w-4 h-4 text-purple-400" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                  Chief Agent Plan DAG
-                </h3>
-              </div>
-              
-              <div className="space-y-3">
-                {GOAL_TASKS.map((t, idx) => {
-                  const active = activeStep === t.id;
-                  const done = completedTasks.includes(t.id);
-                  return (
-                    <div
-                      key={t.id}
-                      className="flex items-start gap-2.5 p-2 rounded-xl transition-all"
-                      style={{
-                        background: active ? 'var(--md-primary-container)' : 'transparent',
-                        border: active ? '1px solid var(--md-primary)' : '1px solid transparent'
-                      }}
-                    >
-                      <div className="mt-0.5 shrink-0">
-                        {done ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        ) : active ? (
-                          <RefreshCw className="w-4 h-4 text-purple-400 animate-spin" />
-                        ) : (
-                          <span className="w-4 h-4 rounded-full border border-[var(--md-outline)] flex items-center justify-center text-[8px] font-bold text-zinc-500">
-                            {idx + 1}
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold" style={{ color: active ? 'var(--md-primary)' : done ? 'var(--md-on-surface-var)' : 'var(--md-on-surface)' }}>
-                          {t.text}
-                        </p>
-                        <p className="text-[9px] mt-0.5 font-semibold text-zinc-500 uppercase">
-                          Assignee: {t.agent}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
+            </motion.div>
           </div>
-
-          {/* Right Column: Dynamic Tabs Console Center (2-Spans) */}
-          <div className="lg:col-span-2 space-y-6">
-
-            {/* Segmented control tab buttons */}
-            <div className="flex p-1 rounded-2xl border border-[var(--md-outline)]" style={{ background: 'var(--bg-card)', backdropFilter: 'blur(20px)' }}>
-              {[
-                { id: 'visualizer', label: 'Nodes Visualizer', icon: BrainCircuit },
-                { id: 'terminal', label: 'Terminal Logs', icon: Terminal },
-                { id: 'explorer', label: 'Code Explorer', icon: FolderCode }
-              ].map(tab => {
-                const Icon = tab.icon;
-                const active = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all flex-1"
-                    style={{
-                      background: active ? 'var(--md-primary)' : 'transparent',
-                      color: active ? '#fff' : 'var(--md-on-surface-var)'
-                    }}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Tab Contents Frame */}
-            <div className="min-h-[580px] flex flex-col">
-              <AnimatePresence mode="wait">
-                
-                {/* TAB 1: Visualizer Canvas Board */}
-                {activeTab === 'visualizer' && (
-                  <motion.div
-                    key="visualizer"
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    className="glass-panel rounded-3xl p-6 flex-1 flex flex-col justify-between"
-                  >
-                    <div>
-                      <h2 className="text-base font-extrabold mb-1" style={{ color: 'var(--md-on-surface)' }}>
-                        Orchestration Network Mesh
-                      </h2>
-                      <p className="text-xs" style={{ color: 'var(--md-on-surface-var)' }}>
-                        Dynamic tree visualization showing parent CEO delegating goal components to specialized sub-agents.
-                      </p>
-                    </div>
-
-                    {/* Nodes visual network grid */}
-                    <div className="flex-1 flex flex-col items-center justify-center my-8 relative min-h-[300px]">
-                      
-                      {/* Visual link branches */}
-                      <svg className="absolute inset-0 w-full h-full pointer-events-none select-none opacity-40">
-                        {/* Lines from CEO to sub-agents */}
-                        <line x1="50%" y1="20%" x2="15%" y2="70%" stroke="var(--md-outline)" strokeWidth="2" strokeDasharray="4" />
-                        <line x1="50%" y1="20%" x2="32%" y2="70%" stroke="var(--md-outline)" strokeWidth="2" strokeDasharray="4" />
-                        <line x1="50%" y1="20%" x2="50%" y2="70%" stroke="var(--md-outline)" strokeWidth="2" strokeDasharray="4" />
-                        <line x1="50%" y1="20%" x2="68%" y2="70%" stroke="var(--md-outline)" strokeWidth="2" strokeDasharray="4" />
-                        <line x1="50%" y1="20%" x2="85%" y2="70%" stroke="var(--md-outline)" strokeWidth="2" strokeDasharray="4" />
-                      </svg>
-
-                      {/* CEO Orchestrator root Node (Top) */}
-                      <div className="absolute top-[10%]">
-                        {(() => {
-                          const ceo = agents.find(a => a.id === 'ceo')!;
-                          const Icon = ceo.icon;
-                          const active = ceo.status !== 'idle';
-                          return (
-                            <motion.div
-                              animate={active ? { scale: [1, 1.04, 1] } : {}}
-                              transition={{ repeat: Infinity, duration: 2.5 }}
-                              className="flex flex-col items-center"
-                            >
-                              <div className="w-14 h-14 rounded-2xl flex items-center justify-center relative border transition-all duration-300"
-                                style={{
-                                  background: active ? 'var(--md-primary-container)' : 'var(--md-surface-2)',
-                                  borderColor: active ? 'var(--md-primary)' : 'var(--md-outline)',
-                                  boxShadow: active ? '0 0 20px var(--md-primary-glow)' : 'none'
-                                }}>
-                                <Icon className="w-6 h-6" style={{ color: active ? 'var(--md-primary)' : 'var(--md-on-surface-var)' }} />
-                                {active && (
-                                  <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-purple-500 animate-pulse border border-[var(--bg-primary)]" />
-                                )}
-                              </div>
-                              <span className="text-[10px] font-black uppercase mt-1.5" style={{ color: 'var(--md-on-surface)' }}>
-                                {ceo.name}
-                              </span>
-                              <span className="text-[8px] font-bold text-zinc-500 uppercase">
-                                {ceo.status}
-                              </span>
-                            </motion.div>
-                          );
-                        })()}
-                      </div>
-
-                      {/* Sub-agents Nodes (Bottom row) */}
-                      <div className="absolute bottom-[10%] inset-x-0 flex justify-between px-6">
-                        {agents.filter(a => a.id !== 'ceo').map(agent => {
-                          const Icon = agent.icon;
-                          const isWorking = agent.status === 'working' || agent.status === 'thinking';
-                          const isDone = agent.status === 'done';
-                          
-                          return (
-                            <div key={agent.id} className="flex flex-col items-center w-[16%]">
-                              <div className="w-11 h-11 rounded-xl flex items-center justify-center relative border transition-all duration-300"
-                                style={{
-                                  background: isWorking ? 'var(--md-primary-container)' : isDone ? 'var(--md-success-cont)' : 'var(--md-surface-2)',
-                                  borderColor: isWorking ? 'var(--md-primary)' : isDone ? 'var(--md-success)' : 'var(--md-outline)',
-                                  boxShadow: isWorking ? '0 0 15px var(--md-primary-glow)' : 'none'
-                                }}>
-                                <Icon className="w-5 h-5" style={{ color: isWorking ? 'var(--md-primary)' : isDone ? 'var(--md-success)' : 'var(--md-on-surface-var)' }} />
-                                {isWorking && (
-                                  <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-purple-500 animate-pulse border border-[var(--bg-primary)]" />
-                                )}
-                                {isDone && (
-                                  <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center text-[7px] text-white border border-[var(--bg-primary)]">✓</span>
-                                )}
-                              </div>
-                              <span className="text-[9px] font-black uppercase mt-1.5 truncate w-full text-center" style={{ color: 'var(--md-on-surface)' }}>
-                                {agent.name.split(' ')[1] || agent.name}
-                              </span>
-                              <span className="text-[7px] font-bold text-zinc-500 uppercase">
-                                {agent.status}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                    </div>
-
-                    {/* Description board card detailing sub-agents role and progress */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--md-outline-var)] pt-4">
-                      {agents.map(agent => (
-                        <div key={agent.id} className="p-3 rounded-2xl bg-[var(--md-surface-2)] border border-[var(--md-outline-var)] flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: agent.color + '15', color: agent.color }}>
-                            <agent.icon className="w-4.5 h-4.5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-[10px] font-black uppercase truncate text-zinc-200">{agent.name}</span>
-                              <span className="text-[8px] font-black px-1.5 py-0.5 rounded border uppercase"
-                                style={{
-                                  background: agent.status === 'done' ? 'var(--md-success-cont)' : agent.status === 'working' ? 'var(--md-primary-container)' : 'transparent',
-                                  borderColor: agent.status === 'done' ? 'var(--md-success)' : agent.status === 'working' ? 'var(--md-primary)' : 'var(--md-outline)',
-                                  color: agent.status === 'done' ? 'var(--md-success)' : agent.status === 'working' ? 'var(--md-primary)' : 'var(--md-on-surface-var)'
-                                }}>
-                                {agent.status}
-                              </span>
-                            </div>
-                            <p className="text-[9px] text-zinc-500 mt-0.5 line-clamp-1">{agent.description}</p>
-                            {agent.status !== 'idle' && (
-                              <div className="mt-2 flex items-center gap-2">
-                                <div className="flex-1 h-1 rounded-full bg-zinc-800 overflow-hidden">
-                                  <motion.div className="h-full bg-purple-500" initial={{ width: 0 }} animate={{ width: `${agent.progress}%` }} />
-                                </div>
-                                <span className="text-[9px] font-mono text-purple-400 font-bold">{agent.progress}%</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                  </motion.div>
-                )}
-
-                {/* TAB 2: Green-on-black terminal logger */}
-                {activeTab === 'terminal' && (
-                  <motion.div
-                    key="terminal"
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    className="glass-panel rounded-3xl p-5 flex-1 flex flex-col"
-                    style={{ background: '#070709', border: '1px solid var(--md-outline)' }}
-                  >
-                    <div className="flex items-center justify-between border-b border-zinc-900 pb-3 mb-3 shrink-0">
-                      <div className="flex items-center gap-2">
-                        <Terminal className="w-4 h-4 text-purple-400" />
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                          Live Agentic Execution Logs
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-ping" />
-                        <span className="text-[9px] font-mono text-purple-400 uppercase font-black">STREAM ACTIVE</span>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto max-h-[480px] space-y-2.5 pr-2 font-mono text-[10px] leading-relaxed text-zinc-400">
-                      {terminalLogs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-36 text-center opacity-40">
-                          <Terminal className="w-8 h-8 mb-2" />
-                          <span>Console idle. Launch an agent loop to stream active execution logs.</span>
-                        </div>
-                      ) : (
-                        terminalLogs.map((log, idx) => {
-                          const isError = log.includes('[Error]') || log.includes('Failure');
-                          const isSuccess = log.includes('[CEO] MISSION') || log.includes('successful') || log.includes('✓');
-                          const isCEO = log.includes('[CEO]');
-                          
-                          return (
-                            <div
-                              key={idx}
-                              className={`p-2 rounded-lg border transition-all ${
-                                isError 
-                                  ? 'bg-red-950/20 border-red-900/40 text-red-400' 
-                                  : isSuccess 
-                                  ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400'
-                                  : isCEO 
-                                  ? 'bg-purple-950/15 border-purple-900/30 text-purple-300'
-                                  : 'bg-zinc-950/30 border-transparent text-zinc-400'
-                              }`}
-                            >
-                              {log}
-                            </div>
-                          );
-                        })
-                      )}
-                      <div ref={logsEndRef} />
-                    </div>
-
-                  </motion.div>
-                )}
-
-                {/* TAB 3: Code Explorer Synthesized Files Viewer */}
-                {activeTab === 'explorer' && (
-                  <motion.div
-                    key="explorer"
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    className="glass-panel rounded-3xl p-5 flex-1 flex flex-col"
-                  >
-                    <div className="flex items-center gap-2 border-b border-[var(--md-outline-var)] pb-3 mb-4 shrink-0">
-                      <FolderCode className="w-4 h-4 text-purple-400" />
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                        Generated Workspace Vault
-                      </h3>
-                    </div>
-
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-stretch">
-                      
-                      {/* Sidebar File list */}
-                      <div className="md:col-span-1 border-r border-[var(--md-outline-var)] pr-3 space-y-1.5 flex flex-col">
-                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest block mb-2 px-1">
-                          Files Directory
-                        </span>
-                        
-                        {Object.keys(CODE_VAULT).map(fileName => {
-                          const active = currentFile === fileName;
-                          return (
-                            <button
-                              key={fileName}
-                              type="button"
-                              onClick={() => setCurrentFile(fileName)}
-                              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-all hover:bg-neutral-800/10 cursor-pointer"
-                              style={{
-                                background: active ? 'var(--md-primary-container)' : 'transparent',
-                                border: active ? '1px solid var(--md-primary)' : '1px solid transparent',
-                                color: active ? 'var(--md-primary)' : 'var(--md-on-surface-var)'
-                              }}
-                            >
-                              <div className="flex items-center gap-2 truncate">
-                                <FileCode className="w-3.5 h-3.5" />
-                                <span className="truncate">{fileName}</span>
-                              </div>
-                              <ChevronRight className="w-3 h-3 opacity-55" />
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Main Syntax IDE Viewer */}
-                      <div className="md:col-span-3 rounded-2xl bg-[#08080c] border border-[var(--md-outline-var)] overflow-hidden flex flex-col text-left">
-                        {/* Editor Header Mac circles */}
-                        <div className="bg-[#0e0e14] px-4 py-2.5 flex items-center justify-between border-b border-zinc-900 shrink-0">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
-                            <span className="ml-3 text-[10px] font-mono text-zinc-400">
-                              {currentFile}
-                            </span>
-                          </div>
-                          
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(CODE_VAULT[currentFile]);
-                              addLog(`[System] Copied code snippet of "${currentFile}" to clipboard.`);
-                            }}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-bold border border-zinc-800 hover:border-zinc-700 bg-zinc-900 text-zinc-300"
-                          >
-                            <Copy className="w-3 h-3" /> Copy
-                          </button>
-                        </div>
-
-                        {/* Text code render */}
-                        <div className="flex-1 p-5 overflow-auto max-h-[380px] custom-scrollbar">
-                          <pre className="text-xs text-green-400 font-mono leading-relaxed select-text">
-                            <code>{CODE_VAULT[currentFile]}</code>
-                          </pre>
-                        </div>
-                      </div>
-
-                    </div>
-                  </motion.div>
-                )}
-
-              </AnimatePresence>
-            </div>
-
-          </div>
-
-        </div>
-
-      </main>
-    </DashboardLayout>
-  );
-}
-
-// ─── Dashboard layout framework container component ───
-function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen relative flex flex-col justify-between overflow-hidden">
-      
-      {/* Dynamic Glowing blur background grids */}
-      <div className="absolute top-0 inset-x-0 h-[600px] pointer-events-none select-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full opacity-[0.08]"
-          style={{ background: 'radial-gradient(circle, var(--md-primary) 0%, transparent 80%)', filter: 'blur(80px)' }} />
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-[0.06]"
-          style={{ background: 'radial-gradient(circle, #ef4444 0%, transparent 80%)', filter: 'blur(80px)' }} />
-      </div>
-
-      {/* Main navigation Header */}
-      <nav className="glass-panel border-b border-[var(--md-outline)] px-6 py-4 flex items-center justify-between shrink-0 relative z-10">
-        <div className="flex items-center gap-2">
-          <BrainCircuit className="w-5 h-5 text-purple-400" />
-          <span className="font-bold text-sm tracking-wider uppercase text-white font-outfit">
-            NEMIX GATEWAY CONSOLE
-          </span>
-        </div>
-        <div className="flex items-center gap-4 text-xs font-semibold" style={{ color: 'var(--md-on-surface-var)' }}>
-          <a href="https://github.com/zaampltd/nemix.git" target="_blank" rel="noreferrer"
-            className="flex items-center gap-1.5 hover:text-white transition-colors">
-            <Code className="w-4 h-4" /> Github Code
-          </a>
-          <span className="w-1 h-1 rounded-full bg-zinc-700" />
-          <span className="flex items-center gap-1 text-emerald-400">
-            <ShieldCheck className="w-4 h-4" /> Vercel Live Host
-          </span>
-        </div>
-      </nav>
-
-      {/* Children containers */}
-      <div className="flex-1 w-full px-6 py-8 relative z-10">
-        {children}
-      </div>
+        )}
+      </AnimatePresence>
 
       {/* Footer copyright */}
-      <footer className="py-6 border-t border-[var(--md-outline-var)] text-center text-[10px] font-medium shrink-0 relative z-10" style={{ color: 'var(--md-on-surface-var)' }}>
+      <footer className="py-2.5 border-t border-white/5 text-center text-[9px] font-medium text-zinc-600 bg-black shrink-0 relative z-20">
         © {new Date().getFullYear()} Nemix Corporation. All private client-side agent configurations encrypted in sandbox.
       </footer>
 
     </div>
+  );
+}
+
+// ─── Custom Kanban Card Sub-Component ───
+function KanbanCard({ 
+  ticket, 
+  agents, 
+  onCodePreview,
+  onApproveRequest,
+  governanceMode
+}: { 
+  ticket: Ticket; 
+  agents: Agent[];
+  onCodePreview: (code: string) => void;
+  onApproveRequest?: (ticket: Ticket) => void;
+  governanceMode?: boolean;
+}) {
+  const agent = agents.find(a => a.id === ticket.assignedTo);
+  const isAwaiting = ticket.status === 'awaiting';
+  const hasOutput = !!ticket.output;
+
+  return (
+    <motion.div
+      layoutId={ticket.id}
+      transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+      className="p-3.5 rounded-xl border border-white/5 bg-[#111111]/90 shadow-md flex flex-col space-y-3 text-left"
+    >
+      <h4 className="text-[10.5px] font-black uppercase text-zinc-100 tracking-wide leading-tight">
+        {ticket.title}
+      </h4>
+      <p className="text-[9.5px] text-zinc-400 leading-relaxed">
+        {ticket.description}
+      </p>
+
+      {/* Reasoning log snippet */}
+      <div className="bg-black/60 border border-white/5 p-2 rounded-lg text-[9px] font-mono text-zinc-500 leading-relaxed">
+        <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest block mb-0.5">Reasoning Log</span>
+        {ticket.thought}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-white/5 pt-2.5 gap-2 shrink-0">
+        {/* Agent Avatar info */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="w-6 h-6 rounded bg-zinc-950 border border-white/5 flex items-center justify-center text-xs shrink-0">
+            {agent?.avatar || '🤖'}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[8px] font-bold text-zinc-300 truncate leading-tight">{agent?.name || 'Worker-Bot'}</p>
+            <p className="text-[7.5px] text-zinc-500 truncate leading-tight">{agent?.role || 'Worker'}</p>
+          </div>
+        </div>
+
+        {/* Action button inside card */}
+        <div className="flex items-center gap-1 shrink-0">
+          {hasOutput && (
+            <button
+              onClick={() => onCodePreview(ticket.output!)}
+              className="p-1 px-1.5 rounded bg-blue-950/20 border border-blue-500/10 hover:border-blue-500/30 text-blue-400 text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5"
+            >
+              <Code className="w-2.5 h-2.5" /> Output
+            </button>
+          )}
+
+          {isAwaiting && onApproveRequest && governanceMode && (
+            <button
+              onClick={() => onApproveRequest(ticket)}
+              className="p-1 px-1.5 rounded bg-emerald-950/30 border border-emerald-500/20 hover:bg-emerald-950 text-emerald-400 text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5"
+            >
+              Vote
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 }
