@@ -985,29 +985,62 @@ class GatewayRouter:
             )}
 
             {activeTab === 'Chat' && (
-              <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col h-full overflow-hidden">
-                <h2 className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-4">Chat Channels</h2>
+              <div className="bg-panelBg border border-panelBorder rounded-xl p-5 flex flex-col h-full overflow-hidden relative shadow-2xl">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+                <h2 className="text-xs font-bold text-gray-150 uppercase tracking-widest mb-5 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-cyan-400 animate-pulse" /> Chat Rooms
+                </h2>
                 
-                <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto space-y-2.5 pr-1.5 custom-scrollbar select-none">
                   {[
-                    { label: "# ceo-office", detail: "Primary swarm instructions" },
-                    { label: "# architect-designs", detail: "System modules discussions" },
-                    { label: "# dev-compiling", detail: "Active task output threads" },
-                    { label: "# qa-security", detail: "Compiler and static audits checks" }
-                  ].map((channel) => (
-                    <button
-                      key={channel.label}
-                      onClick={() => setActiveChannel(channel.label)}
-                      className={`w-full flex flex-col p-3 rounded-lg text-left transition-colors border ${
-                        activeChannel === channel.label 
-                          ? 'bg-cyan-950/20 border-cyan-500/30 text-cyan-400' 
-                          : 'hover:bg-white/5 border-transparent text-gray-400'
-                      }`}
-                    >
-                      <span className="text-xs font-bold text-white uppercase tracking-wider">{channel.label}</span>
-                      <span className="text-[9px] text-textMuted mt-1 truncate max-w-full font-medium leading-none">{channel.detail}</span>
-                    </button>
-                  ))}
+                    { label: "# ceo-office", detail: "Primary swarm directives", status: "idle", agent: "Orchestrator-Alpha" },
+                    { label: "# architect-designs", detail: "System modules discussions", status: "idle", agent: "Architect-Bot" },
+                    { label: "# dev-compiling", detail: "Active task output threads", status: "working", agent: "Code-Engine-v4" },
+                    { label: "# qa-security", detail: "Compiler static audits checks", status: "idle", agent: "Shield-Auditor" }
+                  ].map((channel) => {
+                    const isSelected = activeChannel === channel.label;
+                    const isActive = channel.status === "working";
+                    
+                    return (
+                      <button
+                        key={channel.label}
+                        onClick={() => setActiveChannel(channel.label)}
+                        className={`w-full flex flex-col p-3.5 rounded-xl text-left border relative overflow-hidden transition-all duration-300 group ${
+                          isSelected 
+                            ? 'bg-[#091b24]/40 border-cyan-500/25 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.03)]' 
+                            : 'hover:bg-[#151a23]/35 hover:border-panelBorder/60 border-transparent text-gray-400'
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="absolute left-0 top-0 w-[2.5px] h-full bg-cyan-400 rounded-r shadow-[0_0_8px_#06b6d4]"></div>
+                        )}
+                        
+                        <div className="flex items-center justify-between w-full relative z-10">
+                          <span className={`text-[11px] font-black tracking-wider uppercase ${
+                            isSelected ? 'text-white' : 'text-slate-300 group-hover:text-cyan-400 transition-colors'
+                          }`}>{channel.label}</span>
+                          
+                          {/* Animated status beacon inside channel chip */}
+                          <div className="flex items-center gap-1">
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              isActive 
+                                ? 'bg-neonCyan animate-pulse shadow-[0_0_5px_#06b6d4]' 
+                                : isSelected 
+                                ? 'bg-neonGreen/60' 
+                                : 'bg-slate-600/40'
+                            }`} />
+                          </div>
+                        </div>
+                        
+                        <span className="text-[9px] text-textMuted mt-1 truncate max-w-full font-medium leading-relaxed font-sans">{channel.detail}</span>
+                        
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-panelBorder/20 text-[7.5px] font-mono text-gray-500">
+                          <span>LISTENER:</span>
+                          <span className={isSelected ? "text-cyan-400/80 font-bold" : "text-gray-400"}>{channel.agent}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -1378,70 +1411,157 @@ class GatewayRouter:
             )}
 
             {activeTab === 'Chat' && (
-              <div className="flex-1 flex flex-col overflow-hidden relative">
-                {/* Channel Header details */}
-                <div className="flex items-center justify-between shrink-0 border-b border-panelBorder/40 pb-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4.5 h-4.5 text-cyan-400 animate-pulse" />
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">{activeChannel}</span>
-                    <span className="text-[9px] text-textMuted uppercase font-mono bg-black/30 border border-panelBorder px-2 py-0.5 rounded-lg shrink-0">CEO CHANNEL</span>
+              <div className="flex-1 flex flex-col overflow-hidden relative shadow-2xl">
+                {/* Channel Header details with overlapping participant avatars */}
+                <div className="flex items-center justify-between shrink-0 border-b border-panelBorder/30 pb-4 mb-4 select-none">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-cyan-950/20 border border-cyan-500/20 flex items-center justify-center">
+                      <MessageSquare className="w-4.5 h-4.5 text-cyan-400 animate-pulse" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-black text-white uppercase tracking-wider block leading-none">{activeChannel}</span>
+                      <span className="text-[8px] text-textMuted uppercase font-mono tracking-widest mt-1 block">active swarm communications room</span>
+                    </div>
                   </div>
-                  <span className="text-[8px] text-neonGreen font-black tracking-widest uppercase flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-neonGreen animate-ping" /> ACTIVE</span>
+                  
+                  {/* Overlapping active agent participants badges */}
+                  <div className="flex items-center gap-3.5 bg-[#050608]/40 border border-panelBorder/40 rounded-full px-3.5 py-1.5 shadow-inner">
+                    <span className="text-[7.5px] font-black uppercase text-gray-500 tracking-wider">Agents Listening:</span>
+                    <div className="flex -space-x-2.5">
+                      <div className="w-6 h-6 rounded-full bg-slate-900 border border-cyan-500/40 flex items-center justify-center shadow-md relative group/tooltip" title="Orchestrator-Alpha">
+                        <BrainCircuit className="w-3.5 h-3.5 text-cyan-400" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-neonGreen absolute -bottom-0.5 -right-0.5 border border-slate-900 animate-pulse"></span>
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-slate-900 border border-indigo-500/40 flex items-center justify-center shadow-md" title="Architect-Bot">
+                        <Compass className="w-3.5 h-3.5 text-indigo-400" />
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-slate-900 border border-emerald-500/40 flex items-center justify-center shadow-md" title="Code-Engine-v4">
+                        <Code className="w-3.5 h-3.5 text-emerald-400" />
+                      </div>
+                      <div className="w-6 h-6 rounded-full bg-slate-900 border border-amber-500/40 flex items-center justify-center shadow-md" title="Shield-Auditor">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* chat messages scroll container */}
                 <div 
                   ref={chatContainerRef}
-                  className="flex-1 overflow-y-auto space-y-4 pr-1.5 custom-scrollbar mb-4 bg-black/30 border border-panelBorder rounded-xl p-4 shadow-inner"
+                  className="flex-1 overflow-y-auto space-y-5 pr-1.5 custom-scrollbar mb-4 bg-[#050608]/30 border border-panelBorder/40 rounded-2xl p-5 shadow-inner leading-relaxed"
                 >
-                  {chatMessages.map((msg) => (
-                    <div 
-                      key={msg.id} 
-                      className={`flex flex-col max-w-[85%] ${
-                        msg.isAgent 
-                          ? 'mr-auto text-left' 
-                          : 'ml-auto text-right items-end'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[9px] font-black uppercase text-cyan-400 tracking-wide">{msg.sender}</span>
-                        <span className="text-[8px] text-textMuted font-mono font-medium">{msg.timestamp}</span>
-                      </div>
+                  {chatMessages.map((msg) => {
+                    const isMsgAgent = msg.isAgent;
+                    const senderLower = msg.sender.toLowerCase();
+                    
+                    return (
+                      <div 
+                        key={msg.id} 
+                        className={`flex gap-3 max-w-[78%] group relative ${
+                          isMsgAgent 
+                            ? 'mr-auto text-left items-start' 
+                            : 'ml-auto text-right items-start flex-row-reverse'
+                        }`}
+                      >
+                        {/* Dynamic vector avatar badge alongside message bubble */}
+                        <div className={`w-8 h-8 rounded-lg bg-black/45 border border-panelBorder/70 flex items-center justify-center shrink-0 shadow-sm ${
+                          isMsgAgent ? 'border-cyan-500/20' : 'border-indigo-500/20'
+                        }`}>
+                          {isMsgAgent ? (
+                            senderLower.includes('ceo') ? (
+                              <BrainCircuit className="w-4 h-4 text-cyan-400 animate-pulse" />
+                            ) : senderLower.includes('architect') ? (
+                              <Compass className="w-4 h-4 text-indigo-400" />
+                            ) : senderLower.includes('code') || senderLower.includes('dev') ? (
+                              <Code className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <Cpu className="w-4 h-4 text-slate-400" />
+                            )
+                          ) : (
+                            <UserCheck className="w-4 h-4 text-indigo-450" />
+                          )}
+                        </div>
 
-                      <div className={`p-3.5 rounded-2xl text-xs leading-relaxed select-text font-sans font-medium border ${
-                        msg.isAgent 
-                          ? 'bg-[#151a23]/60 border-panelBorder rounded-tl-none text-gray-200' 
-                          : 'bg-[#082f49]/80 border-cyan-500/20 rounded-tr-none text-white'
-                      }`}>
-                        {msg.text}
-
-                        {/* code snippet preview if loaded */}
-                        {msg.codeSnippet && (
-                          <div className="mt-3.5 pt-3.5 border-t border-panelBorder/40">
-                            <pre className="text-[9.5px] font-mono text-emerald-400 bg-black/50 p-3 rounded-lg overflow-x-auto select-text leading-relaxed">
-                              <code>{msg.codeSnippet}</code>
-                            </pre>
+                        <div className={`flex flex-col ${isMsgAgent ? '' : 'items-end'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[9px] font-black uppercase text-white tracking-widest leading-none flex items-center gap-1">
+                              {msg.sender}
+                              {isMsgAgent && (
+                                <span className="bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded tracking-wide leading-none select-none">AI Agent</span>
+                              )}
+                            </span>
+                            <span className="text-[7.5px] text-textMuted font-mono font-medium">{msg.timestamp}</span>
                           </div>
-                        )}
+
+                          <div className={`p-4 rounded-2xl text-xs leading-relaxed select-text font-sans font-medium border relative transition-all shadow-md ${
+                            isMsgAgent 
+                              ? 'bg-[#151a23]/60 border-panelBorder rounded-tl-none text-gray-250 hover:border-panelBorder/80' 
+                              : 'bg-[#082f49]/40 border-cyan-500/20 rounded-tr-none text-white hover:border-cyan-500/30'
+                          }`}>
+                            {msg.text}
+
+                            {/* code snippet preview if loaded */}
+                            {msg.codeSnippet && (
+                              <div className="mt-3.5 pt-3 border-t border-panelBorder/30">
+                                <pre className="text-[9px] font-mono text-emerald-450 bg-black/60 p-3 rounded-lg overflow-x-auto select-text leading-relaxed border border-panelBorder/30">
+                                  <code>{msg.codeSnippet}</code>
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Bouncing typing indicator when agent is heartbeating */}
+                  {isHeartbeating && (
+                    <div className="flex gap-3 items-center mr-auto text-left max-w-[70%] text-[10px] font-mono text-cyan-400/80 bg-cyan-950/10 border border-cyan-500/10 p-3.5 rounded-xl animate-pulse">
+                      <BrainCircuit className="w-4 h-4 text-cyan-400 animate-spin" />
+                      <span>Orchestrator-Alpha is synthesizing next agent tick...</span>
+                      <div className="flex gap-1 items-center pl-1.5">
+                        <span className="w-1 h-1 bg-cyan-400 rounded-full animate-bounce delay-100" />
+                        <span className="w-1 h-1 bg-cyan-400 rounded-full animate-bounce delay-200" />
+                        <span className="w-1 h-1 bg-cyan-400 rounded-full animate-bounce delay-300" />
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
 
-                {/* Input prompt message form */}
-                <form onSubmit={handleSendPromptMessage} className="flex gap-2.5 shrink-0">
+                {/* Cohesive Floating ChatGPT-tier input control console */}
+                <form 
+                  onSubmit={handleSendPromptMessage} 
+                  className="bg-[#050508]/85 border border-panelBorder/50 rounded-2xl p-2.5 flex items-center gap-3 shadow-2xl relative"
+                >
+                  {/* Upload asset attachment button */}
+                  <button
+                    type="button"
+                    title="Attach Knowledge Asset File"
+                    className="w-9 h-9 rounded-xl hover:bg-white/5 flex items-center justify-center text-gray-500 hover:text-cyan-400 transition-colors shrink-0 cursor-pointer border border-transparent hover:border-panelBorder/40"
+                  >
+                    <Upload className="w-4.5 h-4.5" />
+                  </button>
+                  
                   <input
                     type="text"
                     value={typedMessage}
                     onChange={e => setTypedMessage(e.target.value)}
-                    placeholder="Enter board directive / prompt for Orchestrator Alpha..."
-                    className="flex-1 px-4 py-3 bg-[#050505] border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
+                    placeholder={`Direct Orchestrator Alpha in ${activeChannel}...`}
+                    className="flex-1 bg-transparent border-none text-xs font-mono text-white outline-none placeholder:text-gray-600 px-1 py-2"
                   />
+                  
+                  {/* Active LLM Model indicator engine badge */}
+                  <div className="bg-[#111827] border border-panelBorder/40 rounded-lg px-2.5 py-1 text-[8.5px] font-mono text-gray-500 shrink-0 select-none hidden md:flex items-center gap-1.5">
+                    <Cpu className="w-3 h-3 text-cyan-400" />
+                    <span>Llama-3.1-70B</span>
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-12 h-11.5 rounded-xl border border-neonCyan bg-[#082f49] hover:bg-[#0c4a6e] text-cyan-300 flex items-center justify-center transition-all glow-cyan"
+                    disabled={!typedMessage.trim()}
+                    className="w-9 h-9 rounded-xl bg-[#082f49] hover:bg-[#0c4a6e] border border-cyan-500/25 text-cyan-300 flex items-center justify-center transition-all glow-cyan disabled:opacity-30 disabled:glow-none shrink-0 cursor-pointer hover:scale-[1.03] active:scale-100 shadow-md"
                   >
-                    <Send className="w-4 h-4 text-cyan-300 animate-pulse" />
+                    <Send className="w-4 h-4 text-cyan-300" />
                   </button>
                 </form>
               </div>
