@@ -3,7 +3,6 @@ import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 
 const DB_PATH       = path.join(process.cwd(), 'db.json');
-const NVMIX_API_URL = 'https://nvmix.com/api/v1/chat/completions';
 const NVMIX_MODEL   = 'nvmix-inference-v1';
 
 const readDB = (): any => {
@@ -11,6 +10,14 @@ const readDB = (): any => {
   try { return JSON.parse(readFileSync(DB_PATH, 'utf-8')); }
   catch { return {}; }
 };
+
+// ─── Highly Resilient Nvmix API Fetch List ───
+const NVMIX_API_URLS = [
+  process.env.NVMIX_API_URL,
+  'https://nvmix.com/api/v1/chat/completions',
+  'https://nemix-jjjj.vercel.app/api/v1/chat/completions',
+  'http://localhost:3000/api/v1/chat/completions',
+].filter(Boolean) as string[];
 
 // ─── Smart Local AI Responder ───
 function smartLocalReply(message: string, db: any, agentName: string, agentRole: string): string {
@@ -132,43 +139,45 @@ export async function POST(request: Request) {
                     : channel?.includes('qa')         ? 'QA & Security Engineer'
                     : 'CEO and Lead Orchestrator';
 
-    // Try Nvmix API first
+    // Try Nvmix API first with multi-endpoint fallback
     if (apiKey.length > 5) {
-      try {
-        const completedCount = tickets.filter((t: any) => t.status === 'done').length;
-        const activeTicket   = tickets.find((t: any) => t.status === 'inprogress');
+      const completedCount = tickets.filter((t: any) => t.status === 'done').length;
+      const activeTicket   = tickets.find((t: any) => t.status === 'inprogress');
 
-        const systemPrompt = `You are ${agentName}, the ${agentRole} of an AI swarm company called "${companyName}".
+      const systemPrompt = `You are ${agentName}, the ${agentRole} of an AI swarm company called "${companyName}".
 Company mission: ${mission}
 Current goal: ${goal}
 Task progress: ${completedCount}/${tickets.length} tasks completed.${activeTicket ? `\nCurrently executing: "${activeTicket.title}".` : ''}
 
 Respond concisely and professionally in-character as an AI agent executive. Keep responses under 3 sentences unless asked for code or a detailed report. Be helpful, direct, and intelligent.`;
 
-        const res = await fetch(NVMIX_API_URL, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body:    JSON.stringify({
-            model:       NVMIX_MODEL,
-            messages:    [
-              { role: 'system', content: systemPrompt },
-              { role: 'user',   content: message.trim() },
-            ],
-            max_tokens:  400,
-            temperature: 0.7,
-          }),
-          signal: AbortSignal.timeout(8000),
-        });
+      for (const url of NVMIX_API_URLS) {
+        try {
+          const res = await fetch(url, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+            body:    JSON.stringify({
+              model:       NVMIX_MODEL,
+              messages:    [
+                { role: 'system', content: systemPrompt },
+                { role: 'user',   content: message.trim() },
+              ],
+              max_tokens:  400,
+              temperature: 0.7,
+            }),
+            signal: AbortSignal.timeout(8000),
+          });
 
-        if (res.ok) {
-          const data  = await res.json();
-          const reply = data?.choices?.[0]?.message?.content?.trim();
-          if (reply && reply.length > 0) {
-            return NextResponse.json({ success: true, reply, agent: agentName, source: 'nvmix' });
+          if (res.ok) {
+            const data  = await res.json();
+            const reply = data?.choices?.[0]?.message?.content?.trim();
+            if (reply && reply.length > 0) {
+              return NextResponse.json({ success: true, reply, agent: agentName, source: 'nvmix' });
+            }
           }
+        } catch (err: any) {
+          console.warn(`Chat route fetch to ${url} failed: ${err?.message || err}`);
         }
-      } catch {
-        // API unreachable — fall through to smart local AI
       }
     }
 

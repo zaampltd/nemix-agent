@@ -1,72 +1,11 @@
 {
-  "companyName": "Nvmix Fintech Corp",
-  "mission": "Build a high-performance automated stock and asset trading portfolio dashboard.",
-  "goal": "Construct Next.js graphs, configure webhooks, and compile mock trading logic.",
-  "apiKey": "nvx_sk_h_zloNX3uvipD4hrftLFQIP1ThynFfpnj8",
+  "companyName": "",
+  "mission": "",
+  "goal": "",
+  "apiKey": "",
   "budgetUsed": 0,
   "governanceMode": true,
-  "agents": [
-    {
-      "id": "agent_ceo",
-      "role": "CEO (Chief Executive Officer)",
-      "name": "Orchestrator-Alpha",
-      "avatar": "💼",
-      "status": "working"
-    },
-    {
-      "id": "agent_architect",
-      "role": "Software Architect",
-      "name": "Architect-Bot",
-      "avatar": "📐",
-      "status": "sleeping"
-    },
-    {
-      "id": "agent_coder",
-      "role": "Lead Developer",
-      "name": "Code-Engine-v4",
-      "avatar": "💻",
-      "status": "sleeping"
-    },
-    {
-      "id": "agent_qa",
-      "role": "QA & Security Auditor",
-      "name": "Shield-Auditor",
-      "avatar": "🛡️",
-      "status": "sleeping"
-    }
-  ],
-  "tickets": [
-    {
-      "id": "ticket_1",
-      "title": "Design system architecture & data models",
-      "description": "Map out modular architecture structures and data schemas for Nvmix Fintech Corp.",
-      "assignedTo": "agent_architect",
-      "status": "todo",
-      "thought": "Awaiting architectural heartbeat check.",
-      "output": ""
-    },
-    {
-      "id": "ticket_2",
-      "title": "Bootstrap core API & application files",
-      "description": "Create modular layout packages, API interfaces, and core application logic.",
-      "assignedTo": "agent_coder",
-      "status": "todo",
-      "thought": "Queued to start coding codebase packages.",
-      "output": ""
-    },
-    {
-      "id": "ticket_3",
-      "title": "Execute security validation & QA audits",
-      "description": "Perform type checks and secure environment scanning to audit code integrity.",
-      "assignedTo": "agent_qa",
-      "status": "todo",
-      "thought": "Ready to perform security checks on compile structures.",
-      "output": ""
-    }
-  ],
-  "logs": [
-    "[System] Swarm \"Nvmix Fintech Corp\" launched successfully with default roster.",
-    "[CEO] Orchestrator-Alpha hired to lead the mission.",
-    "[CEO] Created 3 backlog tickets for goal: \"Construct Next.js graphs, configure webhooks, and compile mock trading logic.\""
-  ]
+  "agents": [],
+  "tickets": [],
+  "logs": []
 }

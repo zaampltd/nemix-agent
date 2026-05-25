@@ -75,9 +75,9 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Files' | 'Chat' | 'Settings'>('Dashboard');
 
   // ─── Swarm State ───
-  const [companyName, setCompanyName] = useState("Nvmix Swarm Corp");
-  const [mission, setMission] = useState("Build an autonomous multi-agent edge gateway router.");
-  const [goal, setGoal] = useState("Decompose and execute Next.js edge failover schemas.");
+  const [companyName, setCompanyName] = useState("");
+  const [mission, setMission] = useState("");
+  const [goal, setGoal] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   

@@ -5,14 +5,13 @@ import path from 'path';
 const DB_PATH = path.join(process.cwd(), 'db.json');
 
 // ─── STRICT RULE: ONLY NVMIX API ───
-const NVMIX_API_URL = 'https://nvmix.com/api/v1/chat/completions';
 const NVMIX_MODEL   = 'nvmix-inference-v1';
 
 // ─── DB Helpers ───
 const getDefaultState = () => ({
-  companyName:    'Nvmix Swarm Corp',
-  mission:        'Build an autonomous multi-agent edge gateway router.',
-  goal:           'Decompose and execute Next.js edge failover schemas.',
+  companyName:    '',
+  mission:        '',
+  goal:           '',
   apiKey:         '',
   budgetUsed:     0,
   governanceMode: true,
@@ -30,16 +29,36 @@ const readDB = (): any => {
 const writeDB = (state: any) =>
   writeFileSync(DB_PATH, JSON.stringify(state, null, 2), 'utf-8');
 
-// ─── Nvmix API Helper ───
+// ─── Highly Resilient Nvmix API Helper with Automatic Fallbacks ───
 async function callNvmixAPI(apiKey: string, messages: { role: string; content: string }[]) {
-  const res = await fetch(NVMIX_API_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body:    JSON.stringify({ model: NVMIX_MODEL, messages }),
-    signal:  AbortSignal.timeout(8000),
-  });
-  if (!res.ok) throw new Error(`Nvmix API ${res.status}: ${await res.text()}`);
-  return res.json();
+  const urls = [
+    process.env.NVMIX_API_URL,
+    'https://nvmix.com/api/v1/chat/completions',
+    'https://nemix-jjjj.vercel.app/api/v1/chat/completions',
+    'http://localhost:3000/api/v1/chat/completions',
+  ].filter(Boolean) as string[];
+
+  let lastErr: any = null;
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body:    JSON.stringify({ model: NVMIX_MODEL, messages }),
+        signal:  AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      const errText = await res.text();
+      console.warn(`Fetch to ${url} failed with status ${res.status}: ${errText}`);
+      lastErr = new Error(`Status ${res.status}: ${errText}`);
+    } catch (err: any) {
+      console.warn(`Fetch to ${url} failed with error: ${err?.message || err}`);
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error('All Nvmix API endpoints are unreachable.');
 }
 
 // ─── GET: Retrieve Swarm State ───
