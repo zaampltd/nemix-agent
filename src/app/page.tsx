@@ -8,7 +8,8 @@ import {
   ShieldAlert, Clock, Compass, Rocket, Zap, RefreshCw, FileCode,
   Coins, Users, Kanban, Plus, PlayCircle, PauseCircle, Code, Copy, Check,
   X, Server, CheckSquare, Layers, AlertCircle, Moon, Sun, Monitor, ShieldCheck, Database,
-  MessageSquare, Folder, FolderOpen, FileText, Settings, Sliders, Send, Upload, HelpCircle, HardDrive
+  MessageSquare, Folder, FolderOpen, FileText, Settings, Sliders, Send, Upload, HelpCircle, HardDrive,
+  LayoutDashboard, LogOut, Table
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -74,7 +75,7 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Files' | 'Chat' | 'Settings'>('Dashboard');
 
   // ─── Swarm State ───
-  const [companyName, setCompanyName] = useState("Nemix Swarm Corp");
+  const [companyName, setCompanyName] = useState("Nvmix Swarm Corp");
   const [mission, setMission] = useState("Build an autonomous multi-agent edge gateway router.");
   const [goal, setGoal] = useState("Decompose and execute Next.js edge failover schemas.");
   const [apiKey, setApiKey] = useState("");
@@ -143,7 +144,7 @@ export default function Page() {
 
   // Load API Key and active state from backend on mount
   useEffect(() => {
-    const saved = localStorage.getItem('nemix_agent_key');
+    const saved = localStorage.getItem('nvmix_agent_key');
     if (saved) setApiKey(saved);
 
     const loadState = async () => {
@@ -152,7 +153,7 @@ export default function Page() {
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.state && data.state.agents.length > 0) {
-            setCompanyName(data.state.companyName || "Nemix Swarm Corp");
+            setCompanyName(data.state.companyName || "Nvmix Swarm Corp");
             setMission(data.state.mission);
             setGoal(data.state.goal);
             setAgents(data.state.agents);
@@ -167,7 +168,7 @@ export default function Page() {
               {
                 id: '1',
                 sender: 'Orchestrator-Alpha (CEO)',
-                text: `Welcome to the Swarm Workspace, Board of Directors. Swarm Company "${data.state.companyName || 'Nemix Swarm'}" is online. Directives set. How shall we progress?`,
+                text: `Welcome to the Swarm Workspace, Board of Directors. Swarm Company "${data.state.companyName || 'Nvmix Swarm'}" is online. Directives set. How shall we progress?`,
                 timestamp: new Date().toLocaleTimeString(),
                 isAgent: true
               }
@@ -182,7 +183,7 @@ export default function Page() {
   }, []);
 
   const saveKey = () => {
-    localStorage.setItem('nemix_agent_key', apiKey.trim());
+    localStorage.setItem('nvmix_agent_key', apiKey.trim());
     addLocalLog('[System] Gateway key credentials safely cached in secure vault.');
   };
 
@@ -196,7 +197,7 @@ export default function Page() {
     if (!companyName.trim() || !goal.trim()) return;
 
     setIsInitializing(true);
-    addLocalLog('[System] Contacting Nemix API Gateway to broker agent roster...');
+    addLocalLog('[System] Contacting Nvmix API Gateway to broker agent roster...');
 
     try {
       const response = await fetch('/api/orchestrator', {
@@ -257,7 +258,7 @@ export default function Page() {
     setIsInitializing(true);
     addLocalLog('[System] Launching Demo Mode: Bootstrapping pre-configured Swarm Company...');
     
-    const demoCompany = "Nemix Fintech Corp";
+    const demoCompany = "Nvmix Fintech Corp";
     const demoMission = "Build a high-performance automated stock and asset trading portfolio dashboard.";
     const demoGoal = "Construct Next.js graphs, configure webhooks, and compile mock trading logic.";
     
@@ -431,7 +432,6 @@ export default function Page() {
   // ─── Hire Custom Worker Agent ───
   const handleHireAgent = () => {
     if (!newAgentName.trim() || !newAgentRole.trim()) return;
-
     const newAgent: Agent = {
       id: `agent_${Math.random().toString(36).substring(2, 9)}`,
       role: newAgentRole,
@@ -439,20 +439,17 @@ export default function Page() {
       avatar: '🤖',
       status: 'sleeping'
     };
-
     setAgents(prev => [...prev, newAgent]);
-    addLocalLog(`[CEO] Swarm expanded! Recruited specialized agent "${newAgentName}" as "${newAgentRole}".`);
-    
+    addLocalLog(`[CEO] Recruited "${newAgentName}" as "${newAgentRole}".`);
     setIsHireModalOpen(false);
     setNewAgentName("");
     setNewAgentRole("");
   };
 
-  // ─── Swarm Chat Prompt Submissions ───
-  const handleSendPromptMessage = (e: React.FormEvent) => {
+  // ─── Swarm Chat (Nvmix API Live) ───
+  const handleSendPromptMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!typedMessage.trim()) return;
-
     const userMsg: ChatMessage = {
       id: Math.random().toString(),
       sender: 'Board Member (You)',
@@ -460,50 +457,18 @@ export default function Page() {
       timestamp: new Date().toLocaleTimeString(),
       isAgent: false
     };
-
     setChatMessages(prev => [...prev, userMsg]);
-    const prompt = typedMessage.trim().toLowerCase();
+    const sentMessage = typedMessage.trim();
     setTypedMessage("");
-
-    // Simulate CEO processing/response based on prompt goal
-    setTimeout(() => {
-      let responseText = `Board directive acknowledged. Analyzing goal parameter configurations: "${goal}". dispatches queued.`;
-      let code = "";
-
-      if (prompt.includes('status') || prompt.includes('update')) {
-        const completed = tickets.filter(t => t.status === 'done').length;
-        const total = tickets.length;
-        responseText = `Current Swarm telemetry status: ${completed}/${total} tasks finalized. Computed budget actively cached. standing by for ticks!`;
-      } else if (prompt.includes('code') || prompt.includes('blueprint') || prompt.includes('file')) {
-        responseText = `CEO Synthesis complete: Produced edge fallover route script vault parameters securely matching ${companyName} goals.`;
-        code = `// Dynamic Swarm Route Module: edge_failover_hook.py
-import requests
-from nemix import NemixAPI
-
-class GatewayRouter:
-    def __init__(self):
-        self.endpoint = "https://api.nemix.ai/v1/chat/completions"
-        self.local_key = "nex_sk_secured_vault"
-        
-    def execute_failover(self, payload):
-        print("Routing to primary together gateway...")
-        # Static validation loops success
-        return {"status": "SUCCESS", "route": "api.nemix.ai"}`;
-      } else if (prompt.includes('hire') || prompt.includes('recruit')) {
-        responseText = `Roster instructions registered. To hire custom agents dynamically, please navigate to the "Team/Agents" directory tab or use the hire terminal modal.`;
-      }
-
-      const agentMsg: ChatMessage = {
-        id: Math.random().toString(),
-        sender: 'Orchestrator-Alpha (CEO)',
-        text: responseText,
-        timestamp: new Date().toLocaleTimeString(),
-        isAgent: true,
-        codeSnippet: code || undefined
-      };
-
-      setChatMessages(prev => [...prev, agentMsg]);
-    }, 1000);
+    const typingId = Math.random().toString();
+    setChatMessages(prev => [...prev, { id: typingId, sender: 'Orchestrator-Alpha (CEO)', text: '...', timestamp: new Date().toLocaleTimeString(), isAgent: true }]);
+    try {
+      const res  = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: sentMessage, channel: activeChannel }) });
+      const data = await res.json();
+      setChatMessages(prev => prev.filter(m => m.id !== typingId).concat({ id: Math.random().toString(), sender: data.agent || 'Orchestrator-Alpha (CEO)', text: data.reply || 'Processing complete.', timestamp: new Date().toLocaleTimeString(), isAgent: true }));
+    } catch {
+      setChatMessages(prev => prev.filter(m => m.id !== typingId).concat({ id: Math.random().toString(), sender: 'Orchestrator-Alpha (CEO)', text: 'Nvmix gateway unreachable. Operating in local standby mode.', timestamp: new Date().toLocaleTimeString(), isAgent: true }));
+    }
   };
 
   // Hired agent references
@@ -516,7 +481,7 @@ class GatewayRouter:
     { name: "swarm_onboarding_brief.md", size: "2.4 KB", type: "Doc", date: "24-05-2026", folder: "Drives" },
     { name: "together_ai_fallback_specs.pdf", size: "1.8 MB", type: "PDF", date: "22-05-2026", folder: "Drives" },
     { name: "edge_router_schema_blueprint.json", size: "482 Bytes", type: "Config", date: "23-05-2026", folder: "Blueprints" },
-    { name: "nemix_chat_model_guidelines.md", size: "5.1 KB", type: "Doc", date: "24-05-2026", folder: "Prompts" },
+    { name: "nvmix_chat_model_guidelines.md", size: "5.1 KB", type: "Doc", date: "24-05-2026", folder: "Prompts" },
     { name: "company_unit_economics_spreadsheet.csv", size: "14.2 KB", type: "Dataset", date: "21-05-2026", folder: "Datasets" }
   ];
 
@@ -527,7 +492,7 @@ class GatewayRouter:
   });
 
   return (
-    <div className="bg-nemixBg text-gray-200 h-screen flex overflow-hidden selection:bg-neonCyan selection:text-white font-sans antialiased">
+    <div className="bg-nvmixBg text-gray-200 h-screen flex overflow-hidden selection:bg-neonCyan selection:text-white font-sans antialiased">
       
       {/* ======================================================== */}
       {/* PANEL 1: GLOBAL NAVIGATION SIDEBAR (Extreme Left, 64px) */}
@@ -545,11 +510,14 @@ class GatewayRouter:
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all relative group ${
               activeTab === 'Dashboard' 
                 ? 'bg-cyan-900/30 border border-cyan-500/40 text-cyan-400 glow-cyan' 
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                : 'text-gray-550 hover:text-gray-300 hover:bg-white/5'
             } ${!initialized ? 'opacity-40 cursor-not-allowed' : ''}`}
             title="Dashboard Overview"
           >
-            <i className="fa-solid fa-gear text-[18px]"></i>
+            {activeTab === 'Dashboard' && (
+              <span className="absolute -left-2 w-1 h-5 rounded-r bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
+            )}
+            <LayoutDashboard className="w-5 h-5" />
             <span className="absolute left-[54px] bg-panelBg border border-panelBorder text-white text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-40 pointer-events-none">Dashboard</span>
           </button>
 
@@ -559,11 +527,14 @@ class GatewayRouter:
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all relative group ${
               activeTab === 'Team' 
                 ? 'bg-cyan-900/30 border border-cyan-500/40 text-cyan-400 glow-cyan' 
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                : 'text-gray-550 hover:text-gray-300 hover:bg-white/5'
             } ${!initialized ? 'opacity-40 cursor-not-allowed' : ''}`}
             title="Swarm Roster tree"
           >
-            <i className="fa-solid fa-user-group text-[16px]"></i>
+            {activeTab === 'Team' && (
+              <span className="absolute -left-2 w-1 h-5 rounded-r bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
+            )}
+            <Users className="w-5 h-5" />
             <span className="absolute left-[54px] bg-panelBg border border-panelBorder text-white text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-40 pointer-events-none">Agents Tree</span>
           </button>
 
@@ -573,11 +544,14 @@ class GatewayRouter:
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all relative group ${
               activeTab === 'Chat' 
                 ? 'bg-cyan-900/30 border border-cyan-500/40 text-cyan-400 glow-cyan' 
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                : 'text-gray-550 hover:text-gray-300 hover:bg-white/5'
             } ${!initialized ? 'opacity-40 cursor-not-allowed' : ''}`}
             title="Interactive Chat Console"
           >
-            <i className="fa-regular fa-file-lines text-[18px]"></i>
+            {activeTab === 'Chat' && (
+              <span className="absolute -left-2 w-1 h-5 rounded-r bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
+            )}
+            <MessageSquare className="w-5 h-5" />
             <span className="absolute left-[54px] bg-panelBg border border-panelBorder text-white text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-40 pointer-events-none">Swarm Chat</span>
           </button>
 
@@ -587,11 +561,14 @@ class GatewayRouter:
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all relative group ${
               activeTab === 'Files' 
                 ? 'bg-cyan-900/30 border border-cyan-500/40 text-cyan-400 glow-cyan' 
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                : 'text-gray-550 hover:text-gray-300 hover:bg-white/5'
             } ${!initialized ? 'opacity-40 cursor-not-allowed' : ''}`}
             title="Knowledge Base Explorer"
           >
-            <i className="fa-regular fa-folder text-[18px]"></i>
+            {activeTab === 'Files' && (
+              <span className="absolute -left-2 w-1 h-5 rounded-r bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
+            )}
+            <Folder className="w-5 h-5" />
             <span className="absolute left-[54px] bg-panelBg border border-panelBorder text-white text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-40 pointer-events-none">Knowledge Base</span>
           </button>
 
@@ -605,15 +582,21 @@ class GatewayRouter:
             } ${!initialized ? 'opacity-40 cursor-not-allowed' : ''}`}
             title="Settings panel"
           >
-            <i className="fa-solid fa-atom text-[18px]"></i>
+            {activeTab === 'Settings' && (
+              <span className="absolute -left-2 w-1 h-5 rounded-r bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
+            )}
+            <Settings className="w-5 h-5" />
             <span className="absolute left-[54px] bg-panelBg border border-panelBorder text-white text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-40 pointer-events-none">System Settings</span>
           </button>
         </div>
 
         {/* Bottom logout / reset trigger */}
-        <div className="flex flex-col items-center gap-3.5 w-full px-2 pt-4 border-t border-panelBorder/50">
-          <button className="w-10 h-10 rounded-xl text-gray-500 hover:text-gray-300 hover:bg-white/5 flex items-center justify-center transition-all">
-            <i className="fa-regular fa-circle-question text-[18px]"></i>
+        <div className="flex flex-col items-center gap-3 w-full px-2 pt-4 border-t border-panelBorder/50">
+          <button 
+            className="w-10 h-10 rounded-xl text-gray-500 hover:text-gray-300 hover:bg-white/5 flex items-center justify-center transition-all cursor-pointer"
+            title="System Diagnostics & Help"
+          >
+            <HelpCircle className="w-5 h-5" />
           </button>
           <button
             onClick={() => {
@@ -623,13 +606,14 @@ class GatewayRouter:
               setLogs([]);
               addLocalLog('[System] Swarm company reset.');
             }}
-            className="w-10 h-10 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-all"
+            className="w-10 h-10 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-all cursor-pointer"
             title="Wipe Session Swarm"
           >
-            <i className="fa-solid fa-arrow-right-from-bracket text-[18px]"></i>
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </nav>
+
 
       {/* ======================================================== */}
       {/* FULL USER JOURNEY VIEW SCENARIO LAYOUT                   */}
@@ -648,7 +632,7 @@ class GatewayRouter:
             <div className="space-y-2">
               <h2 className="text-xl font-black tracking-widest text-white uppercase font-sans">DEPLOY META SWARM</h2>
               <p className="text-xs text-textMuted max-w-sm mx-auto leading-relaxed">
-                Provide your custom credentials, company parameters, and directive goals. Dispatches active multi-agent trees powered strictly by the client Nemix API.
+                Provide your custom credentials, company parameters, and directive goals. Dispatches active multi-agent trees powered strictly by the client Nvmix API.
               </p>
             </div>
 
@@ -663,7 +647,7 @@ class GatewayRouter:
                     type="text"
                     value={companyName}
                     onChange={e => setCompanyName(e.target.value)}
-                    placeholder="e.g. Nemix Fintech Corp"
+                    placeholder="e.g. Nvmix Fintech Corp"
                     className="w-full pl-10 pr-4 py-3 bg-[#050505] border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
                   />
                 </div>
@@ -686,14 +670,14 @@ class GatewayRouter:
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[8.5px] font-black uppercase tracking-widest text-cyan-400 block">Nemix Local API Key</label>
+                <label className="text-[8.5px] font-black uppercase tracking-widest text-cyan-400 block">Nvmix Local API Key</label>
                 <div className="relative">
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
                     <Key className="w-4 h-4" />
                   </div>
                   <input
                     type={showKey ? 'text' : 'password'}
-                    placeholder="nex_sk_ep_xxxxxxxxxxxx"
+                    placeholder="nvx_sk_ep_xxxxxxxxxxxx"
                     value={apiKey}
                     onChange={e => setApiKey(e.target.value)}
                     className="w-full pl-10 pr-24 py-3 bg-[#050505] border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
@@ -1074,7 +1058,7 @@ class GatewayRouter:
                     <div className="absolute top-0 right-0 w-16 h-16 rounded-full bg-cyan-500/5 blur-xl" />
                     <span className="text-[8px] font-black uppercase text-cyan-400 tracking-widest block leading-none">Security Key</span>
                     <p className="text-[10px] font-mono text-gray-400 select-text truncate">
-                      {apiKey ? `nex_sk_ep_${'*'.repeat(12)}${apiKey.slice(-4)}` : "MOCKED_DEFAULT_SECURE_VAULT_KEY"}
+                      {apiKey ? `nvx_sk_ep_${'*'.repeat(12)}${apiKey.slice(-4)}` : "MOCKED_DEFAULT_SECURE_VAULT_KEY"}
                     </p>
                   </div>
 
@@ -1118,7 +1102,7 @@ class GatewayRouter:
                   <div className="bg-[#050608]/40 border border-white/[0.03] rounded-full px-3.5 py-1.5 flex items-center gap-2">
                     <span className="text-[9px] text-textMuted font-extrabold uppercase tracking-widest">Compute Budget Used:</span>
                     <span className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
-                      <i className="fa-solid fa-coins text-cyan-400 animate-pulse"></i> {budgetUsed.toLocaleString()} <span className="text-[9px] text-cyan-400 font-sans font-black">NMX</span>
+                      <i className="fa-solid fa-coins text-cyan-400 animate-pulse"></i> {budgetUsed.toLocaleString()} <span className="text-[9px] text-cyan-400 font-sans font-black">NVX</span>
                     </span>
                   </div>
                 </div>
@@ -1301,7 +1285,7 @@ class GatewayRouter:
                   {agents.map((agent) => {
                     const metrics = getAgentMetrics(agent.id);
                     const systemPromptText = agent.id === 'agent_ceo' 
-                      ? `You analyze goals: "${goal}", coordinate workers, and organize task backlogs using Nemix API completions.`
+                      ? `You analyze goals: "${goal}", coordinate workers, and organize task backlogs using Nvmix API completions.`
                       : `You execute targeted Swarm development, architectures, or auditing tasks dispatches dynamically.`;
                     
                     return (
@@ -1457,9 +1441,9 @@ class GatewayRouter:
                               onClick={() => {
                                 // Dynamic code preview contents for file
                                 const codeContent = isJson 
-                                  ? `{\n  "schema": "nemix_edge_gateway_router",\n  "version": "1.0.4",\n  "active_failover": true,\n  "fallback_hosts": ["together.nemix.ai", "backup.gateway.ai"],\n  "retry_timeout_ms": 500\n}`
+                                  ? `{\n  "schema": "nvmix_edge_gateway_router",\n  "version": "1.0.4",\n  "active_failover": true,\n  "fallback_hosts": ["together.nvmix.com", "backup.gateway.ai"],\n  "retry_timeout_ms": 500\n}`
                                   : isCsv
-                                  ? `Date,Tokens,ComputeCost,APIKeyUsed\n21-05-2026,1.4M,4200 NMX,nex_sk_ep_***\n22-05-2026,890K,2800 NMX,nex_sk_ep_***\n23-05-2026,2.1M,6400 NMX,nex_sk_ep_***`
+                                  ? `Date,Tokens,ComputeCost,APIKeyUsed\n21-05-2026,1.4M,4200 NVX,nvx_sk_ep_***\n22-05-2026,890K,2800 NVX,nvx_sk_ep_***\n23-05-2026,2.1M,6400 NVX,nvx_sk_ep_***`
                                   : `// Direct System Document Asset: ${file.name}\n// Loaded into agent prompt context successfully.\n\ndef load_context():\n    return "Swarm company active configuration specifications."`;
                                 setActiveCodePreview(codeContent);
                               }}
@@ -1638,59 +1622,147 @@ class GatewayRouter:
                 <h3 className="text-xs font-bold text-white uppercase tracking-widest font-sans border-b border-panelBorder/40 pb-3 shrink-0">System Configurations</h3>
 
                 <div className="flex-1 overflow-y-auto space-y-6 pr-1.5 custom-scrollbar">
-                  
-                  {/* Model settings config */}
-                  <div className="space-y-2 text-left">
-                    <label className="text-[8.5px] font-black uppercase tracking-widest text-cyan-400 block">LLM Engine Model</label>
-                    <select
-                      value={selectedModel}
-                      onChange={e => {
-                        setSelectedModel(e.target.value);
-                        addLocalLog(`[System] LLM engine switched to: ${e.target.value}`);
-                      }}
-                      className="w-full p-3.5 bg-[#050505] border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner uppercase tracking-wider"
-                    >
-                      <option value="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo">Llama 3.1 70B (Fast completions)</option>
-                      <option value="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo">Llama 3.1 405B (Deep reasoning)</option>
-                      <option value="anthropic/claude-3-opus">Claude 3 Opus (Logical edge)</option>
-                    </select>
+                  {/* Nvmix API Gateway Description Card */}
+                  <div className="bg-[#0e111a]/85 border border-panelBorder rounded-2xl p-5 flex flex-col space-y-4 hover:border-cyan-500/35 transition-all duration-300 relative overflow-hidden backdrop-blur-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
+                    <div className="flex items-center gap-2 select-none">
+                      <BrainCircuit className="w-4 h-4 text-cyan-400 animate-pulse" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-cyan-400 block">Nvmix API Gateway</label>
+                    </div>
+                    <div className="p-4 rounded-xl bg-cyan-950/10 border border-cyan-500/10 text-xs text-cyan-300 leading-relaxed font-sans select-none">
+                      <p className="font-bold mb-1.5 flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" /> Zero Cost & Automated Orchestration</p>
+                      The Nvmix API operates completely free of charge. The intelligent gateway dynamically evaluates, delegates, and chooses the optimal LLM system under the hood for each swarm directive. Manual compute budgeting or model selectors are not required.
+                    </div>
                   </div>
 
-                  {/* Slider limits budget */}
-                  <div className="space-y-2 text-left">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="text-[8.5px] font-black uppercase tracking-widest text-cyan-400 block">Compute Budget Threshold</label>
-                      <span className="text-xs font-mono font-bold text-white">{budgetLimit.toLocaleString()} NMX</span>
+                  {/* Company Profile Settings card */}
+                  <div className="bg-[#0e111a]/85 border border-panelBorder rounded-2xl p-5 flex flex-col space-y-4 hover:border-cyan-500/35 transition-all duration-300 relative overflow-hidden backdrop-blur-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
+                    <div className="flex items-center gap-2 select-none">
+                      <LayoutDashboard className="w-4 h-4 text-cyan-400" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-cyan-400 block">Company Profile & Swarm Directive</label>
                     </div>
+                    <p className="text-[10px] text-textMuted leading-relaxed select-none">
+                      Update the core branding and active objectives that govern the autonomous swarm.
+                    </p>
                     
-                    <input
-                      type="range"
-                      min={10000}
-                      max={500000}
-                      step={10000}
-                      value={budgetLimit}
-                      onChange={e => {
-                        setBudgetLimit(parseInt(e.target.value));
-                        addLocalLog(`[System] Compute budget threshold adjusted to: ${parseInt(e.target.value).toLocaleString()} NMX`);
-                      }}
-                      className="w-full h-1 bg-[#111827] rounded-lg appearance-none cursor-pointer accent-cyan-400"
-                    />
-                    <div className="flex justify-between text-[8px] text-textMuted uppercase tracking-wider font-bold pt-1">
-                      <span>10k NMX min</span>
-                      <span>500k NMX max</span>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Company Name</label>
+                        <input
+                          type="text"
+                          value={companyName}
+                          onChange={e => {
+                            setCompanyName(e.target.value);
+                            addLocalLog(`[System] Company Name updated to: ${e.target.value}`);
+                          }}
+                          className="w-full px-3 py-2 bg-black/40 border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Company Mission</label>
+                        <input
+                          type="text"
+                          value={mission}
+                          onChange={e => {
+                            setMission(e.target.value);
+                            addLocalLog(`[System] Core company mission updated.`);
+                          }}
+                          className="w-full px-3 py-2 bg-black/40 border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block mb-1">Active Objective (Goal)</label>
+                        <input
+                          type="text"
+                          value={goal}
+                          onChange={e => {
+                            setGoal(e.target.value);
+                            addLocalLog(`[System] Active swarm objective updated.`);
+                          }}
+                          className="w-full px-3 py-2 bg-black/40 border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Swarm Governance & Autonomy settings */}
+                  <div className="bg-[#0e111a]/85 border border-panelBorder rounded-2xl p-5 flex flex-col space-y-4 hover:border-cyan-500/35 transition-all duration-300 relative overflow-hidden backdrop-blur-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
+                    <div className="flex items-center gap-2 select-none">
+                      <Sliders className="w-4 h-4 text-cyan-400" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-cyan-400 block">Governance & Autonomy Mode</label>
+                    </div>
+                    <p className="text-[10px] text-textMuted leading-relaxed select-none">
+                      Adjust the balance of power between founder approvals and autonomous multi-agent execution.
+                    </p>
+                    
+                    <div className="space-y-4">
+                      {/* Governance toggle */}
+                      <div className="flex items-center justify-between p-3 bg-black/30 border border-panelBorder/40 rounded-xl">
+                        <div>
+                          <span className="text-[10px] font-bold text-white block uppercase tracking-wider font-sans">Autonomous Governance (God Mode)</span>
+                          <span className="text-[8px] text-textMuted uppercase tracking-wider block mt-0.5 font-sans">Allow agents to auto-deploy code assets without confirmation</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setGovernanceMode(!governanceMode);
+                            addLocalLog(`[System] Governance Mode toggled ${!governanceMode ? 'ON' : 'OFF'}`);
+                          }}
+                          className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer shrink-0 ${
+                            governanceMode ? 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]' : 'bg-slate-800'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md ${
+                            governanceMode ? 'translate-x-4' : 'translate-x-0'
+                          }`} />
+                        </button>
+                      </div>
+
+                      {/* Telemetry log toggle */}
+                      <div className="flex items-center justify-between p-3 bg-black/30 border border-panelBorder/40 rounded-xl">
+                        <div>
+                          <span className="text-[10px] font-bold text-white block uppercase tracking-wider font-sans">Live Agent Telemetry Stream</span>
+                          <span className="text-[8px] text-textMuted uppercase tracking-wider block mt-0.5 font-sans">Stream heartbeat diagnostic logs into the command timeline</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsHeartbeating(!isHeartbeating);
+                            addLocalLog(`[System] Live telemetry stream ${!isHeartbeating ? 'ENABLED' : 'DISABLED'}`);
+                          }}
+                          className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer shrink-0 ${
+                            isHeartbeating ? 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]' : 'bg-slate-800'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md ${
+                            isHeartbeating ? 'translate-x-4' : 'translate-x-0'
+                          }`} />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   {/* Local API Key Settings fields */}
-                  <div className="space-y-2 text-left pt-2">
-                    <label className="text-[8.5px] font-black uppercase tracking-widest text-cyan-400 block">Update API Handshake Keys</label>
+                  <div className="bg-[#0e111a]/85 border border-panelBorder rounded-2xl p-5 flex flex-col space-y-4 hover:border-cyan-500/35 transition-all duration-300 relative overflow-hidden backdrop-blur-md shadow-lg">
+                    <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
+                    <div className="flex items-center gap-2 select-none">
+                      <Key className="w-4 h-4 text-cyan-400" />
+                      <label className="text-[10px] font-black uppercase tracking-widest text-cyan-400 block">Update API Handshake Keys</label>
+                    </div>
+                    <p className="text-[10px] text-textMuted leading-relaxed select-none">
+                      Broker direct completions streams to primary gateways using customized secure vault credentials.
+                    </p>
                     <div className="relative">
                       <input
                         type={showKey ? 'text' : 'password'}
-                        placeholder="nex_sk_ep_xxxxxxxxxxxx"
+                        placeholder="nvx_sk_ep_xxxxxxxxxxxx"
                         value={apiKey}
                         onChange={e => setApiKey(e.target.value)}
-                        className="w-full pl-4 pr-24 py-3.5 bg-[#050505] border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
+                        className="w-full pl-4 pr-24 py-3 bg-black/40 border border-panelBorder rounded-xl text-xs font-mono text-white outline-none focus:border-cyan-500/40 shadow-inner"
                       />
                       <button
                         type="button"
@@ -1702,7 +1774,7 @@ class GatewayRouter:
                       <button
                         type="button"
                         onClick={saveKey}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-[#082f49] hover:bg-[#0c4a6e] border border-cyan-500/20 text-cyan-400"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-[#082f49] hover:bg-[#0c4a6e] border border-cyan-500/20 text-cyan-400 flex items-center justify-center transition-colors shadow-md"
                       >
                         <Save className="w-4 h-4" />
                       </button>

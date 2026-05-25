@@ -13,13 +13,13 @@ module.exports = {
         mono: ['var(--font-mono)', 'monospace'],
       },
       colors: {
-        nemixBg: '#050505',
+        nvmixBg: '#050505',
         panelBg: '#0e1015',
         panelBorder: 'rgba(255, 255, 255, 0.08)',
         neonCyan: '#06b6d4',
         neonGreen: '#10b981',
         textMuted: '#94a3b8',
-        nemix: {
+        nvmix: {
           bg: '#050505',
           surface: 'var(--bg-surface)',
           card: 'var(--bg-card)',

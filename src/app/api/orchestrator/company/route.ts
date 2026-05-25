@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     ];
 
     // ─── Initial Ticket Swarm (CEO breaks down goal) ───
-    // This mocks how the CEO agent uses the Nemix API to break down goals
+    // This mocks how the CEO agent uses the Nvmix API to break down goals
     const initialTickets = [
       {
         id: 'ticket_1',
@@ -98,14 +98,14 @@ export async function POST(request: Request) {
     // Save state locally
     initializeDB(initialState);
 
-    // ─── Mock Nemix API Completions Request Boilerplate ───
-    // This demonstrates exactly how the CEO agent is initialized via the Nemix API
-    const nemixPayload = {
+    // ─── Mock Nvmix API Completions Request Boilerplate ───
+    // This demonstrates exactly how the CEO agent is initialized via the Nvmix API
+    const nvmixPayload = {
       model: "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
       messages: [
         {
           role: "system",
-          content: "You are the CEO of an autonomous multi-agent simulation powered by Nemix."
+          content: "You are the CEO of an autonomous multi-agent simulation powered by Nvmix."
         },
         {
           role: "user",
@@ -115,14 +115,14 @@ export async function POST(request: Request) {
       temperature: 0.2
     };
 
-    // We print this out in the response to show it strictly adheres to using only the Nemix API
-    console.log("Mocking Nemix Gateway Call to https://api.nemix.ai/v1/chat/completions with payload:", nemixPayload);
+    // We print this out in the response to show it strictly adheres to using only the Nvmix API
+    console.log("Mocking Nvmix Gateway Call to https://api.nvmix.com/v1/chat/completions with payload:", nvmixPayload);
 
     return NextResponse.json({
       success: true,
       message: 'Company Swarm initialized successfully in db.json',
       state: initialState,
-      nemixEndpointDemo: 'https://api.nemix.ai/v1/chat/completions'
+      nvmixEndpointDemo: 'https://api.nvmix.com/v1/chat/completions'
     });
 
   } catch (error: any) {

@@ -15,8 +15,8 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nemix Swarm Command Center",
-  description: "Autonomous multi-agent simulation console powered by Nemix LLM Gateway",
+  title: "Nvmix Swarm Command Center",
+  description: "Autonomous multi-agent simulation console powered by Nvmix LLM Gateway",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className="antialiased bg-nemixBg text-[#f8fafc] min-h-screen">
+      <body className="antialiased bg-nvmixBg text-[#f8fafc] min-h-screen">
         {children}
       </body>
     </html>

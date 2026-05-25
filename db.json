@@ -1,9 +1,9 @@
 {
-  "companyName": "Nemix Fintech Corp",
+  "companyName": "Nvmix Fintech Corp",
   "mission": "Build a high-performance automated stock and asset trading portfolio dashboard.",
   "goal": "Construct Next.js graphs, configure webhooks, and compile mock trading logic.",
-  "apiKey": "",
-  "budgetUsed": 7574,
+  "apiKey": "nvx_sk_h_zloNX3uvipD4hrftLFQIP1ThynFfpnj8",
+  "budgetUsed": 0,
   "governanceMode": true,
   "agents": [
     {
@@ -11,7 +11,7 @@
       "role": "CEO (Chief Executive Officer)",
       "name": "Orchestrator-Alpha",
       "avatar": "💼",
-      "status": "sleeping"
+      "status": "working"
     },
     {
       "id": "agent_architect",
@@ -25,7 +25,7 @@
       "role": "Lead Developer",
       "name": "Code-Engine-v4",
       "avatar": "💻",
-      "status": "working"
+      "status": "sleeping"
     },
     {
       "id": "agent_qa",
@@ -38,26 +38,26 @@
   "tickets": [
     {
       "id": "ticket_1",
-      "title": "Design high-speed Together AI failover schemas",
-      "description": "Map out modular failover fallback routing structures inside the edge gateway for Nemix Fintech Corp.",
+      "title": "Design system architecture & data models",
+      "description": "Map out modular architecture structures and data schemas for Nvmix Fintech Corp.",
       "assignedTo": "agent_architect",
-      "status": "done",
-      "thought": "Merged and deployed successfully. Verified by Board of Directors and static compilers.",
-      "output": "// Synthesized Code Vault File: design_high-speed_together_ai_failover_schemas.py\nimport os\nfrom nemix import NemixEdgeRouter\n\n# Code successfully checked by dynamic compiler static auditing loops\ndef run_pipeline():\n    print(\"Handshaking Nemix Gateways... SUCCESS\")\n    return True\n"
+      "status": "todo",
+      "thought": "Awaiting architectural heartbeat check.",
+      "output": ""
     },
     {
       "id": "ticket_2",
-      "title": "Bootstrap Next.js & Python API files",
-      "description": "Create modular layout packages, API interfaces, and fallback routes inside edge router scripts.",
+      "title": "Bootstrap core API & application files",
+      "description": "Create modular layout packages, API interfaces, and core application logic.",
       "assignedTo": "agent_coder",
-      "status": "inprogress",
-      "thought": "Generating code models, analyzing import dependencies, and mapping secure credentials environments.",
+      "status": "todo",
+      "thought": "Queued to start coding codebase packages.",
       "output": ""
     },
     {
       "id": "ticket_3",
-      "title": "Execute static compiler validation audits",
-      "description": "Perform type checks and secure environment scanning to audit code and prevent secrets leak variables.",
+      "title": "Execute security validation & QA audits",
+      "description": "Perform type checks and secure environment scanning to audit code integrity.",
       "assignedTo": "agent_qa",
       "status": "todo",
       "thought": "Ready to perform security checks on compile structures.",
@@ -65,16 +65,8 @@
     }
   ],
   "logs": [
-    "[System] Swarm company \"Nemix Fintech Corp\" launched successfully.",
-    "[CEO] Orchestrator-Alpha hired to lead mission.",
-    "[CEO] Created 3 operational backlog tickets based on goal: \"Construct Next.js graphs, configure webhooks, and compile mock trading logic.\"",
-    "[CEO] Dispatched Agent for ticket: \"Design high-speed Together AI failover schemas\".",
-    "[Architect-Bot] Active task: \"Design high-speed Together AI failover schemas\" moved to In Progress.",
-    "[Architect-Bot] Finished coding for: \"Design high-speed Together AI failover schemas\".",
-    "[CEO] Action Required: Swarm awaits governance board decision to merge.",
-    "[Board of Directors] Approved deployment merge for ticket: \"Design high-speed Together AI failover schemas\".",
-    "[CEO] Ticket \"Design high-speed Together AI failover schemas\" successfully closed as DONE.",
-    "[CEO] Dispatched Agent for ticket: \"Bootstrap Next.js & Python API files\".",
-    "[Code-Engine-v4] Active task: \"Bootstrap Next.js & Python API files\" moved to In Progress."
+    "[System] Swarm \"Nvmix Fintech Corp\" launched successfully with default roster.",
+    "[CEO] Orchestrator-Alpha hired to lead the mission.",
+    "[CEO] Created 3 backlog tickets for goal: \"Construct Next.js graphs, configure webhooks, and compile mock trading logic.\""
   ]
 }

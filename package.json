@@ -1,12 +1,14 @@
 {
-  "name": "nemix-agent",
+  "name": "nvmix-agent",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test-gateway": "node C:\\Users\\shahi\\.gemini\\antigravity\\scratch\\test_local_gateway.js",
+    "rename-brand": "node rename_brand.js"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

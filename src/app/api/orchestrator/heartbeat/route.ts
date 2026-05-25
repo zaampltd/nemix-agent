@@ -31,9 +31,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Company uninitialized' }, { status: 400 });
     }
 
-    // ─── Boilerplate Nemix API Fetch Integration Call ───
-    // This demonstrates exactly how worker agents consult Nemix for execution reasoning
-    const nemixPayload = {
+    // ─── Boilerplate Nvmix API Fetch Integration Call ───
+    // This demonstrates exactly how worker agents consult Nvmix for execution reasoning
+    const nvmixPayload = {
       model: "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
       messages: [
         {
@@ -48,14 +48,14 @@ export async function POST(request: Request) {
     };
 
     try {
-      // Mock gateway call pointing strictly to api.nemix.ai
-      await fetch('https://api.nemix.ai/v1/chat/completions', {
+      // Mock gateway call pointing strictly to api.nvmix.com
+      await fetch('https://api.nvmix.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + (process.env.NEMIX_API_KEY || 'mock_sk_123')
+          'Authorization': 'Bearer ' + (process.env.NVMIX_API_KEY || 'mock_sk_123')
         },
-        body: JSON.stringify(nemixPayload),
+        body: JSON.stringify(nvmixPayload),
         signal: AbortSignal.timeout(500) // fast timeout for offline safety
       });
     } catch (e) {
@@ -79,11 +79,11 @@ export async function POST(request: Request) {
       ticket.thought = 'Compilation successfully completed locally. Synthesized module code structures. Requesting Board approval to merge into remote repository branches.';
       ticket.output = `// Synthesized Code Vault File: ${ticket.title.toLowerCase().replace(/ /g, '_')}.py
 import os
-from nemix import NemixEdgeRouter
+from nvmix import NvmixEdgeRouter
 
 # Code successfully checked by dynamic compiler static auditing loops
 def run_pipeline():
-    print("Handshaking Nemix Gateways... SUCCESS")
+    print("Handshaking Nvmix Gateways... SUCCESS")
     return True
 `;
 
