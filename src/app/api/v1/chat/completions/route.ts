@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     const completionResult = await generateNvmixCompletion(messages, {
       temperature,
       max_tokens
-    });
+    }, nvmixApiKey);
 
     return NextResponse.json(completionResult, {
       status: 200,
