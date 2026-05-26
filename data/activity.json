@@ -1,5 +1,31 @@
 [
   {
+    "id": "act_nlc180xqz_1779826586756",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T20:16:26.756Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_6e87dl3u2_1779826583735",
+    "type": "ceo",
+    "message": "Recruited and onboarded \"Accontant-Bot\" as \"Accontant\".",
+    "timestamp": "2026-05-26T20:16:23.735Z"
+  },
+  {
+    "id": "act_dmzoovj2i_1779825759096",
+    "type": "agent",
+    "message": "Sent email: \"Hire Accontant\" to Nvmix-CEO-Alpha.",
+    "timestamp": "2026-05-26T20:02:39.096Z"
+  },
+  {
+    "id": "act_70sxpolpe_1779825320886",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T19:55:20.886Z",
+    "agentId": "agent_ceo"
+  },
+  {
     "id": "act_0b769szf9_1779787210834",
     "type": "system",
     "message": "All tickets completed. Swarm standing by.",
