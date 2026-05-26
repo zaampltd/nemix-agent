@@ -66,9 +66,9 @@ export default function CodePreviewModal({ code, onClose }: CodePreviewModalProp
         </div>
 
         {/* Modal Code Body */}
-        <div className="flex-1 overflow-auto p-6 font-mono text-xs leading-relaxed select-text bg-[#030305]/95 text-slate-350 custom-scrollbar flex">
+        <div className="flex-1 overflow-auto p-6 font-mono text-xs leading-relaxed select-text bg-[var(--bg-surface)] custom-scrollbar flex">
           {/* Line Numbers gutter */}
-          <div className="text-right text-slate-600 select-none pr-4 border-r border-slate-800 shrink-0 flex flex-col">
+          <div className="text-right text-[var(--text-muted)] select-none pr-4 border-r border-[var(--border-primary)] shrink-0 flex flex-col">
             {lines.map((_, i) => (
               <span key={i} className="block leading-relaxed h-5 text-[10px] font-bold">
                 {(i + 1).toString().padStart(2, '0')}
@@ -77,7 +77,7 @@ export default function CodePreviewModal({ code, onClose }: CodePreviewModalProp
           </div>
           
           {/* Actual Code content */}
-          <pre className="pl-4 flex-1 overflow-x-auto text-[11px] leading-relaxed text-slate-300 font-semibold select-text h-full">
+          <pre className="pl-4 flex-1 overflow-x-auto text-[11px] leading-relaxed text-[var(--text-primary)] font-semibold select-text h-full">
             {lines.map((line, i) => (
               <code key={i} className="block leading-relaxed h-5 whitespace-pre">
                 {line || ' '}

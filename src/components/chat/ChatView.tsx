@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, Cpu, BrainCircuit, Compass, Code, ShieldCheck, 
-  UserCheck, AlertCircle, ArrowDown, Sparkles 
+  UserCheck, AlertCircle, ArrowDown, Sparkles, Paperclip 
 } from 'lucide-react';
 import { ChatMessage, Agent } from '@/lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,9 +29,52 @@ export default function ChatView({
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [mentionFilter, setMentionFilter] = useState('');
   const [mentionIndex, setMentionIndex] = useState(0);
+  const [uploading, setUploading] = useState(false);
   
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !sessionId) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('createdBy', 'user');
+
+    // Associate with the user's active project if set in localStorage
+    if (typeof window !== 'undefined') {
+      const activeProjId = localStorage.getItem('nvmix_active_project_id');
+      if (activeProjId) {
+        formData.append('projectId', activeProjId);
+      }
+    }
+
+    try {
+      const res = await fetch('/api/files', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Send a message notifying that the file is uploaded
+        const messageText = `I have uploaded the file "${file.name}" (Word, Excel, PDF, or Code) to the workspace drive. Please review the file and perform any necessary tasks!`;
+        onSendMessage(messageText);
+        
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } else {
+        alert(`File upload failed: ${data.error || 'Unknown error'}`);
+      }
+    } catch (err: any) {
+      alert(`Network error during file upload: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   // Auto-scroll chat helper
   useEffect(() => {
@@ -70,7 +113,7 @@ export default function ChatView({
     if (norm.includes('architect')) return <Compass className="w-4 h-4 text-indigo-400" />;
     if (norm.includes('coder') || norm.includes('dev') || norm.includes('writer')) return <Code className="w-4 h-4 text-emerald-400" />;
     if (norm.includes('qa') || norm.includes('audit')) return <ShieldCheck className="w-4 h-4 text-amber-400" />;
-    return <Cpu className="w-4 h-4 text-slate-400" />;
+    return <Cpu className="w-4 h-4 text-[var(--text-muted)]" />;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -129,17 +172,17 @@ export default function ChatView({
         {/* Listening avatar stack badge */}
         {agents.length > 0 && (
           <div className="flex items-center gap-3.5 bg-[var(--bg-surface)] border border-[var(--border-primary)]/40 rounded-full px-3.5 py-1.5 shadow-inner">
-            <span className="text-[7.5px] font-black uppercase text-gray-500 tracking-wider">Listening Swarm:</span>
+            <span className="text-[7.5px] font-black uppercase text-[var(--text-muted)] tracking-wider">Listening Swarm:</span>
             <div className="flex -space-x-2">
               {agents.map((agent) => (
                 <div 
                   key={agent.id}
-                  className={`w-6 h-6 rounded-full bg-slate-900 border flex items-center justify-center shadow-md relative group/tooltip`}
+                  className={`w-6 h-6 rounded-full bg-[var(--bg-surface)] border border-[var(--border-primary)] flex items-center justify-center shadow-md relative group/tooltip`}
                   title={`${agent.name} (${agent.role})`}
                 >
                   <span className="text-xs">{agent.avatar || '🤖'}</span>
                   {agent.status === 'working' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 absolute -bottom-0.5 -right-0.5 border border-slate-900 animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 absolute -bottom-0.5 -right-0.5 border border-[var(--bg-surface)] animate-pulse"></span>
                   )}
                 </div>
               ))}
@@ -192,7 +235,7 @@ export default function ChatView({
                   isAgent ? 'border-blue-500/20' : 'border-indigo-500/20'
                 }`}>
                   {isSystem ? (
-                    <Cpu className="w-4 h-4 text-slate-400" />
+                    <Cpu className="w-4 h-4 text-[var(--text-muted)]" />
                   ) : isAgent ? (
                     getAgentAvatar(msg.senderName || '')
                   ) : (
@@ -205,12 +248,12 @@ export default function ChatView({
                     <span className="text-[9px] font-black uppercase text-[var(--text-primary)] tracking-widest leading-none flex items-center gap-1">
                       {msg.senderName || (isAgent ? 'Swarm Agent' : 'You')}
                       {isAgent && !isSystem && (
-                        <span className="bg-blue-950/40 border border-blue-500/20 text-blue-400 text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded tracking-wide leading-none">
+                        <span className="bg-indigo-500/10 border border-indigo-500/15 text-indigo-400 text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded tracking-wide leading-none">
                           AI Agent
                         </span>
                       )}
                       {isSystem && (
-                        <span className="bg-slate-950/40 border border-slate-700/20 text-slate-400 text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded tracking-wide leading-none">
+                        <span className="bg-[var(--bg-surface)] border border-[var(--border-primary)] text-[var(--text-muted)] text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded tracking-wide leading-none">
                           System
                         </span>
                       )}
@@ -222,10 +265,10 @@ export default function ChatView({
 
                   <div className={`p-4 rounded-2xl text-xs leading-relaxed select-text font-sans font-medium border relative transition-all shadow-md ${
                     isSystem
-                      ? 'bg-slate-950/30 border-[var(--border-primary)] text-slate-400 rounded-tl-none font-mono text-[10px]'
+                      ? 'bg-[var(--bg-surface)] border-[var(--border-primary)] text-[var(--text-muted)] rounded-tl-none font-mono text-[10px]'
                       : isAgent 
                       ? 'bg-[var(--bg-surface)] border-[var(--border-primary)] rounded-tl-none text-[var(--text-primary)] hover:border-blue-500/10' 
-                      : 'bg-blue-950/20 border-blue-500/20 rounded-tr-none text-white hover:border-blue-500/30'
+                      : 'bg-gradient-to-tr from-blue-600 to-indigo-600 border-blue-500/10 rounded-tr-none text-white hover:border-blue-400/20'
                   }`}>
                     {msg.content}
                   </div>
@@ -237,7 +280,7 @@ export default function ChatView({
 
         {/* Pulse compiling loader */}
         {isHeartbeating && (
-          <div className="flex gap-3 items-center mr-auto text-left max-w-[70%] text-[10px] font-mono text-blue-400/80 bg-blue-950/10 border border-blue-500/10 p-3.5 rounded-xl animate-pulse select-none">
+          <div className="flex gap-3 items-center mr-auto text-left max-w-[70%] text-[10px] font-mono text-indigo-400/80 bg-indigo-500/[0.06] border border-indigo-500/10 p-3.5 rounded-xl animate-pulse select-none">
             <BrainCircuit className="w-4 h-4 text-blue-400 animate-spin" />
             <span>Swarm engine compiles next instruction tick...</span>
             <div className="flex gap-1 items-center pl-1.5">
@@ -261,7 +304,7 @@ export default function ChatView({
               exit={{ opacity: 0, y: 10 }}
               className="absolute bottom-full mb-2 left-0 right-0 z-30 cyber-card p-2 bg-[var(--bg-card)] border border-[var(--border-primary)] shadow-premium max-h-48 overflow-y-auto custom-scrollbar space-y-0.5"
             >
-              <div className="px-2.5 py-1.5 text-[8px] font-black text-gray-500 uppercase tracking-widest border-b border-[var(--border-primary)]/30 mb-1 leading-none">
+              <div className="px-2.5 py-1.5 text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest border-b border-[var(--border-primary)]/30 mb-1 leading-none">
                 Mention Swarm Employee
               </div>
               {filteredAgentsForMention.map((agent, i) => (
@@ -281,7 +324,7 @@ export default function ChatView({
                       <span className="text-[8px] text-[var(--text-secondary)] uppercase tracking-wider font-mono">{agent.role}</span>
                     </div>
                   </div>
-                  <span className="text-[8px] font-mono bg-[var(--bg-surface)] border border-[var(--border-primary)] px-2 py-0.5 rounded uppercase font-bold text-gray-400">
+                  <span className="text-[8px] font-mono bg-[var(--bg-surface)] border border-[var(--border-primary)] px-2 py-0.5 rounded uppercase font-bold text-[var(--text-muted)]">
                     ENTER
                   </span>
                 </button>
@@ -295,6 +338,29 @@ export default function ChatView({
           onSubmit={handleSubmit}
           className="bg-[var(--bg-card)] border border-[var(--border-primary)]/50 rounded-2xl p-2.5 flex items-center gap-3 shadow-2xl relative"
         >
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+          />
+
+          {/* Upload Button */}
+          <button
+            type="button"
+            disabled={!sessionId || uploading}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-9 h-9 rounded-xl bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-primary)]/50 text-[var(--text-secondary)] hover:text-blue-500 flex items-center justify-center transition-all disabled:opacity-30 shrink-0 cursor-pointer"
+            title="Upload file (Word, Excel, PDF, Code, etc.)"
+          >
+            {uploading ? (
+              <div className="w-4 h-4 border-2 border-t-transparent border-blue-550 rounded-full animate-spin" />
+            ) : (
+              <Paperclip className="w-4.5 h-4.5" />
+            )}
+          </button>
+
           <input
             ref={inputRef}
             type="text"
@@ -320,9 +386,9 @@ export default function ChatView({
           <button
             type="submit"
             disabled={!typedMessage.trim() || !sessionId}
-            className="w-9 h-9 rounded-xl bg-[#082f49] hover:bg-[#0c4a6e] border border-blue-500/25 text-blue-300 flex items-center justify-center transition-all glow-cyan disabled:opacity-30 disabled:glow-none shrink-0 hover:scale-[1.03] active:scale-100 shadow-md cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 hover:brightness-110 border border-blue-400/20 text-white flex items-center justify-center transition-all disabled:opacity-30 shrink-0 hover:scale-[1.03] active:scale-100 shadow-md cursor-pointer"
           >
-            <Send className="w-4 h-4 text-blue-300" />
+            <Send className="w-4 h-4 text-white" />
           </button>
         </form>
       </div>

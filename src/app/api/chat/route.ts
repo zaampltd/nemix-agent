@@ -9,9 +9,11 @@ import {
   saveChatMessage, 
   getChatMessages, 
   createChatSession, 
-  addActivity 
+  addActivity,
+  getFiles
 } from '@/lib/db';
 import { generateNvmixCompletion, Message } from '@/lib/nvmix-engine';
+import fs from 'fs';
 
 const NVMIX_MODEL = 'nvmix-inference-v1';
 
@@ -25,6 +27,39 @@ const NVMIX_REMOTE_URLS = [
   // Enforce remote-only: exclude any loopback localhost endpoints to prevent server deadlocks
   return !url.includes('localhost') && !url.includes('127.0.0.1');
 }) as string[];
+
+function getWorkspaceContext(): string {
+  try {
+    const files = getFiles();
+    if (files.length === 0) return '';
+    
+    let context = '\n\n=== ACTIVE WORKSPACE DRIVE FILES ===\n';
+    context += 'You have direct read access to all files inside the workspace drive. Review, build upon, or reference their text/data contents below to perform complex operations and coding:\n';
+    
+    for (const file of files) {
+      if (fs.existsSync(file.path)) {
+        try {
+          const content = fs.readFileSync(file.path, 'utf-8');
+          const isBinary = file.name.endsWith('.pdf') || file.name.endsWith('.docx') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+          if (isBinary) {
+            context += `\n--- File: ${file.name} (Binary File, Reference only) ---\n[Binary format. Use the extracted sibling file: ${file.name}_extracted.txt for text and data contents]\n`;
+          } else {
+            const truncated = content.length > 2500 ? content.substring(0, 2500) + '\n[...Content truncated for context safety...]' : content;
+            context += `\n--- File: ${file.name} (Author: ${file.createdBy}, Timestamp: ${file.timestamp}) ---\n`;
+            context += `${truncated}\n`;
+          }
+        } catch (readErr: any) {
+          context += `\n--- File: ${file.name} (Read Error: ${readErr.message}) ---\n`;
+        }
+      }
+    }
+    context += '====================================\n';
+    return context;
+  } catch (err) {
+    console.error('Workspace context construction failed:', err);
+    return '';
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -87,12 +122,17 @@ export async function POST(request: Request) {
     const completedCount = tickets.filter((t: any) => t.status === 'done').length;
     const activeTicket   = tickets.find((t: any) => t.status === 'inprogress');
 
+    const workspaceContext = getWorkspaceContext();
     const systemPrompt = `You are ${agentName}, the ${agentRole} of an AI swarm company called "${companyName}".
 Company mission: ${mission}
 Current goal: ${goal}
 Task progress: ${completedCount}/${tickets.length} tasks completed.${activeTicket ? `\nCurrently executing: "${activeTicket.title}".` : ''}
 
-Respond concisely and professionally in-character as an AI agent executive. Keep responses under 3 sentences unless asked for code or a detailed report. Be helpful, direct, and intelligent.`;
+CRITICAL PERSONA RULE: You MUST speak strictly in-character as "${agentName}" (${agentRole}). Do NOT claim to be the CEO, do NOT pretend to be any other agent, and do NOT copy the signature or standard greetings of Alpha-CEO.
+
+Respond in-character as an AI agent executive. Keep responses concise (under 3 sentences) for standard greetings, but provide highly detailed, fully implemented, and production-grade answers, code blocks, or data reports if the user asks you to analyze files, write scripts, or review workspace data.
+
+${workspaceContext}`;
 
     // Ensure session exists
     let sessionId = reqSessionId;
@@ -283,10 +323,14 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
     // Format chat history array from server-side database to feed to LLM
     const serverHistory = getChatMessages(sessionId);
     // Exclude the last message we just saved so we can add system prompt at top and format history correctly
-    const formattedHistory = serverHistory.slice(0, -1).map((m: any) => ({
-      role: (m.role === 'assistant' ? 'assistant' : 'user') as 'assistant' | 'user',
-      content: String(m.content || '')
-    }));
+    const formattedHistory = serverHistory.slice(0, -1).map((m: any) => {
+      const isAssistant = m.role === 'assistant';
+      const sender = m.senderName || (isAssistant ? 'Swarm Agent' : 'User');
+      return {
+        role: (isAssistant ? 'assistant' : 'user') as 'assistant' | 'user',
+        content: isAssistant ? `[${sender}]: ${m.content}` : `${m.content}`
+      };
+    });
 
     const messagesToSend: Message[] = [
       { role: 'system' as const, content: systemPrompt },
@@ -345,6 +389,43 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
         content: finalReply,
         senderName: agentName
       });
+
+      // Autonomously detect if the agent claimed to send/write an email
+      const lowerReply = finalReply.toLowerCase();
+      if (lowerReply.includes('subject:') || lowerReply.includes('email') || lowerReply.includes('mail')) {
+        // Look for explicit Subject line
+        const subjectMatch = finalReply.match(/(?:\*\*|)?Subject:(?:\*\*|)?\s*([^\n]+)/i);
+        if (subjectMatch) {
+          const subject = subjectMatch[1].trim();
+          // Extract body: everything after the Subject line
+          const subjectIndex = finalReply.indexOf(subjectMatch[0]);
+          let emailBodyText = finalReply.substring(subjectIndex + subjectMatch[0].length).trim();
+          // Strip any leading divider lines (e.g. --- or ***)
+          emailBodyText = emailBodyText.replace(/^\s*[-*=+]+\s*$/, '').trim();
+          
+          saveEmail({
+            from: agentName,
+            to: 'Founder (You)',
+            subject: subject,
+            body: emailBodyText || finalReply, // fallback to full reply if body is empty
+            status: 'sent' // Mark as sent so it lands in Inbox!
+          });
+          
+          addActivity('agent', `Dispatched email: "${subject}" to Founder (You).`, targetAgent?.id);
+        } else if (lowerReply.includes('sent') && (lowerReply.includes('email') || lowerReply.includes('mail'))) {
+          // Fallback: If they said they sent an email but didn't write an explicit Subject line,
+          // create a beautiful email from their chat reply!
+          saveEmail({
+            from: agentName,
+            to: 'Founder (You)',
+            subject: `Direct Swarm Report from ${agentName}`,
+            body: finalReply,
+            status: 'sent'
+          });
+          
+          addActivity('agent', `Dispatched email report to Founder (You).`, targetAgent?.id);
+        }
+      }
 
       // Track interaction in activity log
       addActivity('agent', `Replied to chat session in room: "${channel || 'General'}".`, targetAgent?.id);

@@ -8,7 +8,8 @@ import {
   ChatMessage, 
   Email, 
   FileRegistryItem, 
-  ActivityItem 
+  ActivityItem,
+  Project
 } from './types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -23,6 +24,7 @@ const CHAT_INDEX_PATH = path.join(CHATS_DIR, 'index.json');
 const EMAIL_INDEX_PATH = path.join(EMAILS_DIR, 'index.json');
 const FILE_INDEX_PATH = path.join(FILES_DIR, 'index.json');
 const ACTIVITY_PATH = path.join(DATA_DIR, 'activity.json');
+const PROJECTS_PATH = path.join(DATA_DIR, 'projects.json');
 
 // Ensure database directories and files exist
 export function initDB() {
@@ -69,6 +71,9 @@ export function initDB() {
   }
   if (!existsSync(ACTIVITY_PATH)) {
     writeFileSync(ACTIVITY_PATH, JSON.stringify([], null, 2), 'utf-8');
+  }
+  if (!existsSync(PROJECTS_PATH)) {
+    writeFileSync(PROJECTS_PATH, JSON.stringify([], null, 2), 'utf-8');
   }
 }
 
@@ -246,8 +251,9 @@ export function getFiles(): FileRegistryItem[] {
 
 export function saveFile(
   name: string, 
-  content: string, 
-  createdBy: string
+  content: string | Buffer, 
+  createdBy: string,
+  projectId?: string
 ): FileRegistryItem {
   const company = getCompany();
   const cleanCompName = (company.companyName || 'DefaultCompany').replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -259,7 +265,102 @@ export function saveFile(
   }
 
   const localFilePath = path.join(localProjectDir, name);
-  writeFileSync(localFilePath, content, 'utf-8');
+  if (name.endsWith('.docx') && typeof content === 'string') {
+    try {
+      const { Document, Packer, Paragraph, TextRun } = require('docx');
+      const lines = content.split('\n');
+      const paragraphs = lines.map((line: string) => {
+        let textContent = line.trim();
+        let fontSize = 22; // 11pt default
+        let bold = false;
+        let color = "333333";
+
+        if (textContent.startsWith('###')) {
+          textContent = textContent.replace(/^###\s*/, '');
+          fontSize = 26; // 13pt
+          bold = true;
+          color = "1e40af";
+        } else if (textContent.startsWith('##')) {
+          textContent = textContent.replace(/^##\s*/, '');
+          fontSize = 28; // 14pt
+          bold = true;
+          color = "1e3a8a";
+        } else if (textContent.startsWith('#')) {
+          textContent = textContent.replace(/^#\s*/, '');
+          fontSize = 32; // 16pt
+          bold = true;
+          color = "0f172a";
+        } else if (textContent.startsWith('**') && textContent.endsWith('**')) {
+          textContent = textContent.replace(/\*\*/g, '');
+          bold = true;
+          fontSize = 24;
+        }
+
+        return new Paragraph({
+          children: [
+            new TextRun({
+              text: textContent,
+              bold: bold,
+              size: fontSize,
+              color: color,
+              font: "Arial"
+            })
+          ],
+          spacing: {
+            after: 120
+          }
+        });
+      });
+
+      const doc = new Document({
+        sections: [
+          {
+            properties: {},
+            children: paragraphs
+          }
+        ]
+      });
+
+      Packer.toBuffer(doc).then((buffer: Buffer) => {
+        writeFileSync(localFilePath, buffer);
+        
+        // Also save extracted text sibling since we've written it, so it can be previewed!
+        const txtName = `${name}_extracted.txt`;
+        const txtPath = path.join(localProjectDir, txtName);
+        writeFileSync(txtPath, content, 'utf-8');
+        
+        const filesIndex = getFiles();
+        const txtFileItem: FileRegistryItem = {
+          id: `file_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
+          name: txtName,
+          path: txtPath,
+          createdBy: 'System (Extracted)',
+          timestamp: new Date().toISOString(),
+          projectId
+        };
+        
+        const existingTxtIdx = filesIndex.findIndex(f => f.name === txtName);
+        if (existingTxtIdx !== -1) {
+          filesIndex[existingTxtIdx] = txtFileItem;
+        } else {
+          filesIndex.unshift(txtFileItem);
+        }
+        safeWriteJSON<FileRegistryItem[]>(FILE_INDEX_PATH, filesIndex);
+      }).catch((packErr: any) => {
+        console.error('Failed to pack docx:', packErr);
+        writeFileSync(localFilePath, content, 'utf-8');
+      });
+    } catch (docxErr) {
+      console.error('Failed to run docx:', docxErr);
+      writeFileSync(localFilePath, content, 'utf-8');
+    }
+  } else {
+    if (Buffer.isBuffer(content)) {
+      writeFileSync(localFilePath, content);
+    } else {
+      writeFileSync(localFilePath, content, 'utf-8');
+    }
+  }
 
   // Register in metadata registry
   const files = getFiles();
@@ -268,7 +369,8 @@ export function saveFile(
     name,
     path: localFilePath,
     createdBy,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    projectId
   };
 
   // Add or update
@@ -280,6 +382,43 @@ export function saveFile(
   }
 
   safeWriteJSON<FileRegistryItem[]>(FILE_INDEX_PATH, files);
+
+  // If the file is binary (PDF, DOCX, XLSX), asynchronously parse it and save text sibling
+  if (Buffer.isBuffer(content)) {
+    const ext = name.split('.').pop()?.toLowerCase();
+    if (['pdf', 'docx', 'xlsx', 'xls'].includes(ext || '')) {
+      // Dynamic import to parse on server in background
+      import('./file-parser').then(async ({ extractTextFromBinary }) => {
+        const text = await extractTextFromBinary(name, content);
+        if (text) {
+          const txtName = `${name}_extracted.txt`;
+          const txtPath = path.join(localProjectDir, txtName);
+          writeFileSync(txtPath, text, 'utf-8');
+          
+          const filesIndex = getFiles();
+          const txtFileItem: FileRegistryItem = {
+            id: `file_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
+            name: txtName,
+            path: txtPath,
+            createdBy: 'System (Extracted)',
+            timestamp: new Date().toISOString(),
+            projectId
+          };
+          
+          const existingTxtIdx = filesIndex.findIndex(f => f.name === txtName);
+          if (existingTxtIdx !== -1) {
+            filesIndex[existingTxtIdx] = txtFileItem;
+          } else {
+            filesIndex.unshift(txtFileItem);
+          }
+          safeWriteJSON<FileRegistryItem[]>(FILE_INDEX_PATH, filesIndex);
+        }
+      }).catch(e => {
+        console.error('Failed to extract text from binary:', e);
+      });
+    }
+  }
+
   return newFileItem;
 }
 
@@ -308,4 +447,41 @@ export function addActivity(
   }
   safeWriteJSON<ActivityItem[]>(ACTIVITY_PATH, activity);
   return newActivity;
+}
+
+// ─── Projects API ───
+export function getProjects(): Project[] {
+  const projs = safeReadJSON<Project[]>(PROJECTS_PATH, []);
+  // If empty, auto-create a default project based on company details
+  if (projs.length === 0) {
+    const company = getCompany();
+    const defaultProj: Project = {
+      id: 'project_default',
+      name: company.companyName || 'Corporate Swarm',
+      description: company.goal || 'General company operations and swarm projects.',
+      createdAt: new Date().toISOString(),
+      status: 'active'
+    };
+    projs.push(defaultProj);
+    safeWriteJSON<Project[]>(PROJECTS_PATH, projs);
+  }
+  return projs;
+}
+
+export function saveProjects(projects: Project[]) {
+  safeWriteJSON<Project[]>(PROJECTS_PATH, projects);
+}
+
+export function createProject(name: string, description: string): Project {
+  const projects = getProjects();
+  const newProject: Project = {
+    id: `project_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
+    name,
+    description,
+    createdAt: new Date().toISOString(),
+    status: 'active'
+  };
+  projects.push(newProject);
+  saveProjects(projects);
+  return newProject;
 }

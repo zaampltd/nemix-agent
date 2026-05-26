@@ -1,32 +1,73 @@
 const fs = require('fs');
 const path = require('path');
 
-const filePath = path.join(__dirname, 'src', 'app', 'page.tsx');
-let code = fs.readFileSync(filePath, 'utf-8');
+const EMAILS_PATH = path.join(__dirname, 'data', 'emails', 'index.json');
+const ACTIVITY_PATH = path.join(__dirname, 'data', 'activity.json');
 
-// ─── FIX 1: Restore the corrupted handleBoardApproval function ───
-// The corruption is that lines 419-424 merged two sections together
-// Pattern: "confetti({\r\n          particleCount: 50,\r\n  const devAgent..."
-const corruptedBlock = `      if (decision === 'approved') {\r\n        confetti({\r\n          particleCount: 50,\r\n  const devAgent`;
+try {
+  const subject = "Famous Product Report - Apple iPhone";
+  const body = `[Delta-Analyst]: I've initiated a Google search to identify a highly famous product. The search results have yielded a popular product: "Apple iPhone". I've compiled a detailed report on the product, which includes information on its features, specifications, market trends, and customer reviews.
 
-const fixedBlock = `      if (decision === 'approved') {\r\n        confetti({\r\n          particleCount: 50,\r\n          spread: 40,\r\n          colors: ['#10b981', '#ffffff']\r\n        });\r\n      }\r\n\r\n    } catch (e: any) {\r\n      addLocalLog(\`[Error] Board decision failed to register: \${e?.message}\`);\r\n    }\r\n  };\r\n\r\n  // ─── Hire Custom Worker Agent ───\r\n  const handleHireAgent = () => {\r\n    if (!newAgentName.trim() || !newAgentRole.trim()) return;\r\n\r\n    const newAgent = {\r\n      id: \`agent_\${Math.random().toString(36).substring(2, 9)}\`,\r\n      role: newAgentRole,\r\n      name: newAgentName,\r\n      avatar: '🤖',\r\n      status: 'sleeping'\r\n    };\r\n\r\n    setAgents(prev => [...prev, newAgent]);\r\n    addLocalLog(\`[CEO] Swarm expanded! Recruited "\${newAgentName}" as "\${newAgentRole}".\`);\r\n    setIsHireModalOpen(false);\r\n    setNewAgentName("");\r\n    setNewAgentRole("");\r\n  };\r\n\r\n  // ─── Swarm Chat Prompt Submissions (Nvmix API Live) ───\r\n  const handleSendPromptMessage = async (e) => {\r\n    e.preventDefault();\r\n    if (!typedMessage.trim()) return;\r\n\r\n    const userMsg = {\r\n      id: Math.random().toString(),\r\n      sender: 'Board Member (You)',\r\n      text: typedMessage,\r\n      timestamp: new Date().toLocaleTimeString(),\r\n      isAgent: false\r\n    };\r\n\r\n    setChatMessages(prev => [...prev, userMsg]);\r\n    const sentMessage = typedMessage.trim();\r\n    setTypedMessage("");\r\n\r\n    const typingId = Math.random().toString();\r\n    setChatMessages(prev => [...prev, {\r\n      id: typingId,\r\n      sender: 'Orchestrator-Alpha (CEO)',\r\n      text: '...',\r\n      timestamp: new Date().toLocaleTimeString(),\r\n      isAgent: true\r\n    }]);\r\n\r\n    try {\r\n      const res  = await fetch('/api/chat', {\r\n        method:  'POST',\r\n        headers: { 'Content-Type': 'application/json' },\r\n        body:    JSON.stringify({ message: sentMessage, channel: activeChannel })\r\n      });\r\n      const data = await res.json();\r\n      setChatMessages(prev => prev.filter(m => m.id !== typingId).concat({\r\n        id:        Math.random().toString(),\r\n        sender:    data.agent || 'Orchestrator-Alpha (CEO)',\r\n        text:      data.reply || 'Processing complete. Standing by for next directive.',\r\n        timestamp: new Date().toLocaleTimeString(),\r\n        isAgent:   true\r\n      }));\r\n    } catch {\r\n      setChatMessages(prev => prev.filter(m => m.id !== typingId).concat({\r\n        id:        Math.random().toString(),\r\n        sender:    'Orchestrator-Alpha (CEO)',\r\n        text:      'Nvmix gateway temporarily unreachable. Operating in local standby mode. All agents ready.',\r\n        timestamp: new Date().toLocaleTimeString(),\r\n        isAgent:   true\r\n      }));\r\n    }\r\n  };\r\n\r\n  // Hired agent references\r\n  const devAgent`;
+**Introduction:** The Apple iPhone is a line of smartphones designed and marketed by Apple Inc. It is one of the most popular and influential smartphones on the market.
 
-if (code.includes(corruptedBlock)) {
-  code = code.replace(corruptedBlock, fixedBlock);
-  fs.writeFileSync(filePath, code, 'utf-8');
-  console.log('✅ FIX APPLIED: Restored handleBoardApproval, handleHireAgent, and handleSendPromptMessage');
-} else {
-  // Try to find the corruption differently
-  const idx = code.indexOf('particleCount: 50,\r\n  const devAgent');
-  if (idx !== -1) {
-    console.log('Found corruption at char index:', idx);
-    console.log('Context:', JSON.stringify(code.substring(idx - 100, idx + 200)));
-  } else {
-    console.log('Corruption pattern not found. Searching for nearby markers...');
-    const confIdx = code.indexOf('particleCount: 50,');
-    console.log('confetti particleCount line at index:', confIdx);
-    if (confIdx !== -1) {
-      console.log('Context around confetti:', JSON.stringify(code.substring(confIdx - 50, confIdx + 300)));
-    }
+**Key Features:**
+1. Multi-Touch Display
+2. iOS Operating System
+3. High-Quality Camera
+4. Water-Resistant Design
+5. Fast Charging Capability
+
+**Specifications:**
+1. Display: 6.1-inch Super Retina HD display
+2. Processor: A15 Bionic chip
+3. RAM: 6GB
+4. Storage: 64GB, 128GB, or 256GB
+5. Battery Life: Up to 12 hours of internet use
+
+**Market Trends:** The Apple iPhone has been a top-selling smartphone for several years, with a loyal customer base. The latest models have seen significant improvements in camera quality, performance, and design.
+
+**Customer Reviews:** Customers praise the iPhone's ease of use, high-quality display, and seamless integration with other Apple devices. Some users have reported issues with battery life and the high cost of the device.
+
+**Additional Information:** The Apple iPhone is available in various models, including the iPhone 13, iPhone 13 Pro, and iPhone 13 Pro Max. Prices start at around $599 for the base model and can go up to over $1,500 for the high-end models. Please let me know if you would like me to provide further information or assistance.`;
+
+  // 1. Backfill Email
+  let emails = [];
+  if (fs.existsSync(EMAILS_PATH)) {
+    emails = JSON.parse(fs.readFileSync(EMAILS_PATH, 'utf-8'));
   }
+  
+  const newEmail = {
+    from: "Delta-Analyst",
+    to: "Founder (You)",
+    subject: subject,
+    body: body,
+    status: "sent",
+    id: `email_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
+    timestamp: new Date().toISOString()
+  };
+
+  emails.unshift(newEmail);
+  fs.writeFileSync(EMAILS_PATH, JSON.stringify(emails, null, 2), 'utf-8');
+
+  // 2. Add Activity item
+  let activities = [];
+  if (fs.existsSync(ACTIVITY_PATH)) {
+    activities = JSON.parse(fs.readFileSync(ACTIVITY_PATH, 'utf-8'));
+  }
+
+  const newActivity = {
+    id: `act_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
+    type: "agent",
+    message: `Dispatched email: "${subject}" to Founder (You).`,
+    timestamp: new Date().toISOString(),
+    agentId: "agent_analyst"
+  };
+
+  activities.unshift(newActivity);
+  if (activities.length > 100) activities.pop();
+  fs.writeFileSync(ACTIVITY_PATH, JSON.stringify(activities, null, 2), 'utf-8');
+
+  console.log("SUCCESSFULLY BACKFILLED THE EMAIL DIRECTLY TO JSON DATA!");
+} catch (e) {
+  console.error("Backfill failed:", e);
 }

@@ -208,3 +208,36 @@ JSON Structure:
     return NextResponse.json({ error: err?.message || 'Failed to save email' }, { status: 500 });
   }
 }
+
+// PATCH: Update email status (approve draft or wipe draft)
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json({ error: 'id and status are required' }, { status: 400 });
+    }
+
+    if (status !== 'sent' && status !== 'cancelled') {
+      return NextResponse.json({ error: 'invalid status value' }, { status: 400 });
+    }
+
+    const updated = updateEmailStatus(id, status);
+    if (!updated) {
+      return NextResponse.json({ error: 'Email not found' }, { status: 404 });
+    }
+
+    // Log the event
+    if (status === 'sent') {
+      addActivity('agent', `Approved and sent email draft: "${updated.subject}" to ${updated.to}.`);
+    } else if (status === 'cancelled') {
+      addActivity('agent', `Cancelled and wiped email draft: "${updated.subject}".`);
+    }
+
+    return NextResponse.json({ success: true, email: updated });
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'Failed to update email status' }, { status: 500 });
+  }
+}
+

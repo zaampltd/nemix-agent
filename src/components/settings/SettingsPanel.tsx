@@ -56,7 +56,7 @@ export default function SettingsPanel({
       {/* Header */}
       <div className="flex justify-between items-center shrink-0 border-b border-[var(--border-primary)]/30 pb-4 select-none">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-950/20 border border-blue-500/20 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
             <Sliders className="w-4.5 h-4.5 text-blue-400 animate-pulse" />
           </div>
           <div>
@@ -73,7 +73,7 @@ export default function SettingsPanel({
       <div className="flex-1 overflow-y-auto space-y-6 pr-1.5 custom-scrollbar pb-6 select-none">
         
         {/* Nvmix API Gateway Info card */}
-        <div className="bg-blue-950/10 border border-blue-500/20 rounded-2xl p-5 flex flex-col space-y-3 relative overflow-hidden shadow-md">
+        <div className="bg-indigo-500/[0.07] border border-indigo-500/15 rounded-2xl p-5 flex flex-col space-y-3 relative overflow-hidden shadow-md">
           <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-blue-500/5 blur-2xl pointer-events-none" />
           <div className="flex items-center gap-2">
             <BrainCircuit className="w-4.5 h-4.5 text-blue-400 animate-pulse" />
@@ -98,7 +98,7 @@ export default function SettingsPanel({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">Company Name</label>
+                <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Company Name</label>
                 <input
                   type="text"
                   required
@@ -109,7 +109,7 @@ export default function SettingsPanel({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">Active Swarm Objective (Goal)</label>
+                <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Active Swarm Objective (Goal)</label>
                 <input
                   type="text"
                   required
@@ -121,7 +121,7 @@ export default function SettingsPanel({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">Company Mission</label>
+              <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Company Mission</label>
               <textarea
                 rows={2}
                 required
@@ -157,7 +157,7 @@ export default function SettingsPanel({
                 type="button"
                 onClick={() => setGovernanceMode(!governanceMode)}
                 className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer shrink-0 ${
-                  governanceMode ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]' : 'bg-slate-800'
+                  governanceMode ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.4)]' : 'bg-[var(--border-primary)] border border-[var(--border-secondary)]'
                 }`}
               >
                 <div className={`w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md ${
@@ -179,7 +179,7 @@ export default function SettingsPanel({
               <button
                 type="button"
                 onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer shrink-0 bg-slate-800`}
+                className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer shrink-0 bg-[var(--bg-surface)] border border-[var(--border-primary)]`}
               >
                 <div className={`w-4 h-4 rounded-full transition-all duration-300 shadow-md flex items-center justify-center ${
                   isDarkMode ? 'translate-x-4 bg-indigo-500' : 'translate-x-0 bg-yellow-500'
@@ -228,7 +228,7 @@ export default function SettingsPanel({
             type="button"
             onClick={() => handleSubmit()}
             disabled={saving || !companyName.trim() || !goal.trim() || !apiKey.trim()}
-            className="px-6 py-3.5 rounded-xl border border-blue-500/50 bg-[#082f49] hover:bg-[#0c4a6e] text-blue-300 text-xs font-black tracking-widest uppercase transition-all glow-cyan flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-40"
+            className="btn-primary px-6 py-3.5 rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-40"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? 'Saving changes...' : 'Save Settings'}</span>

@@ -49,9 +49,9 @@ export default function KanbanBoard({
                 Governance Review Pending
               </h4>
               <p className="text-xs text-[var(--text-primary)] font-semibold select-text truncate">
-                Board approval required to merge: <strong className="text-white">"{activeApprovalTicket.title}"</strong>
+                Board approval required to merge: <strong className="text-amber-600 dark:text-amber-300">"{activeApprovalTicket.title}"</strong>
               </p>
-              <p className="text-[10px] text-[var(--text-secondary)] font-mono truncate select-text mt-1 max-w-2xl bg-black/25 px-2 py-0.5 rounded border border-[var(--border-primary)]">
+              <p className="text-[10px] text-[var(--text-secondary)] font-mono truncate select-text mt-1 max-w-2xl bg-[var(--bg-primary)] px-2 py-0.5 rounded border border-[var(--border-primary)]">
                 Reasoning: {activeApprovalTicket.thought}
               </p>
             </div>
@@ -80,8 +80,8 @@ export default function KanbanBoard({
         {/* To Do Column */}
         <div className="flex-1 flex flex-col gap-3.5 h-full overflow-hidden bg-[var(--bg-surface)] border border-[var(--border-primary)] backdrop-blur-md rounded-2xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300">
           <div className="flex justify-between items-center px-1 shrink-0 select-none">
-            <h3 className="text-xs font-black text-slate-450 uppercase tracking-widest flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-slate-500" /> To Do
+            <h3 className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--text-muted)]/60" /> To Do
             </h3>
             <span className="text-[9px] font-mono font-black text-[var(--text-secondary)] bg-[var(--bg-primary)] border border-[var(--border-primary)] px-2.5 py-0.5 rounded-lg shadow-inner">
               {todoTickets.length}

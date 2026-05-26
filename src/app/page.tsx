@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Coins, BrainCircuit, Activity, Sliders } from 'lucide-react';
+import { Coins, BrainCircuit, Activity, Sliders, Bell, X, AlertTriangle, Mail, Check } from 'lucide-react';
 
 import Sidebar from '@/components/layout/Sidebar';
 import ContextPanel from '@/components/layout/ContextPanel';
@@ -17,15 +17,18 @@ import EmailView from '@/components/emails/EmailView';
 import SettingsPanel from '@/components/settings/SettingsPanel';
 import DeploySwarm from '@/components/onboarding/DeploySwarm';
 import CodePreviewModal from '@/components/ui/CodePreviewModal';
+import ProjectsView from '@/components/projects/ProjectsView';
 
 import { CompanyState, Agent, Ticket, ActivityItem, ChatSession, ChatMessage } from '@/lib/types';
 
 export default function Page() {
   // ─── Top-Level Navigation & UI States ───
-  const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Chat' | 'Files' | 'Emails' | 'Settings'>('Dashboard');
+  const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Projects' | 'Chat' | 'Files' | 'Emails' | 'Settings'>('Dashboard');
   const [initialized, setInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [emails, setEmails] = useState<any[]>([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   // ─── Swarm State ───
   const [companyState, setCompanyState] = useState<CompanyState>({
@@ -125,6 +128,19 @@ export default function Page() {
     }
   };
 
+  // ─── Fetch Emails for Notification Alerts ───
+  const fetchEmails = async () => {
+    try {
+      const res = await fetch('/api/emails');
+      const data = await res.json();
+      if (data.success) {
+        setEmails(data.emails);
+      }
+    } catch (e) {
+      console.error('Failed to retrieve emails for notifications:', e);
+    }
+  };
+
   // ─── Fetch Messages for Active Chat Session ───
   const fetchChatMessages = async (sessId: string) => {
     try {
@@ -154,6 +170,7 @@ export default function Page() {
     fetchSwarmState();
     fetchActivities();
     fetchChatSessions();
+    fetchEmails();
   }, []);
 
   // ─── Trigger Chat Message Fetch on Session ID Change ───
@@ -164,7 +181,7 @@ export default function Page() {
   }, [activeSessionId]);
 
   // ─── Swarm Onboarding ───
-  const handleDeploySwarm = async (companyName: string, goal: string, mission: string, apiKey: string) => {
+  const handleDeploySwarm = async (companyName: string, goal: string, mission: string, apiKey: string, userName?: string, industry?: string) => {
     setIsInitializing(true);
     try {
       const res = await fetch('/api/orchestrator', {
@@ -175,7 +192,9 @@ export default function Page() {
           companyName,
           goal,
           mission,
-          apiKey
+          apiKey,
+          userName: userName || 'Founder',
+          industry: industry || 'general'
         })
       });
 
@@ -198,7 +217,7 @@ export default function Page() {
         const chatRes = await fetch('/api/chat/sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: 'Onboarding General' })
+          body: JSON.stringify({ title: 'General Workspace' })
         });
         const chatData = await chatRes.json();
         if (chatData.success) {
@@ -210,33 +229,35 @@ export default function Page() {
 
         // Celebration
         confetti({
-          particleCount: 150,
-          spread: 85,
-          colors: ['#3b82f6', '#10b981', '#7c6af7', '#ffffff']
+          particleCount: 180,
+          spread: 90,
+          colors: ['#3b82f6', '#10b981', '#7c6af7', '#06b6d4', '#ffffff']
         });
       } else {
-        alert(`Autonomous swarm deployment failed: ${data.error}`);
+        alert(`Failed to launch workspace: ${data.error || 'Unknown error'}`);
       }
     } catch (e: any) {
-      alert(`Bootstrap failed to connect: ${e.message}`);
+      alert(`Connection failed: ${e.message}`);
     } finally {
       setIsInitializing(false);
     }
   };
 
-  // ─── Simulate Demo Mode ───
+  // ─── Demo Mode ───
   const handleDemoMode = async () => {
     const key = companyState.apiKey || localStorage.getItem('nvmix_agent_key') || '';
     if (!key || key.length < 5) {
-      alert('Handshake failed: Please enter a valid Nvmix API key first.');
+      alert('Please enter a valid Nvmix API key first. Get one at nvmix.com');
       return;
     }
-    
+    const userName = localStorage.getItem('nvmix_user_name') || 'Demo User';
     await handleDeploySwarm(
-      'Nvmix Fintech Corp',
-      'Construct Next.js asset graphs, configure portfolio webhooks, and compile mock stock trading pipelines.',
-      'Build a high-performance automated stock and cryptocurrency trading dashboard.',
-      key
+      'TechVision Solutions',
+      'Automate all technology company operations including software development, project management, client reports, security audits, and team coordination.',
+      'Build world-class software that transforms businesses through AI-powered automation.',
+      key,
+      userName,
+      'technology'
     );
   };
 
@@ -269,6 +290,7 @@ export default function Page() {
         }));
 
         fetchActivities();
+        fetchEmails();
 
         // Check if now awaiting approval
         const nextAwaiting = data.state.tickets.find((t: any) => t.status === 'awaiting');
@@ -468,18 +490,21 @@ export default function Page() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'onboard', // onboard updates settings dynamically if already initialized
+          action: 'save_settings',
           companyName: nextState.companyName,
           goal: nextState.goal,
           mission: nextState.mission,
-          apiKey: nextState.apiKey
+          apiKey: nextState.apiKey,
+          governanceMode: nextState.governanceMode
         })
       });
       const data = await res.json();
       if (data.success) {
         fetchSwarmState();
         fetchActivities();
-        alert('Settings synchronized successfully on disk.');
+        if (activeTab === 'Settings') {
+          alert('Settings synchronized successfully on disk.');
+        }
       }
     } catch (e) {
       console.error('Failed to save settings:', e);
@@ -514,6 +539,65 @@ export default function Page() {
     }
   };
 
+  // ─── Dynamic Notifications Selector Logic ───
+  interface NotificationItem {
+    id: string;
+    type: 'email' | 'approval' | 'issue';
+    title: string;
+    description: string;
+    timestamp: string;
+    meta?: any;
+  }
+
+  const notifications: NotificationItem[] = [];
+
+  // 1. Add tickets awaiting approval (high priority)
+  tickets.filter(t => t.status === 'awaiting').forEach(ticket => {
+    notifications.push({
+      id: `approval_${ticket.id}`,
+      type: 'approval',
+      title: 'Approval Required',
+      description: `Task "${ticket.title}" is awaiting board approval.`,
+      timestamp: new Date().toISOString(),
+      meta: { ticket }
+    });
+  });
+
+  // 2. Add recent incoming emails
+  const isInboxEmail = (email: any) =>
+    email.to.toLowerCase().includes('founder') || email.to.toLowerCase().includes('you');
+
+  emails.filter(e => isInboxEmail(e) && e.status === 'sent').forEach(email => {
+    notifications.push({
+      id: `email_${email.id}`,
+      type: 'email',
+      title: `New Email from ${email.from}`,
+      description: email.subject,
+      timestamp: email.timestamp,
+      meta: { email }
+    });
+  });
+
+  // 3. Add issues / warning logs from activity stream
+  activities.filter(act => 
+    act.message.toLowerCase().includes('fail') || 
+    act.message.toLowerCase().includes('error') || 
+    act.message.toLowerCase().includes('warn') || 
+    act.message.toLowerCase().includes('cancel')
+  ).forEach(act => {
+    notifications.push({
+      id: `activity_${act.id || Math.random()}`,
+      type: 'issue',
+      title: 'System Alert',
+      description: act.message,
+      timestamp: act.timestamp,
+      meta: { act }
+    });
+  });
+
+  // Sort latest first
+  notifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
   return (
     <div className="bg-[var(--bg-primary)] text-[var(--text-primary)] h-screen flex overflow-hidden font-sans antialiased">
       
@@ -541,54 +625,221 @@ export default function Page() {
 
           {/* Panel 2: Main Content Workspace */}
           <main className="flex-1 flex flex-col p-6 overflow-hidden relative">
-            {/* Ambient subtle glow overlay */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.02),transparent_45%)] pointer-events-none" />
+            {/* Rich ambient glow overlays */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-500/[0.05] to-transparent" />
+              <div className="absolute top-0 left-1/4 w-96 h-64 bg-indigo-600/[0.04] rounded-full blur-3xl" />
+              <div className="absolute top-0 right-1/4 w-64 h-48 bg-violet-600/[0.04] rounded-full blur-3xl" />
+            </div>
 
             {/* Header console */}
-            <header className="flex justify-between items-center border-b border-[var(--border-primary)]/30 pb-5 mb-6 shrink-0 relative z-10 select-none">
+            <header className="flex justify-between items-center border-b border-indigo-500/[0.07] pb-5 mb-6 shrink-0 relative z-40 select-none">
               <div>
-                <h1 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--text-primary)] via-blue-400 to-indigo-400 font-sans text-xl tracking-wide font-black">
+                <h1 className="mb-2.5">
+                  <span className="text-gradient-aurora font-black text-xl tracking-tight leading-none">
                     {companyState.companyName} Command Center
                   </span>
                 </h1>
-                <div className="flex gap-4 items-center">
-                  <div className="bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-full px-3.5 py-1.5 flex items-center gap-2">
-                    <span className="text-[9px] text-blue-400 font-extrabold uppercase tracking-widest">Directive:</span>
-                    <span className="text-xs font-semibold text-[var(--text-primary)] truncate max-w-[280px]">
+                <div className="flex gap-3 items-center">
+                  <div
+                    className="rounded-full px-3.5 py-1.5 flex items-center gap-2"
+                    style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)' }}
+                  >
+                    <span className="text-[9px] text-indigo-400 font-black uppercase tracking-[0.12em]">Directive:</span>
+                    <span className="text-xs font-semibold text-[var(--text-primary)] truncate max-w-[260px]">
                       {companyState.goal}
                     </span>
                   </div>
-                  <div className="bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-full px-3.5 py-1.5 flex items-center gap-2">
-                    <span className="text-[9px] text-[var(--text-secondary)] font-extrabold uppercase tracking-widest font-mono">Telemetry Status:</span>
-                    <span className="text-xs font-bold text-emerald-500 uppercase flex items-center gap-1.5 leading-none">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_5px_#10b981] animate-ping" /> OPERATIONAL
+                  <div
+                    className="rounded-full px-3.5 py-1.5 flex items-center gap-2"
+                    style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)' }}
+                  >
+                    <span className="text-[9px] text-emerald-400/70 font-black uppercase tracking-[0.12em]">Telemetry:</span>
+                    <span className="text-xs font-bold text-emerald-400 uppercase flex items-center gap-1.5 leading-none">
+                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_6px_#10b981] animate-ping" /> OPERATIONAL
                     </span>
                   </div>
                 </div>
               </div>
               
-              {/* Governance controls */}
-              <div className="flex items-center gap-3 bg-[var(--bg-surface)] px-4 py-2 rounded-xl border border-[var(--border-primary)] shrink-0 shadow-inner">
-                <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">
-                  Governance Mode
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextGov = !companyState.governanceMode;
-                    const next = { ...companyState, governanceMode: nextGov };
-                    setCompanyState(next);
-                    handleSaveSettings(next);
-                  }}
-                  className={`w-9 h-5 rounded-full relative transition-all duration-300 shadow-inner p-0.5 cursor-pointer shrink-0 ${
-                    companyState.governanceMode ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]' : 'bg-slate-800'
-                  }`}
+              {/* Governance & Notifications controls */}
+              <div className="flex items-center gap-4 shrink-0 relative">
+                
+                {/* Governance Switch */}
+                <div
+                  className="flex items-center gap-3 px-4 py-2 rounded-xl select-none bg-[var(--bg-surface)] border border-[var(--border-primary)]"
                 >
-                  <div className={`w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md ${
-                    companyState.governanceMode ? 'translate-x-4' : 'translate-x-0'
-                  }`} />
-                </button>
+                  <span className="text-[9.5px] font-black text-indigo-400/60 uppercase tracking-[0.12em]">
+                    Governance
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextGov = !companyState.governanceMode;
+                      const next = { ...companyState, governanceMode: nextGov };
+                      setCompanyState(next);
+                      handleSaveSettings(next);
+                    }}
+                    className={`w-9 h-5 rounded-full relative transition-all duration-300 p-0.5 cursor-pointer shrink-0 ${
+                      companyState.governanceMode
+                        ? 'bg-gradient-to-r from-indigo-600 to-violet-600 shadow-[0_0_12px_rgba(99,102,241,0.5)]'
+                        : 'bg-[var(--bg-surface)] border border-[var(--border-primary)]'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full transition-all duration-300 shadow-md ${
+                      companyState.governanceMode
+                        ? 'translate-x-4 bg-white'
+                        : 'translate-x-0 bg-[var(--text-muted)]'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* Notifications Bell Popover Container */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center relative cursor-pointer transition-all duration-250 select-none"
+                    style={isNotificationOpen ? {
+                      background: 'rgba(99,102,241,0.15)',
+                      border: '1px solid rgba(99,102,241,0.35)',
+                      boxShadow: '0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+                    } : {
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-primary)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    }}
+                  >
+                    <Bell
+                      className={`w-4 h-4 transition-all duration-200 ${
+                        isNotificationOpen ? 'text-indigo-300' : 'text-[var(--text-muted)]'
+                      } ${notifications.length > 0 && !isNotificationOpen ? 'animate-[bounce_2s_infinite]' : ''}`}
+                    />
+                    {notifications.length > 0 && (
+                      <span
+                        className="absolute -top-1 -right-1 w-4 h-4 text-white text-[8px] font-mono font-black rounded-full flex items-center justify-center z-10 leading-none animate-pulse"
+                        style={{ background: 'linear-gradient(135deg,#e11d48,#f43f5e)', boxShadow: '0 0 8px rgba(244,63,94,0.6)', border: '1px solid rgba(0,0,0,0.3)' }}
+                      >
+                        {notifications.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <AnimatePresence>
+                    {isNotificationOpen && (
+                      <>
+                        {/* Underlay to dismiss dropdown */}
+                        <div 
+                          className="fixed inset-0 z-40 cursor-default" 
+                          onClick={() => setIsNotificationOpen(false)} 
+                        />
+                        
+                        <motion.div
+                          initial={{ opacity: 0, y: 12, scale: 0.93 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 12, scale: 0.93 }}
+                          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                          className="absolute right-0 top-11 w-80 rounded-2xl z-50 p-4 select-none overflow-hidden max-h-[400px] flex flex-col font-sans notification-panel"
+                        >
+                          {/* Top edge aurora */}
+                          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent pointer-events-none" />
+
+                          {/* Popover Header */}
+                          <div className="flex justify-between items-center border-b border-indigo-500/[0.08] pb-2.5 mb-3 shrink-0">
+                            <span className="text-[9px] font-black text-white/80 uppercase tracking-[0.12em]">
+                              Swarm Alerts Center
+                            </span>
+                            {notifications.length > 0 && (
+                              <span
+                                className="text-[8px] font-black uppercase tracking-widest font-mono px-2 py-0.5 rounded leading-none"
+                                style={{ background: 'rgba(99,102,241,0.14)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.22)' }}
+                              >
+                                {notifications.length} Pending
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Alerts List */}
+                          <div className="flex-grow overflow-y-auto custom-scrollbar space-y-2 pr-1 max-h-[300px]">
+                            {notifications.length === 0 ? (
+                              <div className="py-12 flex flex-col items-center justify-center text-center gap-2 select-none">
+                                <div
+                                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                                  style={{ background: 'rgba(16,185,129,0.10)', border: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 0 14px rgba(16,185,129,0.15)' }}
+                                >
+                                  <Check className="w-5 h-5 text-emerald-400" />
+                                </div>
+                                <h4 className="text-[10px] font-black uppercase text-white/70 tracking-wide">
+                                  System Stable
+                                </h4>
+                                <p className="text-[8.5px] text-[var(--text-muted)] max-w-[200px] leading-relaxed">
+                                  No alerts pending. All telemetry streams are fully nominal.
+                                </p>
+                              </div>
+                            ) : (
+                              notifications.map((item) => (
+                                <div
+                                  key={item.id}
+                                  onClick={() => {
+                                    setIsNotificationOpen(false);
+                                    if (item.type === 'approval') {
+                                      setActiveApprovalTicket(item.meta.ticket);
+                                      setActiveTab('Dashboard');
+                                    } else if (item.type === 'email') {
+                                      localStorage.setItem('nvmix_selected_email_id', item.meta.email.id);
+                                      setActiveTab('Emails');
+                                    } else if (item.type === 'issue') {
+                                      setActiveTab('Dashboard');
+                                    }
+                                  }}
+                                  className="p-3 rounded-xl cursor-pointer flex gap-3 items-start transition-all relative overflow-hidden group select-none"
+                                  style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-primary)' }}
+                                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.22)')}
+                                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.08)')}
+                                >
+                                  {/* Icon column */}
+                                  <div className="shrink-0 pt-0.5">
+                                    {item.type === 'approval' && (
+                                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.22)', boxShadow: '0 0 8px rgba(245,158,11,0.1)' }}>
+                                        <Sliders className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '4s' }} />
+                                      </div>
+                                    )}
+                                    {item.type === 'email' && (
+                                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.22)', boxShadow: '0 0 8px rgba(99,102,241,0.1)' }}>
+                                        <Mail className="w-3.5 h-3.5 text-indigo-400 animate-bounce" />
+                                      </div>
+                                    )}
+                                    {item.type === 'issue' && (
+                                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(244,63,94,0.10)', border: '1px solid rgba(244,63,94,0.20)', boxShadow: '0 0 8px rgba(244,63,94,0.08)' }}>
+                                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Description column */}
+                                  <div className="min-w-0 flex-grow">
+                                    <div className="flex justify-between items-center gap-2">
+                                      <span className="text-[9.5px] font-bold text-[var(--text-primary)] uppercase truncate leading-tight group-hover:text-indigo-400 transition-colors">
+                                        {item.title}
+                                      </span>
+                                    </div>
+                                    <p className="text-[9px] text-[var(--text-secondary)] mt-1 truncate leading-relaxed">
+                                      {item.description}
+                                    </p>
+                                    <span className="inline-block text-[7px] font-mono text-indigo-500/40 mt-1 uppercase tracking-wide">
+                                      Click to inspect
+                                    </span>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+
               </div>
             </header>
 
@@ -626,6 +877,10 @@ export default function Page() {
                       companyGoal={companyState.goal}
                       budgetUsed={companyState.budgetUsed}
                     />
+                  )}
+
+                  {activeTab === 'Projects' && (
+                    <ProjectsView />
                   )}
 
                   {activeTab === 'Chat' && (

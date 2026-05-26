@@ -1,5 +1,376 @@
 [
   {
+    "id": "act_papfgkijk_1779783331190",
+    "type": "ceo",
+    "message": "Created 6 backlog tasks for goal: \"Wiped...\"",
+    "timestamp": "2026-05-26T08:15:31.190Z"
+  },
+  {
+    "id": "act_yxdt8ckof_1779783331187",
+    "type": "ceo",
+    "message": "Hired 6 team members: CTO, CFO, CMO, Compliance Officer, Customer Relations Manager, Operations Manager.",
+    "timestamp": "2026-05-26T08:15:31.187Z"
+  },
+  {
+    "id": "act_wxmia0m7v_1779783331183",
+    "type": "ceo",
+    "message": "Alpha-CEO hired as CEO — leading 7 specialized agents.",
+    "timestamp": "2026-05-26T08:15:31.183Z"
+  },
+  {
+    "id": "act_lp9wvy7k8_1779783331179",
+    "type": "system",
+    "message": "✅ \"Wiped\" workspace launched by Founder via Nvmix AI.",
+    "timestamp": "2026-05-26T08:15:31.179Z"
+  },
+  {
+    "id": "act_tjcyc8awr_1779783279072",
+    "type": "ceo",
+    "message": "Created 6 backlog tasks for goal: \"Wiped...\"",
+    "timestamp": "2026-05-26T08:14:39.072Z"
+  },
+  {
+    "id": "act_yz1stp0qw_1779783279068",
+    "type": "ceo",
+    "message": "Hired 6 team members: Chief Technology Officer, Chief Financial Officer, Chief Marketing Officer, Chief Operations Officer, Chief Customer Officer, Chief Compliance Officer.",
+    "timestamp": "2026-05-26T08:14:39.068Z"
+  },
+  {
+    "id": "act_5xfo6ndqn_1779783279064",
+    "type": "ceo",
+    "message": "FounderBot hired as CEO — leading 7 specialized agents.",
+    "timestamp": "2026-05-26T08:14:39.064Z"
+  },
+  {
+    "id": "act_vjyb0rq9n_1779783279060",
+    "type": "system",
+    "message": "✅ \"Wiped\" workspace launched by Founder via Nvmix AI.",
+    "timestamp": "2026-05-26T08:14:39.060Z"
+  },
+  {
+    "id": "act_4rky2r3k6_1779783275364",
+    "type": "ceo",
+    "message": "Created 6 backlog tasks for goal: \"Wiped...\"",
+    "timestamp": "2026-05-26T08:14:35.364Z"
+  },
+  {
+    "id": "act_hghzx912v_1779783275362",
+    "type": "ceo",
+    "message": "Hired 6 team members: Operations Manager, Business Analyst, Project Manager, Marketing Manager, Financial Analyst, Content Writer.",
+    "timestamp": "2026-05-26T08:14:35.362Z"
+  },
+  {
+    "id": "act_pxo0n26tu_1779783275359",
+    "type": "ceo",
+    "message": "Alpha-CEO hired as CEO — leading 7 specialized agents.",
+    "timestamp": "2026-05-26T08:14:35.359Z"
+  },
+  {
+    "id": "act_eqxsrc019_1779783275356",
+    "type": "system",
+    "message": "✅ \"Wiped\" workspace launched by Founder via Nvmix AI.",
+    "timestamp": "2026-05-26T08:14:35.356Z"
+  },
+  {
+    "id": "act_ccbe5xjwf_1779783006926",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"campaign_blueprint.md\"",
+    "timestamp": "2026-05-26T08:10:06.926Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_w14u3fera_1779783006918",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"traffic_analysis.md\"",
+    "timestamp": "2026-05-26T08:10:06.918Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_qpztrz1bq_1779783006909",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"lead_magnet.md\"",
+    "timestamp": "2026-05-26T08:10:06.909Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_v0b9yfd1h_1779779303858",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T07:08:23.858Z"
+  },
+  {
+    "id": "act_usynmvfzo_1779779299744",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T07:08:19.744Z"
+  },
+  {
+    "id": "act_z8973d6tj_1779779295640",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T07:08:15.640Z"
+  },
+  {
+    "id": "act_x8t55qt3d_1779776744000",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"campaign_blueprint.docx\"",
+    "timestamp": "2026-05-26T06:25:44.000Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_rvgjz56s6_1779776743985",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"traffic_analysis.docx\"",
+    "timestamp": "2026-05-26T06:25:43.985Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_oj7x62leo_1779776743960",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"lead_magnet.docx\"",
+    "timestamp": "2026-05-26T06:25:43.960Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_em2ohapjt_1779776277292",
+    "type": "agent",
+    "message": "Delta-Analyst received work details from the Founder.",
+    "timestamp": "2026-05-26T06:17:57.292Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_ivw2nrea2_1779776276522",
+    "type": "agent",
+    "message": "Sent email: \"RE: RE: RE: Famous Product Report - Apple iPhone\" to Delta-Analyst.",
+    "timestamp": "2026-05-26T06:17:56.522Z"
+  },
+  {
+    "id": "act_qar99t1ny_1779776239303",
+    "type": "agent",
+    "message": "Delta-Analyst awaiting clarification on Excel file task",
+    "timestamp": "2026-05-26T06:17:19.303Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_eoayexe2z_1779776238224",
+    "type": "agent",
+    "message": "Sent email: \"RE: RE: Famous Product Report - Apple iPhone\" to Delta-Analyst.",
+    "timestamp": "2026-05-26T06:17:18.224Z"
+  },
+  {
+    "id": "act_vsqi291wf_1779775926076",
+    "type": "agent",
+    "message": "Delta-Analyst created a new Word document template and added a task to optimize it.",
+    "timestamp": "2026-05-26T06:12:06.076Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_tcu8b2jp6_1779775926068",
+    "type": "agent",
+    "message": "Created workspace file: \"template.docx\"",
+    "timestamp": "2026-05-26T06:12:06.068Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_87xjb7tmj_1779775923962",
+    "type": "agent",
+    "message": "Sent email: \"RE: Famous Product Report - Apple iPhone\" to Delta-Analyst.",
+    "timestamp": "2026-05-26T06:12:03.962Z"
+  },
+  {
+    "id": "act_2a9qiybln_1779774060228",
+    "type": "agent",
+    "message": "Alpha-CEO created marketing plan document",
+    "timestamp": "2026-05-26T05:41:00.228Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_dy7cnq7o4_1779774060220",
+    "type": "agent",
+    "message": "Created workspace file: \"Marketing Plan.docx\"",
+    "timestamp": "2026-05-26T05:41:00.220Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_u56r652tm_1779774058327",
+    "type": "agent",
+    "message": "Sent email: \"RE: Famous Product Report - Apple iPhone**\" to Alpha-CEO.",
+    "timestamp": "2026-05-26T05:40:58.327Z"
+  },
+  {
+    "id": "act_peq12gwo2_1779772426332",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# system-administrator\".",
+    "timestamp": "2026-05-26T05:13:46.332Z",
+    "agentId": "agent_n4f9r1f_1779766151061"
+  },
+  {
+    "id": "act_jesjfckox_1779772244399",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T05:10:44.399Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_70zvmtk32_1779772244393",
+    "type": "agent",
+    "message": "Dispatched email: \"Famous Product Report - Apple iPhone**\" to Founder (You).",
+    "timestamp": "2026-05-26T05:10:44.393Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_j8yr8kllu_1779772141778",
+    "type": "agent",
+    "message": "Dispatched email: \"Famous Product Report - Apple iPhone\" to Founder (You).",
+    "timestamp": "2026-05-26T05:09:01.778Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_a48qyj0fe_1779772031072",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# analyst\".",
+    "timestamp": "2026-05-26T05:07:11.072Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_25yhpb1j4_1779771710333",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T05:01:50.333Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_921eyf7pi_1779771612160",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# marketing\".",
+    "timestamp": "2026-05-26T05:00:12.160Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_7n4ewx0ki_1779769391765",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"campaign_blueprint.py\"",
+    "timestamp": "2026-05-26T04:23:11.765Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_qshxaipt3_1779769391753",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"traffic_analysis.py\"",
+    "timestamp": "2026-05-26T04:23:11.753Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_u6fe251me_1779769391740",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"crm_system.py\"",
+    "timestamp": "2026-05-26T04:23:11.740Z",
+    "agentId": "agent_dev"
+  },
+  {
+    "id": "act_u37ypjokt_1779769391729",
+    "type": "agent",
+    "message": "Restored completed asset to disk: \"lead_magnet.py\"",
+    "timestamp": "2026-05-26T04:23:11.729Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_6e6b1nrsx_1779769060583",
+    "type": "ceo",
+    "message": "\"Marketing Campaign Blueprint Development\" closed as DONE.",
+    "timestamp": "2026-05-26T04:17:40.583Z"
+  },
+  {
+    "id": "act_jkn0912e8_1779769060576",
+    "type": "system",
+    "message": "✅ Approved merge for \"Marketing Campaign Blueprint Development\".",
+    "timestamp": "2026-05-26T04:17:40.576Z"
+  },
+  {
+    "id": "act_ihztftjve_1779769031322",
+    "type": "ceo",
+    "message": "Board approval required to merge \"Marketing Campaign Blueprint Development\".",
+    "timestamp": "2026-05-26T04:17:11.322Z"
+  },
+  {
+    "id": "act_gbmv2p00o_1779769031316",
+    "type": "agent",
+    "message": "Finished: \"Marketing Campaign Blueprint Development\".",
+    "timestamp": "2026-05-26T04:17:11.316Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_0cpe3jhav_1779769024310",
+    "type": "agent",
+    "message": "Task \"Marketing Campaign Blueprint Development\" now In Progress.",
+    "timestamp": "2026-05-26T04:17:04.310Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_3y6apjglf_1779769024306",
+    "type": "ceo",
+    "message": "Dispatched Beta-Marketer → \"Marketing Campaign Blueprint Development\".",
+    "timestamp": "2026-05-26T04:17:04.306Z"
+  },
+  {
+    "id": "act_1c4hx4ioh_1779768771135",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T04:12:51.135Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_88e2hzrbe_1779768750354",
+    "type": "agent",
+    "message": "Alpha-CEO initiated marketing campaign blueprint development",
+    "timestamp": "2026-05-26T04:12:30.354Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_mfyjztn4d_1779768750344",
+    "type": "ceo",
+    "message": "Created backlog task: \"Marketing Campaign Blueprint Development\"",
+    "timestamp": "2026-05-26T04:12:30.344Z"
+  },
+  {
+    "id": "act_zg1i7pk8a_1779768747879",
+    "type": "agent",
+    "message": "Sent email: \"RE: RE: RE: New Swarm Agent Recruited: Helen-HR\" to Alpha-CEO.",
+    "timestamp": "2026-05-26T04:12:27.879Z"
+  },
+  {
+    "id": "act_pfvwedalw_1779766151075",
+    "type": "agent",
+    "message": "Alpha-CEO recruited Sam-Support as System Administrator",
+    "timestamp": "2026-05-26T03:29:11.075Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_rcv6wsldg_1779766151068",
+    "type": "ceo",
+    "message": "Recruited new team member: \"Sam-Support\" as \"System Administrator\"",
+    "timestamp": "2026-05-26T03:29:11.068Z"
+  },
+  {
+    "id": "act_ecpnwmzcr_1779766150035",
+    "type": "agent",
+    "message": "Sent email: \"RE: RE: New Swarm Agent Recruited: Helen-HR\" to Alpha-CEO.",
+    "timestamp": "2026-05-26T03:29:10.035Z"
+  },
+  {
+    "id": "act_4qy8v92y9_1779765951962",
+    "type": "agent",
+    "message": "Alpha-CEO seeking clarification on hiring an IT company",
+    "timestamp": "2026-05-26T03:25:51.962Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_885eod37h_1779765950585",
+    "type": "agent",
+    "message": "Sent email: \"RE: New Swarm Agent Recruited: Helen-HR\" to Alpha-CEO.",
+    "timestamp": "2026-05-26T03:25:50.585Z"
+  },
+  {
     "id": "act_2aas3usa9_1779764518452",
     "type": "system",
     "message": "All tickets completed. Swarm standing by.",

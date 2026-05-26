@@ -63,10 +63,23 @@ export default function FileExplorer({ budgetUsed }: FileExplorerProps) {
 
   const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
-    if (ext === 'json') return <FileCode className="w-5 h-5 text-cyan-550 animate-pulse" />;
-    if (ext === 'py') return <Layers className="w-5 h-5 text-rose-500 animate-pulse" />;
-    if (ext === 'csv') return <Database className="w-5 h-5 text-emerald-550 animate-pulse" />;
-    return <FileText className="w-5 h-5 text-indigo-500" />;
+    if (ext === 'json') return <FileCode className="w-5 h-5 text-cyan-400 animate-pulse" />;
+    if (ext === 'py' || ext === 'js' || ext === 'ts' || ext === 'tsx' || ext === 'html' || ext === 'css') {
+      return <FileCode className="w-5 h-5 text-emerald-400 animate-pulse" />;
+    }
+    if (ext === 'csv' || ext === 'xlsx' || ext === 'xls') {
+      return <Database className="w-5 h-5 text-emerald-555" />;
+    }
+    if (ext === 'pdf') {
+      return <FileText className="w-5 h-5 text-rose-500 animate-pulse" />;
+    }
+    if (ext === 'docx' || ext === 'doc') {
+      return <FileText className="w-5 h-5 text-blue-500 animate-pulse" />;
+    }
+    if (fileName.includes('_extracted.txt')) {
+      return <FileText className="w-5 h-5 text-amber-500 animate-pulse" />;
+    }
+    return <FileText className="w-5 h-5 text-indigo-550" />;
   };
 
   // Safe stable mock size generation based on ID seed
@@ -192,8 +205,8 @@ export default function FileExplorer({ budgetUsed }: FileExplorerProps) {
 
                     {/* Absolute local path display with segment crumbs styling */}
                     <div className="text-[10px] text-[var(--text-secondary)] font-mono font-medium tracking-normal select-all truncate max-w-2xl bg-[var(--bg-surface)]/60 px-2 py-1 rounded-lg border border-[var(--border-primary)]/60 w-fit flex items-center gap-1">
-                      <span className="text-gray-400 select-none">C:</span>
-                      <ArrowRight className="w-2.5 h-2.5 text-gray-300 inline shrink-0" />
+                      <span className="text-[var(--text-muted)] select-none">C:</span>
+                      <ArrowRight className="w-2.5 h-2.5 text-[var(--text-muted)]/60 inline shrink-0" />
                       <span className="truncate">{file.path.split('\\').slice(1).join(' › ')}</span>
                     </div>
 
@@ -201,11 +214,11 @@ export default function FileExplorer({ budgetUsed }: FileExplorerProps) {
                     <div className="flex flex-wrap items-center gap-2 mt-1 select-none">
                       {/* Time synced tag */}
                       <span className="flex items-center gap-1 text-[9px] font-bold text-[var(--text-secondary)] font-mono">
-                        <Clock className="w-3 h-3 text-slate-400" />
+                        <Clock className="w-3 h-3 text-[var(--text-muted)]" />
                         <span>{relativeTime}</span>
                       </span>
 
-                      <span className="text-gray-300 dark:text-gray-700 font-mono text-[9px] font-bold select-none">•</span>
+                      <span className="text-[var(--text-muted)]/60 font-mono text-[9px] font-bold select-none">•</span>
 
                       {/* Author Tag */}
                       <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full border font-sans tracking-wide uppercase ${getAuthorBadgeStyle(file.createdBy)}`}>
@@ -215,15 +228,24 @@ export default function FileExplorer({ budgetUsed }: FileExplorerProps) {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 shrink-0 select-none">
+                <div className="flex items-center gap-2.5 shrink-0 select-none">
                   <button 
                     disabled={previewLoading}
                     onClick={() => handlePreviewFile(file)}
                     className="h-9 px-4 rounded-xl bg-blue-500/10 hover:bg-blue-600/15 border border-blue-500/25 hover:border-blue-500/50 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer shadow-sm disabled:opacity-50 hover:shadow-md hover:scale-[1.02]"
                   >
                     <Terminal className="w-4 h-4 text-blue-500" />
-                    <span>Preview File</span>
+                    <span>Preview</span>
                   </button>
+                  
+                  <a
+                    href={`/api/files?path=${encodeURIComponent(file.path)}&download=true`}
+                    download={file.name}
+                    className="h-9 px-4 rounded-xl bg-indigo-500/10 hover:bg-indigo-600/15 border border-indigo-500/25 hover:border-indigo-500/50 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer shadow-sm hover:shadow-md hover:scale-[1.02]"
+                  >
+                    <ArrowRight className="w-4 h-4 text-indigo-500 rotate-90" />
+                    <span>Download</span>
+                  </a>
                 </div>
               </div>
             );

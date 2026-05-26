@@ -15,54 +15,229 @@ import {
   getFiles
 } from '@/lib/db';
 import { Agent, Ticket, CompanyState } from '@/lib/types';
+import { generateNvmixCompletion } from '@/lib/nvmix-engine';
+import fs from 'fs';
+import path from 'path';
 
 // ─── Filename derivation helper from task title ───
-function getFilenameForTicket(title: string): string {
-  const lower = title.toLowerCase();
+function getFilenameForTicket(title: string, roleName: string): string {
+  const lowerTitle = title.toLowerCase();
+  const { ext } = getOutputTypeForRole(roleName);
   
-  if (lower.includes('blueprint') || lower.includes('blue print')) {
-    return 'campaign_blueprint.py';
-  }
-  if (lower.includes('lead magnet') || lower.includes('lead_magnet')) {
-    return 'lead_magnet.py';
-  }
-  if (lower.includes('crm') || lower.includes('customer relationship')) {
-    return 'crm_system.py';
-  }
-  if (lower.includes('traffic') || lower.includes('conversion') || lower.includes('analytics')) {
-    return 'traffic_analysis.py';
-  }
-  if (lower.includes('architect') || lower.includes('schema')) {
-    return 'architecture_design.py';
-  }
-  if (lower.includes('bootstrap') || lower.includes('api')) {
-    return 'app_api.py';
-  }
-  if (lower.includes('security') || lower.includes('qa') || lower.includes('audit')) {
-    return 'security_audit.py';
-  }
+  if (lowerTitle.includes('blueprint') || lowerTitle.includes('blue print')) return `campaign_blueprint${ext}`;
+  if (lowerTitle.includes('lead magnet') || lowerTitle.includes('lead_magnet')) return `lead_magnet${ext}`;
+  if (lowerTitle.includes('crm') || lowerTitle.includes('customer relationship')) return `crm_system${ext}`;
+  if (lowerTitle.includes('traffic') || lowerTitle.includes('conversion') || lowerTitle.includes('analytics')) return `traffic_analysis${ext}`;
+  if (lowerTitle.includes('architect') || lowerTitle.includes('schema')) return `architecture_design${ext}`;
+  if (lowerTitle.includes('bootstrap') || lowerTitle.includes('api')) return `app_api${ext}`;
+  if (lowerTitle.includes('security') || lowerTitle.includes('qa') || lowerTitle.includes('audit')) return `security_audit${ext}`;
+  if (lowerTitle.includes('social media') || lowerTitle.includes('content calendar') || lowerTitle.includes('instagram') || lowerTitle.includes('linkedin')) return `social_media_content${ext}`;
+  if (lowerTitle.includes('financial') || lowerTitle.includes('budget') || lowerTitle.includes('report') || lowerTitle.includes('accounting')) return `financial_report${ext}`;
+  if (lowerTitle.includes('compliance') || lowerTitle.includes('policy') || lowerTitle.includes('legal') || lowerTitle.includes('hr handbook')) return `compliance_policy${ext}`;
+  if (lowerTitle.includes('strategy') || lowerTitle.includes('operational') || lowerTitle.includes('roadmap')) return `operational_strategy${ext}`;
+  if (lowerTitle.includes('onboarding') || lowerTitle.includes('client') || lowerTitle.includes('support')) return `client_onboarding${ext}`;
+  if (lowerTitle.includes('marketing') || lowerTitle.includes('campaign')) return `marketing_plan${ext}`;
   
   // Generic fallback: sanitize the title to lowercase snake_case
-  const sanitized = lower
-    .replace(/[^a-z0-9\s-_]/g, '')
-    .trim()
-    .replace(/[\s-_]+/g, '_');
-  return `${sanitized || 'module'}.py`;
+  const sanitized = lowerTitle.replace(/[^a-z0-9\s-_]/g, '').trim().replace(/[\s-_]+/g, '_');
+  return `${sanitized || 'document'}${ext}`;
 }
 
 // ─── STRICT RULE: ONLY NVMIX API ───
 const NVMIX_MODEL = 'nvmix-inference-v1';
 
+function getWorkspaceContext(): string {
+  try {
+    const files = getFiles();
+    if (files.length === 0) return '';
+    
+    let context = '\n\n=== ACTIVE WORKSPACE DRIVE FILES ===\n';
+    context += 'You have direct read access to all files inside the workspace drive. Review, build upon, or reference their text/data contents below to perform complex operations and coding:\n';
+    
+    for (const file of files) {
+      if (fs.existsSync(file.path)) {
+        try {
+          const content = fs.readFileSync(file.path, 'utf-8');
+          const isBinary = file.name.endsWith('.pdf') || file.name.endsWith('.docx') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+          if (isBinary) {
+            context += `\n--- File: ${file.name} (Binary File, Reference only) ---\n[Binary format. Use the extracted sibling file: ${file.name}_extracted.txt for text and data contents]\n`;
+          } else {
+            const truncated = content.length > 2500 ? content.substring(0, 2500) + '\n[...Content truncated for context safety...]' : content;
+            context += `\n--- File: ${file.name} (Author: ${file.createdBy}, Timestamp: ${file.timestamp}) ---\n`;
+            context += `${truncated}\n`;
+          }
+        } catch (readErr: any) {
+          context += `\n--- File: ${file.name} (Read Error: ${readErr.message}) ---\n`;
+        }
+      }
+    }
+    context += '====================================\n';
+    return context;
+  } catch (err) {
+    console.error('Workspace context construction failed:', err);
+    return '';
+  }
+}
+
+// ─── Industry → default agent roster (fallback when AI roster generation fails) ───
+const INDUSTRY_AGENT_ROSTERS: Record<string, Array<{ role: string; name: string; avatar: string }>> = {
+  technology:  [
+    { role: 'CEO',               name: 'Alpha-CEO',        avatar: '💼' },
+    { role: 'Software Engineer', name: 'Codebot-7',        avatar: '💻' },
+    { role: 'QA Engineer',       name: 'TestShield',       avatar: '🔍' },
+    { role: 'DevOps Engineer',   name: 'PipelineX',        avatar: '⚙️' },
+    { role: 'Security Auditor',  name: 'CipherGuard',      avatar: '🔒' },
+    { role: 'Project Manager',   name: 'TaskMaster',       avatar: '📋' },
+    { role: 'Tech Writer',       name: 'DocuBot',          avatar: '📝' },
+  ],
+  finance: [
+    { role: 'CEO',                  name: 'FinCEO',          avatar: '💼' },
+    { role: 'CFO',                  name: 'Vault-AI',        avatar: '💰' },
+    { role: 'Accountant',           name: 'LedgerBot',       avatar: '📊' },
+    { role: 'Financial Analyst',    name: 'DataFin',         avatar: '📈' },
+    { role: 'Risk Advisor',         name: 'RiskRadar',       avatar: '⚠️' },
+    { role: 'Compliance Officer',   name: 'RegBot',          avatar: '⚖️' },
+    { role: 'Investment Strategist',name: 'AlphaFund',       avatar: '💹' },
+  ],
+  marketing: [
+    { role: 'CEO',              name: 'BrandCEO',        avatar: '💼' },
+    { role: 'CMO',              name: 'MarketMind',      avatar: '📣' },
+    { role: 'Content Writer',   name: 'QuillBot',        avatar: '✍️' },
+    { role: 'SEO Specialist',   name: 'SearchMaster',    avatar: '🔎' },
+    { role: 'Social Media Manager', name: 'SocialWave', avatar: '📱' },
+    { role: 'Ad Strategist',    name: 'AdEngine',        avatar: '🎯' },
+    { role: 'Brand Designer',   name: 'PixelForge',      avatar: '🎨' },
+  ],
+  healthcare: [
+    { role: 'CEO',               name: 'MedCEO',         avatar: '💼' },
+    { role: 'Medical Advisor',   name: 'DocAI',          avatar: '🏥' },
+    { role: 'Data Analyst',      name: 'HealthMetrics',  avatar: '📊' },
+    { role: 'Compliance Officer',name: 'MedRegBot',      avatar: '⚖️' },
+    { role: 'Patient Coordinator', name: 'CareBot',      avatar: '💊' },
+    { role: 'Research Analyst',  name: 'BioResearch',    avatar: '🔬' },
+    { role: 'Operations Manager',name: 'OpsHealth',      avatar: '⚙️' },
+  ],
+  ecommerce: [
+    { role: 'CEO',               name: 'CommerceCEO',    avatar: '💼' },
+    { role: 'E-Commerce Manager',name: 'StoreBot',       avatar: '🛒' },
+    { role: 'Inventory Manager', name: 'StockSense',     avatar: '📦' },
+    { role: 'Customer Support',  name: 'SupportAI',      avatar: '🎧' },
+    { role: 'Social Media Manager', name: 'SocialSell', avatar: '📱' },
+    { role: 'Analytics Specialist', name: 'DataShop',   avatar: '📊' },
+    { role: 'Logistics Coordinator', name: 'ShipBot',   avatar: '🚚' },
+  ],
+  startup: [
+    { role: 'CEO',               name: 'FounderAI',      avatar: '🚀' },
+    { role: 'CTO',               name: 'TechPilot',      avatar: '💻' },
+    { role: 'Product Manager',   name: 'ProductMind',    avatar: '🎯' },
+    { role: 'Growth Hacker',     name: 'GrowthEngine',   avatar: '📈' },
+    { role: 'Full-Stack Developer', name: 'BuildBot',   avatar: '⚙️' },
+    { role: 'Customer Success',  name: 'ClientWave',     avatar: '💬' },
+    { role: 'Investor Relations',name: 'FundBot',        avatar: '💰' },
+  ],
+  education: [
+    { role: 'CEO',               name: 'EduCEO',         avatar: '💼' },
+    { role: 'Curriculum Designer', name: 'LearnBot',     avatar: '📚' },
+    { role: 'Content Creator',   name: 'EduWriter',      avatar: '✍️' },
+    { role: 'Student Advisor',   name: 'GuidanceAI',     avatar: '🎓' },
+    { role: 'Platform Developer',name: 'EduCode',        avatar: '💻' },
+    { role: 'Research Analyst',  name: 'AcademicBot',    avatar: '🔬' },
+    { role: 'Operations Manager',name: 'EduOps',         avatar: '⚙️' },
+  ],
+  restaurant: [
+    { role: 'CEO',               name: 'FoodCEO',        avatar: '💼' },
+    { role: 'Operations Manager',name: 'KitchenOps',     avatar: '🍽️' },
+    { role: 'Chef Advisor',      name: 'ChefBot',        avatar: '👨‍🍳' },
+    { role: 'Inventory Manager', name: 'FoodStock',      avatar: '📦' },
+    { role: 'Social Media Manager', name: 'FoodGram',   avatar: '📸' },
+    { role: 'Customer Relations',name: 'TableBot',       avatar: '😊' },
+    { role: 'Financial Controller', name: 'RestFinance', avatar: '💰' },
+  ],
+  consulting: [
+    { role: 'CEO',               name: 'ConsultCEO',     avatar: '💼' },
+    { role: 'Senior Consultant', name: 'StrategyBot',    avatar: '🧠' },
+    { role: 'Research Analyst',  name: 'InsightAI',      avatar: '🔍' },
+    { role: 'Project Manager',   name: 'DeliverBot',     avatar: '📋' },
+    { role: 'Business Advisor',  name: 'AdvisoryAI',     avatar: '💡' },
+    { role: 'Financial Analyst', name: 'FinConsult',     avatar: '📊' },
+    { role: 'Report Writer',     name: 'ReportBot',      avatar: '📝' },
+  ],
+  realestate: [
+    { role: 'CEO',               name: 'PropCEO',        avatar: '💼' },
+    { role: 'Property Manager',  name: 'PropBot',        avatar: '🏠' },
+    { role: 'Sales Agent',       name: 'DealMaker',      avatar: '🤝' },
+    { role: 'Legal Advisor',     name: 'LegalProp',      avatar: '⚖️' },
+    { role: 'Finance Manager',   name: 'PropFin',        avatar: '💰' },
+    { role: 'Marketing Specialist', name: 'PropMark',   avatar: '📣' },
+    { role: 'Client Relations',  name: 'ClientProp',     avatar: '😊' },
+  ],
+  logistics: [
+    { role: 'CEO',               name: 'LogiCEO',        avatar: '💼' },
+    { role: 'Logistics Manager', name: 'RouteBot',       avatar: '🗺️' },
+    { role: 'Supply Chain Analyst', name: 'ChainAI',    avatar: '🔗' },
+    { role: 'Operations Manager',name: 'OpsFleet',       avatar: '⚙️' },
+    { role: 'Fleet Coordinator', name: 'FleetBot',       avatar: '🚛' },
+    { role: 'Warehouse Manager', name: 'StockBot',       avatar: '🏭' },
+    { role: 'Compliance Officer',name: 'FreightReg',     avatar: '⚖️' },
+  ],
+};
+const DEFAULT_ROSTER = [
+  { role: 'CEO',               name: 'Alpha-CEO',     avatar: '💼' },
+  { role: 'Operations Manager',name: 'OpsBot',        avatar: '⚙️' },
+  { role: 'Business Analyst',  name: 'InsightBot',    avatar: '📊' },
+  { role: 'Project Manager',   name: 'TaskMaster',    avatar: '📋' },
+  { role: 'Marketing Manager', name: 'MarketBot',     avatar: '📣' },
+  { role: 'Financial Analyst', name: 'FinanceBot',    avatar: '💰' },
+  { role: 'Content Writer',    name: 'WriteBot',      avatar: '✍️' },
+];
+
+// ─── Output type detector: decides file extension based on role + task ───
+function getOutputTypeForRole(role: string): { ext: string; format: string } {
+  const r = role.toLowerCase();
+  if (r.includes('developer') || r.includes('engineer') || r.includes('cto') || r.includes('devops') || r.includes('qa') || r.includes('coder') || r.includes('platform dev')) {
+    return { ext: '.py', format: 'python_code' };
+  }
+  if (r.includes('social media') || r.includes('content creator') || r.includes('brand')) {
+    return { ext: '.md', format: 'social_content' };
+  }
+  if (r.includes('accountant') || r.includes('cfo') || r.includes('financial') || r.includes('finance') || r.includes('ledger')) {
+    return { ext: '.csv', format: 'financial_report' };
+  }
+  if (r.includes('analyst') || r.includes('research') || r.includes('seo') || r.includes('data')) {
+    return { ext: '.md', format: 'analysis_report' };
+  }
+  if (r.includes('compliance') || r.includes('legal') || r.includes('audit') || r.includes('security')) {
+    return { ext: '.md', format: 'compliance_report' };
+  }
+  if (r.includes('writer') || r.includes('content') || r.includes('curriculum') || r.includes('doc')) {
+    return { ext: '.md', format: 'document' };
+  }
+  return { ext: '.md', format: 'business_document' };
+}
+
 // ─── Highly Resilient Nvmix API Helper with Automatic Fallbacks ───
-async function callNvmixAPI(apiKey: string, messages: { role: string; content: string }[]) {
-  const urls = [
+async function callNvmixAPI(apiKey: string, messages: { role: string; content: string }[], timeoutMs = 20000) {
+  // 1. Direct local execution first (100% deadlock-immune)
+  try {
+    const localResult = await generateNvmixCompletion(messages as any, {
+      temperature: 0.7,
+      max_tokens: 2048,
+      timeoutMs
+    });
+    if (localResult?.choices?.[0]?.message?.content) {
+      return localResult;
+    }
+  } catch (localErr: any) {
+    console.warn('Direct local Nvmix completion failed, falling back to HTTP routing:', localErr?.message || localErr);
+  }
+
+  // 2. HTTP routing fallbacks (Remote-only to prevent Next.js loopback dev deadlocks)
+  const urls = ([
     process.env.NVMIX_API_URL,
     'https://nvmix.com/api/v1/chat/completions',
     'https://nemix-jjjj.vercel.app/api/v1/chat/completions',
-    'http://localhost:3000/api/v1/chat/completions',
-    'http://localhost:3001/api/v1/chat/completions',
-    'http://localhost:3002/api/v1/chat/completions',
-  ].filter(Boolean) as string[];
+  ].filter(Boolean) as string[])
+   .filter(url => !url.includes('localhost') && !url.includes('127.0.0.1'));
 
   let lastErr: any = null;
   for (const url of urls) {
@@ -71,7 +246,7 @@ async function callNvmixAPI(apiKey: string, messages: { role: string; content: s
         method:  'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body:    JSON.stringify({ model: NVMIX_MODEL, messages }),
-        signal:  AbortSignal.timeout(4000), // optimized timeout to 4s for swarm operations
+        signal:  AbortSignal.timeout(timeoutMs),
       });
       if (res.ok) {
         return await res.json();
@@ -84,7 +259,7 @@ async function callNvmixAPI(apiKey: string, messages: { role: string; content: s
       lastErr = err;
     }
   }
-  throw lastErr || new Error('All Nvmix API endpoints are unreachable.');
+  throw lastErr || new Error('All Nvmix API completions failed.');
 }
 
 // ─── GET: Retrieve Swarm State ───
@@ -98,11 +273,12 @@ export async function GET() {
     if (company.companyName && company.companyName.trim().length > 0) {
       try {
         const currentFiles = getFiles();
-        const completedTickets = tickets.filter(t => t.status === 'done');
         const agentName = (id: string) => agents.find((a) => a.id === id)?.name ?? 'Agent';
+        const agentRole = (id: string) => agents.find((a) => a.id === id)?.role ?? 'Marketer';
+        const completedTickets = tickets.filter(t => t.status === 'done');
 
         for (const ticket of completedTickets) {
-          const expectedFilename = getFilenameForTicket(ticket.title);
+          const expectedFilename = getFilenameForTicket(ticket.title, agentRole(ticket.assignedTo));
           const fileExistsInRegistry = currentFiles.some(f => f.name === expectedFilename);
           
           if (!fileExistsInRegistry && ticket.output) {
@@ -152,10 +328,49 @@ export async function POST(request: Request) {
     const company = getCompany();
 
     // ══════════════════════════════════════════════
+    // ACTION: save_settings
+    // ══════════════════════════════════════════════
+    if (action === 'save_settings') {
+      const { companyName, goal, mission, apiKey, governanceMode } = body;
+
+      const currentCompany = getCompany();
+      const nextCompany: CompanyState = {
+        companyName: companyName !== undefined ? companyName : currentCompany.companyName,
+        mission: mission !== undefined ? mission : currentCompany.mission,
+        goal: goal !== undefined ? goal : currentCompany.goal,
+        apiKey: apiKey !== undefined ? apiKey : currentCompany.apiKey,
+        budgetUsed: currentCompany.budgetUsed ?? 0,
+        governanceMode: governanceMode !== undefined ? governanceMode : currentCompany.governanceMode
+      };
+
+      saveCompany(nextCompany);
+      addActivity('system', `Company command settings updated.`);
+
+      const activities = getActivity();
+      const logs = activities
+        .slice()
+        .reverse()
+        .map(act => {
+          const prefix = act.type === 'system' ? 'System' : act.type === 'ceo' ? 'CEO' : act.type === 'error' ? 'Error' : 'Agent';
+          return `[${prefix}] ${act.message}`;
+        });
+
+      return NextResponse.json({
+        success: true,
+        state: {
+          ...nextCompany,
+          agents: getAgents(),
+          tickets: getTickets(),
+          logs
+        }
+      });
+    }
+
+    // ══════════════════════════════════════════════
     // ACTION: onboard  (also aliased as "initialize")
     // ══════════════════════════════════════════════
     if (action === 'onboard' || action === 'initialize') {
-      const { companyName, goal, apiKey, mission } = body;
+      const { companyName, goal, apiKey, mission, userName = 'Founder', industry = 'general' } = body;
 
       if (!companyName || !goal)
         return NextResponse.json({ error: 'companyName and goal are required' }, { status: 400 });
@@ -168,109 +383,131 @@ export async function POST(request: Request) {
         );
       }
 
-      // ── 1. Call Nvmix API to dynamically generate the agent roster ──
+      // ── 1. Build industry-specific agent roster via AI ──
       let agents: Agent[] = [];
+      const industryKey = (industry || 'other').toLowerCase().replace(/[^a-z]/g, '');
+      const fallbackRoster = INDUSTRY_AGENT_ROSTERS[industryKey] || DEFAULT_ROSTER;
 
       try {
-        const prompt = `You are an AI orchestration expert. Given a company named "${companyName}" with mission: "${mission || goal}", output ONLY a valid JSON array (no markdown, no explanation) of exactly 4 agent objects. Each object must have: id (string), role (string), name (string), avatar (emoji string), status ("working" for first agent, "sleeping" for others). Example: [{"id":"agent_ceo","role":"CEO","name":"Alpha-CEO","avatar":"💼","status":"working"}]`;
+        const agentCount = 7; // Always hire 7 agents for full company coverage
+        const industryLabel = industry || 'general business';
+        const prompt = `You are an expert AI company architect. A ${industryLabel} company named "${companyName}" is launching. The founder is ${userName}.
+Company goal: "${goal}"
+
+Hire exactly ${agentCount} specialized AI agents for this company. The first agent MUST be the CEO.
+Choose roles that are MOST RELEVANT for a ${industryLabel} company — covering operations, technical work, financial analysis, marketing/social media, compliance, customer relations, and any domain-specific roles.
+
+Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Example format:
+[{"id":"agent_ceo","role":"CEO","name":"Alpha-CEO","avatar":"💼","status":"working"},{"id":"agent_2","role":"Software Engineer","name":"CodeBot","avatar":"💻","status":"sleeping"}]
+
+Rules: all ids must be unique strings starting with "agent_", avatar must be a single emoji, status is "working" for CEO and "sleeping" for all others.`;
 
         const result = await callNvmixAPI(apiKey.trim(), [
           { role: 'system', content: prompt },
-          { role: 'user',   content: `Company: ${companyName}. Mission: ${mission || goal}. Output the JSON array now.` },
-        ]);
+          { role: 'user',   content: `Company: ${companyName}. Industry: ${industryLabel}. Goal: ${goal}. Output the JSON array of ${agentCount} agents now.` },
+        ], 25000);
         const content  = result?.choices?.[0]?.message?.content ?? '';
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        const jsonMatch = content.match(/\[[\s\S]*?\]/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            agents = parsed.map((a: any, i: number) => ({
-              id:     a.id     || `agent_${i}`,
-              role:   a.role   || `Agent ${i + 1}`,
-              name:   a.name   || `Nvmix-Bot-${i + 1}`,
-              avatar: a.avatar || '🤖',
+          if (Array.isArray(parsed) && parsed.length >= 4) {
+            agents = parsed.slice(0, 8).map((a: any, i: number) => ({
+              id:     (a.id || `agent_${i}`).replace(/[^a-z0-9_]/gi, '_'),
+              role:   a.role   || fallbackRoster[i]?.role   || `Agent ${i + 1}`,
+              name:   a.name   || fallbackRoster[i]?.name   || `Nvmix-Bot-${i + 1}`,
+              avatar: a.avatar || fallbackRoster[i]?.avatar || '🤖',
               status: i === 0  ? 'working' : 'sleeping',
             }));
           } else {
-            throw new Error('Parsed array is empty or invalid.');
+            throw new Error('Parsed array has fewer than 4 agents.');
           }
         } else {
           throw new Error('No JSON array found in API response.');
         }
       } catch (err: any) {
-        return NextResponse.json(
-          { error: `Autonomous onboarding failed: Failed to fetch agent roster from Nvmix API: ${err?.message || err}` },
-          { status: 502 }
-        );
+        console.warn('Dynamic agent generation failed, using industry fallback roster:', err?.message);
+        // Use industry-specific fallback roster instead of hard erroring
+        agents = fallbackRoster.map((a, i) => ({
+          id:     `agent_${i === 0 ? 'ceo' : a.role.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+          role:   a.role,
+          name:   a.name,
+          avatar: a.avatar,
+          status: i === 0 ? 'working' : 'sleeping',
+        }));
       }
 
-      // ── 2. Break goal into BACKLOG TICKETS dynamically ──
+      // ── 2. Generate 5-6 industry-specific backlog tickets ──
       let tickets: Ticket[] = [];
+      const nonCeoAgents = agents.slice(1); // exclude CEO from task assignment
       try {
-        const ticketsPrompt = `You are an AI project manager. Given a company named "${companyName}" with goal: "${goal}" and these agents hired: ${JSON.stringify(
+        const ticketCount = Math.min(6, nonCeoAgents.length + 1);
+        const ticketsPrompt = `You are an expert AI project manager. A ${industry || 'general'} company "${companyName}" has these agents: ${JSON.stringify(
           agents.map(a => ({ id: a.id, role: a.role, name: a.name }))
-        )}, generate a backlog of exactly 3 relevant, highly specific development/marketing/business tickets for the company. Output ONLY a valid JSON array (no markdown, no explanation) of exactly 3 ticket objects. Each object must have: id ("ticket_1", "ticket_2", "ticket_3"), title (string), description (string), assignedTo (string - one of the agent ids except ${agents[0]?.id || 'agent_ceo'}), status ("todo"), thought (string), output ("").`;
+        )}.
+Company goal: "${goal}"
+
+Create exactly ${ticketCount} highly specific, real-world backlog tasks for this company. Each task should be DIFFERENT in scope:
+- 1 task covering business strategy/planning
+- 1 task covering technical/system work
+- 1 task covering marketing/social media/content
+- 1 task covering financial/accounting/reports
+- 1 task covering operations/HR/compliance
+- 1 task covering customer/client facing work
+
+Assign each task to the MOST RELEVANT agent (NOT the CEO — agents: ${nonCeoAgents.map(a => `${a.id}=${a.role}`).join(', ')}).
+
+Output ONLY valid JSON array — no markdown, no explanation:
+[{"id":"ticket_1","title":"...","description":"...","assignedTo":"agent_id","status":"todo","thought":"...","output":""}]`;
 
         const ticketResult = await callNvmixAPI(apiKey.trim(), [
           { role: 'system', content: ticketsPrompt },
-          { role: 'user',   content: `Generate 3 backlog tickets for company: ${companyName}. Output JSON now.` },
-        ]);
+          { role: 'user',   content: `Generate ${ticketCount} backlog tickets for ${companyName} (${industry}). Output JSON now.` },
+        ], 25000);
         
         const ticketContent = ticketResult?.choices?.[0]?.message?.content ?? '';
-        const jsonMatch = ticketContent.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (Array.isArray(parsed) && parsed.length === 3) {
-            tickets = parsed.map((t: any, i: number) => ({
-              id: t.id || `ticket_${i + 1}`,
-              title: t.title || 'Dynamic swarming task',
-              description: t.description || 'Complete pending work unit.',
-              assignedTo: t.assignedTo || agents[Math.min(i + 1, agents.length - 1)].id,
-              status: 'todo',
-              thought: t.thought || 'Awaiting heartbeat execution.',
-              output: ''
-            }));
+        const ticketJsonMatch = ticketContent.match(/\[[\s\S]*?\]/);
+        if (ticketJsonMatch) {
+          const parsed = JSON.parse(ticketJsonMatch[0]);
+          if (Array.isArray(parsed) && parsed.length >= 3) {
+            const validAgentIds = new Set(agents.map(a => a.id));
+            tickets = parsed.slice(0, 6).map((t: any, i: number) => {
+              // Ensure assignedTo is a valid non-CEO agent
+              let assignedTo = t.assignedTo;
+              if (!validAgentIds.has(assignedTo) || assignedTo === agents[0]?.id) {
+                assignedTo = nonCeoAgents[i % nonCeoAgents.length]?.id || agents[1]?.id;
+              }
+              return {
+                id: `ticket_${i + 1}`,
+                title: t.title || `Task ${i + 1}`,
+                description: t.description || 'Complete this business task.',
+                assignedTo,
+                status: 'todo' as const,
+                thought: t.thought || 'Queued for execution.',
+                output: ''
+              };
+            });
           }
         }
       } catch (err) {
-        console.warn('Failed to dynamically generate tickets, falling back to static backlog:', err);
+        console.warn('Dynamic ticket generation failed, using industry fallback tickets:', err);
       }
 
-      // Fallback to static tickets if dynamic ticket creation failed
+      // Fallback industry-specific tickets
       if (tickets.length === 0) {
+        const t = nonCeoAgents;
         tickets = [
-          {
-            id:          'ticket_1',
-            title:       'Design system architecture & data models',
-            description: `Map out modular architecture structures and data schemas for ${companyName}.`,
-            assignedTo:  agents[1]?.id || 'agent_architect',
-            status:      'todo',
-            thought:     'Awaiting architectural heartbeat check.',
-            output:      '',
-          },
-          {
-            id:          'ticket_2',
-            title:       'Bootstrap core API & application files',
-            description: 'Create modular layout packages, API interfaces, and core application logic.',
-            assignedTo:  agents[2]?.id || 'agent_coder',
-            status:      'todo',
-            thought:     'Queued to start coding codebase packages.',
-            output:      '',
-          },
-          {
-            id:          'ticket_3',
-            title:       'Execute security validation & QA audits',
-            description: 'Perform type checks and secure environment scanning to audit code integrity.',
-            assignedTo:  agents[3]?.id || 'agent_qa',
-            status:      'todo',
-            thought:     'Ready to perform security checks on compile structures.',
-            output:      '',
-          },
+          { id: 'ticket_1', title: `Build ${companyName} operational strategy`, description: `Create a comprehensive operational roadmap and business strategy document for ${companyName}.`, assignedTo: t[0]?.id || agents[1]?.id, status: 'todo', thought: 'Analyzing company structure and drafting strategy.', output: '' },
+          { id: 'ticket_2', title: `Develop core ${industry || 'business'} systems`, description: `Build the primary technical systems, automations, and workflows for ${companyName}'s operations.`, assignedTo: t[1]?.id || agents[2]?.id, status: 'todo', thought: 'Designing system architecture and core workflows.', output: '' },
+          { id: 'ticket_3', title: 'Create social media content calendar', description: `Plan and write 30-day social media content for ${companyName} across LinkedIn, Instagram, and Twitter.`, assignedTo: t[2]?.id || agents[3]?.id, status: 'todo', thought: 'Researching brand voice and audience demographics.', output: '' },
+          { id: 'ticket_4', title: 'Generate financial reports & budget plan', description: `Produce quarterly financial report, budget allocation, and cash flow projections for ${companyName}.`, assignedTo: t[3]?.id || agents[Math.min(4, agents.length - 1)]?.id, status: 'todo', thought: 'Analyzing financial data and preparing reports.', output: '' },
+          { id: 'ticket_5', title: 'Draft compliance & policy documentation', description: `Write all required compliance policies, HR handbook, and legal framework documents for ${companyName}.`, assignedTo: t[4]?.id || agents[Math.min(5, agents.length - 1)]?.id, status: 'todo', thought: 'Reviewing regulatory requirements for compliance documents.', output: '' },
+          { id: 'ticket_6', title: 'Build client onboarding & support system', description: `Design and implement a client onboarding flow, FAQ, and customer support documentation for ${companyName}.`, assignedTo: t[5]?.id || agents[Math.min(6, agents.length - 1)]?.id, status: 'todo', thought: 'Mapping client journey and designing support workflows.', output: '' },
         ];
       }
 
       const nextCompany: CompanyState = {
         companyName,
-        mission: mission || `Build production pipelines for ${companyName}.`,
+        mission: mission || `${companyName} automates all ${industry || 'business'} operations with AI.`,
         goal,
         apiKey: apiKey.trim(),
         budgetUsed: 0,
@@ -281,27 +518,26 @@ export async function POST(request: Request) {
       saveAgents(agents);
       saveTickets(tickets);
 
-      // Clear legacy/init activity feed
-      const emptyActivity: any[] = [];
-      addActivity('system', `Swarm "${companyName}" launched successfully via Nvmix API.`);
-      addActivity('ceo', `${agents[0]?.name} hired to lead the mission.`);
-      addActivity('ceo', `Created ${tickets.length} backlog tickets for goal: "${goal}"`);
+      addActivity('system', `✅ "${companyName}" workspace launched by ${userName} via Nvmix AI.`);
+      addActivity('ceo', `${agents[0]?.name} hired as CEO — leading ${agents.length} specialized agents.`);
+      addActivity('ceo', `Hired ${agents.length - 1} team members: ${agents.slice(1).map(a => a.role).join(', ')}.`);
+      addActivity('ceo', `Created ${tickets.length} backlog tasks for goal: "${goal.substring(0, 80)}..."`);
 
-      // CEO Welcome Email to User
+      // CEO Welcome Email
       saveEmail({
         from: agents[0]?.name || 'CEO',
-        to: 'Founder (You)',
-        subject: `Welcome to ${companyName} — Swarm Deployed Successfully`,
-        body: `Greetings Founder,\n\nI am ${agents[0]?.name || 'your CEO'}, and I am pleased to confirm that the ${companyName} autonomous swarm has been successfully deployed.\n\nOur mission: ${mission || goal}\n\nI have recruited ${agents.length} specialized agents and created ${tickets.length} initial tasks in the backlog.\n\nThe team is ready to begin execution. Please pulse the swarm engine or enable Auto Runner to start task processing.\n\nBest regards,\n${agents[0]?.name || 'CEO'}`,
+        to: `${userName} (Founder)`,
+        subject: `Welcome to ${companyName} — Your AI Team is Ready`,
+        body: `Dear ${userName},\n\nI am ${agents[0]?.name || 'your CEO'}, and I'm thrilled to confirm that ${companyName} is now fully operational.\n\nIndustry: ${industry || 'General Business'}\nMission: ${mission || goal}\n\nYour AI team (${agents.length} agents):\n${agents.slice(1).map(a => `  • ${a.name} — ${a.role}`).join('\n')}\n\nBacklog tasks created: ${tickets.length}\n${tickets.map((t, i) => `  ${i + 1}. ${t.title}`).join('\n')}\n\nI will begin executing tasks immediately. Enable Auto Runner or press "Pulse" to start.\n\nReady to automate everything,\n${agents[0]?.name || 'CEO'}\n${companyName}`,
         status: 'draft'
       });
 
-      // CEO posts welcome in first chat session
+      // CEO posts welcome in chat
       const sessions = getChatSessions();
       if (sessions.length > 0) {
         saveChatMessage(sessions[0].id, {
           role: 'assistant',
-          content: `🚀 Welcome to ${companyName}! I'm ${agents[0]?.name || 'your CEO'}. The swarm is operational with ${agents.length} agents and ${tickets.length} tasks queued. Ready to begin execution.`,
+          content: `🚀 **${companyName} is live!**\n\nI'm ${agents[0]?.name}, your AI CEO. I've hired ${agents.length - 1} specialized agents for your ${industry || 'company'}:\n${agents.slice(1).map(a => `• **${a.name}** (${a.role})`).join('\n')}\n\n${tickets.length} tasks are queued and ready. Press **Pulse** or enable **Auto Runner** to start full automation.`,
           senderName: agents[0]?.name || 'CEO'
         });
       }
@@ -356,17 +592,69 @@ export async function POST(request: Request) {
 
         let codeOutput = '';
 
-        // Fetch real code from Nvmix API
+        // Fetch real output from Nvmix API with full workspace files context
         try {
+          const workspaceContext = getWorkspaceContext();
+          const assignedAgent = agents.find(a => a.id === ticket.assignedTo);
+          const agentRole = assignedAgent?.role || 'Business Agent';
+          const { format } = getOutputTypeForRole(agentRole);
+
+          // Build format-specific system prompt
+          let systemPrompt = '';
+          if (format === 'python_code') {
+            systemPrompt = `You are an expert ${agentRole} AI agent for ${company.companyName}. Your job is to write complete, production-ready Python code.
+Do NOT output placeholders or mock setups. Write REAL, fully working code with proper imports, classes, error handling, and logic.
+Output ONLY the raw Python code — no markdown fences, no explanation.
+${workspaceContext}`;
+          } else if (format === 'financial_report') {
+            systemPrompt = `You are an expert ${agentRole} AI agent for ${company.companyName}. Your job is to produce structured financial reports in CSV format.
+Create REAL financial data with proper headers, realistic numbers, and multiple rows.
+Format: CSV with clear headers. Include totals, summaries, and analysis rows.
+Output ONLY the raw CSV content — no markdown, no explanation.
+${workspaceContext}`;
+          } else if (format === 'social_content') {
+            systemPrompt = `You are an expert ${agentRole} AI agent for ${company.companyName}. Your job is to create compelling social media content.
+Write ready-to-post content for LinkedIn, Instagram, and Twitter/X.
+Include: post captions, hashtags, emojis, call-to-actions, and engagement hooks.
+Format in clean Markdown with sections for each platform.
+${workspaceContext}`;
+          } else if (format === 'compliance_report') {
+            systemPrompt = `You are an expert ${agentRole} AI agent for ${company.companyName}. Your job is to write comprehensive compliance and legal documents.
+Write REAL policies with proper legal language, sections, subsections, and requirements.
+Format in clean, professional Markdown with clear headings and numbered sections.
+${workspaceContext}`;
+          } else if (format === 'analysis_report') {
+            systemPrompt = `You are an expert ${agentRole} AI agent for ${company.companyName}. Your job is to produce detailed analytical reports.
+Include: executive summary, data analysis, findings, recommendations, and action items.
+Use real data, statistics, and industry benchmarks where applicable.
+Format in professional Markdown with clear sections and tables.
+${workspaceContext}`;
+          } else {
+            systemPrompt = `You are an expert ${agentRole} AI agent for ${company.companyName}. Your job is to produce comprehensive, professional business documents.
+Write in clear, professional language with proper structure, headings, and actionable content.
+Do NOT use placeholder content. Write REAL, detailed, usable content.
+Format in clean Markdown with proper sections.
+${workspaceContext}`;
+          }
+
+          const userPrompt = `Task: "${ticket.title}"
+Description: "${ticket.description}"
+Company Goal: "${company.goal}"
+Your Role: ${agentRole}
+Output Format: ${format}
+
+Produce the complete, high-quality ${format === 'python_code' ? 'Python script' : format === 'financial_report' ? 'CSV financial report' : 'document'} now. Be thorough, detailed, and production-ready:`;
+
+
           const result = await callNvmixAPI(company.apiKey.trim(), [
-            { role: 'system', content: 'You are an autonomous software agent. Output ONLY valid Python code (no markdown fences), 10–15 lines, for the given task.' },
-            { role: 'user',   content: `Write production Python code for: ${ticket.title}` },
-          ]);
+            { role: 'system', content: systemPrompt },
+            { role: 'user',   content: userPrompt },
+          ], 20000);
           const raw = result?.choices?.[0]?.message?.content ?? '';
           if (raw.trim().length > 20) {
             codeOutput = raw.trim();
           } else {
-            throw new Error('API returned empty or invalid code output.');
+            throw new Error('API returned empty or invalid output.');
           }
         } catch (err: any) {
           // Graceful error recovery — DON'T crash the heartbeat
@@ -399,8 +687,13 @@ export async function POST(request: Request) {
         }
 
         if (codeOutput) {
+          const assignedAgent2 = agents.find(a => a.id === ticket.assignedTo);
+          const agentRole2 = assignedAgent2?.role || 'Business Agent';
+          const { format: completedFormat } = getOutputTypeForRole(agentRole2);
+          const outputLabel = completedFormat === 'python_code' ? 'Python script' : completedFormat === 'financial_report' ? 'financial report (CSV)' : completedFormat === 'social_content' ? 'social media content' : 'business document';
+
           ticket.status  = 'awaiting';
-          ticket.thought = 'Compilation complete. Synthesized module code. Awaiting Board of Directors approval to merge.';
+          ticket.thought = `${outputLabel.charAt(0).toUpperCase() + outputLabel.slice(1)} complete. Awaiting Board approval to save and deploy.`;
           ticket.output  = codeOutput;
 
           agents.forEach((a) => {
@@ -567,7 +860,8 @@ export async function POST(request: Request) {
         
         // Save to workspace local disk!
         try {
-          const filename = getFilenameForTicket(ticket.title);
+          const targetAgent = agents.find((a) => a.id === ticket.assignedTo);
+          const filename = getFilenameForTicket(ticket.title, targetAgent?.role ?? 'Marketer');
           const creator = agentName(ticket.assignedTo);
           saveFile(filename, ticket.output || '# Completed module work', creator);
           addActivity('agent', `Saved completed asset to disk: "${filename}"`, ticket.assignedTo);

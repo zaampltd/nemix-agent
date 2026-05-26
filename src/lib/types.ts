@@ -57,7 +57,16 @@ export interface FileRegistryItem {
   path: string;
   createdBy: string;
   timestamp: string;
-  content?: string; // Optional field if we cache text on metadata, but normally we read from path
+  content?: string;
+  projectId?: string; // Associated Project ID
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  status: 'active' | 'completed';
 }
 
 export interface ActivityItem {

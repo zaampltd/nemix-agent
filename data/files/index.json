@@ -1,1 +1,107 @@
-[]
+[
+  {
+    "id": "file_ny8knxjq8_1779783006923",
+    "name": "campaign_blueprint.md",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\campaign_blueprint.md",
+    "createdBy": "Beta-Marketer",
+    "timestamp": "2026-05-26T08:10:06.923Z"
+  },
+  {
+    "id": "file_r4e0ai2nb_1779783006914",
+    "name": "traffic_analysis.md",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\traffic_analysis.md",
+    "createdBy": "Delta-Analyst",
+    "timestamp": "2026-05-26T08:10:06.914Z"
+  },
+  {
+    "id": "file_lwzulicfd_1779783006905",
+    "name": "lead_magnet.md",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\lead_magnet.md",
+    "createdBy": "Beta-Marketer",
+    "timestamp": "2026-05-26T08:10:06.905Z"
+  },
+  {
+    "id": "file_aemk2wy66_1779776744316",
+    "name": "campaign_blueprint.docx_extracted.txt",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\campaign_blueprint.docx_extracted.txt",
+    "createdBy": "System (Extracted)",
+    "timestamp": "2026-05-26T06:25:44.316Z"
+  },
+  {
+    "id": "file_gfyge4f9o_1779776744304",
+    "name": "traffic_analysis.docx_extracted.txt",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\traffic_analysis.docx_extracted.txt",
+    "createdBy": "System (Extracted)",
+    "timestamp": "2026-05-26T06:25:44.304Z"
+  },
+  {
+    "id": "file_taich1apt_1779776744298",
+    "name": "lead_magnet.docx_extracted.txt",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\lead_magnet.docx_extracted.txt",
+    "createdBy": "System (Extracted)",
+    "timestamp": "2026-05-26T06:25:44.298Z"
+  },
+  {
+    "id": "file_fpwpqs4s1_1779776743995",
+    "name": "campaign_blueprint.docx",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\campaign_blueprint.docx",
+    "createdBy": "Beta-Marketer",
+    "timestamp": "2026-05-26T06:25:43.995Z"
+  },
+  {
+    "id": "file_s6hjv03qi_1779776743976",
+    "name": "traffic_analysis.docx",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\traffic_analysis.docx",
+    "createdBy": "Delta-Analyst",
+    "timestamp": "2026-05-26T06:25:43.976Z"
+  },
+  {
+    "id": "file_m4ux9jtgu_1779776743951",
+    "name": "lead_magnet.docx",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\lead_magnet.docx",
+    "createdBy": "Beta-Marketer",
+    "timestamp": "2026-05-26T06:25:43.951Z"
+  },
+  {
+    "id": "file_im4v2ubns_1779775926065",
+    "name": "template.docx",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\template.docx",
+    "createdBy": "Delta-Analyst",
+    "timestamp": "2026-05-26T06:12:06.065Z"
+  },
+  {
+    "id": "file_c9cl2khz4_1779774060215",
+    "name": "Marketing Plan.docx",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\Marketing Plan.docx",
+    "createdBy": "Alpha-CEO",
+    "timestamp": "2026-05-26T05:41:00.215Z"
+  },
+  {
+    "id": "file_91kk0tm6l_1779769391760",
+    "name": "campaign_blueprint.py",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\campaign_blueprint.py",
+    "createdBy": "Beta-Marketer",
+    "timestamp": "2026-05-26T04:23:11.760Z"
+  },
+  {
+    "id": "file_vjmdf0lrm_1779769391748",
+    "name": "traffic_analysis.py",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\traffic_analysis.py",
+    "createdBy": "Delta-Analyst",
+    "timestamp": "2026-05-26T04:23:11.748Z"
+  },
+  {
+    "id": "file_o2clkc9t5_1779769391735",
+    "name": "crm_system.py",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\crm_system.py",
+    "createdBy": "Gamma-Dev",
+    "timestamp": "2026-05-26T04:23:11.735Z"
+  },
+  {
+    "id": "file_5f3uq8b0c_1779769391724",
+    "name": "lead_magnet.py",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Marketing_Company\\lead_magnet.py",
+    "createdBy": "Beta-Marketer",
+    "timestamp": "2026-05-26T04:23:11.724Z"
+  }
+]

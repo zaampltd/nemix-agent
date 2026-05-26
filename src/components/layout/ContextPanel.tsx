@@ -8,7 +8,7 @@ import {
 import { CompanyState, Agent, Ticket } from '@/lib/types';
 
 interface ContextPanelProps {
-  activeTab: 'Dashboard' | 'Team' | 'Chat' | 'Files' | 'Emails' | 'Settings';
+  activeTab: 'Dashboard' | 'Team' | 'Projects' | 'Chat' | 'Files' | 'Emails' | 'Settings';
   companyState: CompanyState;
   agents: Agent[];
   tickets: Ticket[];
@@ -42,17 +42,17 @@ export default function ContextPanel({
         return (
           <div className="space-y-6">
             {/* Mission Statement */}
-            <div className="space-y-2">
-              <h3 className="text-xs uppercase font-extrabold text-[var(--text-secondary)] tracking-wider">Mission Statement</h3>
+          <div className="space-y-2">
+              <h3 className="text-[10px] font-semibold text-[var(--text-muted)] tracking-wider uppercase">Mission</h3>
               <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-primary)] text-xs leading-relaxed text-[var(--text-primary)] font-medium">
-                {companyState.mission || 'Awaiting swarm deployment...'}
+                {companyState.mission || 'No mission set yet.'}
               </div>
             </div>
 
             {/* Orchestration Controls */}
             {onHeartbeat && (
               <div className="space-y-3">
-                <h3 className="text-xs uppercase font-extrabold text-[var(--text-secondary)] tracking-wider">Swarm Engine</h3>
+                <h3 className="text-[10px] font-semibold text-[var(--text-muted)] tracking-wider uppercase">AI Engine</h3>
                 <div className="p-4 rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-surface)] space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-[var(--text-secondary)]">Governance</span>
@@ -82,7 +82,7 @@ export default function ContextPanel({
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-200 btn-primary disabled:opacity-50 disabled:pointer-events-none"
                   >
                     <Activity className={`w-4 h-4 ${isHeartbeating ? 'animate-spin' : ''}`} />
-                    <span>{isHeartbeating ? 'Executing Cycle...' : 'Pulse Swarm'}</span>
+                    <span>{isHeartbeating ? 'Running...' : 'Run Now'}</span>
                   </button>
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function ContextPanel({
 
             {/* Engine Overview */}
             <div className="space-y-3">
-              <h3 className="text-xs uppercase font-extrabold text-[var(--text-secondary)] tracking-wider">Swarm Metrics</h3>
+              <h3 className="text-[10px] font-semibold text-[var(--text-muted)] tracking-wider uppercase">Activity</h3>
               <div className="grid grid-cols-2 gap-3.5">
                 <div className="p-3.5 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-surface)] flex flex-col gap-1">
                   <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Completed</span>
@@ -113,7 +113,7 @@ export default function ContextPanel({
         return (
           <div className="space-y-6">
             <div className="space-y-3">
-              <h3 className="text-xs uppercase font-extrabold text-[var(--text-secondary)] tracking-wider">Hired Roster</h3>
+              <h3 className="text-[10px] font-semibold text-[var(--text-muted)] tracking-wider uppercase">Your Team</h3>
               <div className="space-y-2">
                 {agents.map((agent) => (
                   <div key={agent.id} className="p-3 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-surface)] flex items-center gap-3">
@@ -122,7 +122,7 @@ export default function ContextPanel({
                       <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{agent.name}</h4>
                       <p className="text-[10px] font-semibold text-[var(--text-secondary)] truncate">{agent.role}</p>
                     </div>
-                    <span className={`w-2 h-2 rounded-full ${agent.status === 'working' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-600'}`} />
+                    <span className={`w-2 h-2 rounded-full ${agent.status === 'working' ? 'bg-emerald-500 animate-pulse' : 'bg-[var(--text-muted)]/50'}`} />
                   </div>
                 ))}
               </div>
@@ -145,6 +145,47 @@ export default function ContextPanel({
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        );
+
+      case 'Projects':
+        return (
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="text-xs uppercase font-extrabold text-[var(--text-secondary)] tracking-wider">Project Console</h3>
+              <div className="p-4 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-surface)] space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                    <Layers className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-[var(--text-primary)]">Active Project Workspace</span>
+                    <span className="text-[9px] text-[var(--text-secondary)] uppercase">Partitioned Drive</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-[var(--border-primary)] text-[10px] text-[var(--text-secondary)]">
+                  <div className="flex items-center justify-between">
+                    <span>Isolation Model:</span>
+                    <span className="text-blue-400 font-bold uppercase">Strict `projectId` Path</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Auto-Indexing:</span>
+                    <span className="text-emerald-500 font-bold uppercase">Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-surface)] space-y-3 text-[10px] text-[var(--text-secondary)]">
+              <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)]">
+                <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
+                <span>Tip: Active Project</span>
+              </div>
+              <p className="leading-relaxed">
+                Files uploaded or generated will be automatically isolated within your <strong className="text-[var(--text-primary)]">Active Workspace</strong>. Toggle active projects using the circular badge switch.
+              </p>
             </div>
           </div>
         );
@@ -292,11 +333,11 @@ export default function ContextPanel({
     <aside className="w-80 border-l border-[var(--border-primary)] bg-[var(--bg-card)] backdrop-blur-md p-6 flex flex-col h-screen overflow-y-auto">
       {/* Title */}
       <div className="flex items-center justify-between pb-5 border-b border-[var(--border-primary)] mb-6">
-        <h2 className="text-sm font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+        <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
           <Layers className="w-4.5 h-4.5 text-blue-500" />
-          <span>Mission Control</span>
+          <span>Workspace</span>
         </h2>
-        <span className="text-[9px] font-extrabold bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+        <span className="text-[9px] font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
           Live
         </span>
       </div>
