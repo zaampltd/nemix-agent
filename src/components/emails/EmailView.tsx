@@ -1,15 +1,44 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Search, Send, X, Trash2, CheckCircle2, ChevronDown, ChevronUp, AlertCircle, Inbox } from 'lucide-react';
+import { 
+  Mail, Search, Send, Trash2, CheckCircle2, ChevronRight, 
+  AlertCircle, Inbox, User, CornerUpLeft, Clock, Shield, Sparkles 
+} from 'lucide-react';
 import { Email } from '@/lib/types';
+
+// Helper for agent specific avatar design
+const getAvatarInitials = (name: string) => {
+  if (!name) return '🤖';
+  if (name.toLowerCase().includes('founder') || name.toLowerCase().includes('you')) return '👑';
+  const parts = name.split('-');
+  if (parts.length > 1) {
+    return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+  }
+  const words = name.split(' ');
+  if (words.length > 1) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
+const getAvatarGradient = (name: string) => {
+  const lower = name.toLowerCase();
+  if (lower.includes('ceo')) return 'from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/10';
+  if (lower.includes('hr') || lower.includes('helen')) return 'from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/10';
+  if (lower.includes('architect') || lower.includes('design')) return 'from-purple-500 to-pink-600 text-white shadow-md shadow-purple-500/10';
+  if (lower.includes('coder') || lower.includes('developer') || lower.includes('dev')) return 'from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/10';
+  if (lower.includes('founder') || lower.includes('you')) return 'from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/10';
+  return 'from-slate-500 to-slate-700 text-white';
+};
 
 export default function EmailView() {
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [subTab, setSubTab] = useState<'inbox' | 'drafts' | 'sent'>('inbox');
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedEmailId, setExpandedEmailId] = useState<string | null>(null);
+  const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
+  
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
@@ -44,8 +73,11 @@ export default function EmailView() {
       });
       const data = await res.json();
       if (data.success) {
-        // Refetch emails list
         fetchEmails();
+        // If we cancel/send a draft, clear the selected view or select the next one
+        if (selectedEmailId === id) {
+          setSelectedEmailId(null);
+        }
       }
     } catch (err) {
       console.error('Failed to update email status:', err);
@@ -96,7 +128,6 @@ export default function EmailView() {
     } else if (subTab === 'drafts') {
       isMatchingTab = email.status === 'draft';
     } else {
-      // sent: status is 'sent' AND not an inbox email (avoid duplicates)
       isMatchingTab = email.status === 'sent' && !isInboxEmail(email);
     }
     const isMatchingSearch = 
@@ -107,262 +138,321 @@ export default function EmailView() {
     return isMatchingTab && isMatchingSearch;
   });
 
-  const toggleExpand = (id: string) => {
-    setExpandedEmailId(prev => (prev === id ? null : id));
-  };
+  // Auto-select first email in tab if none is selected
+  useEffect(() => {
+    if (!loading && filteredEmails.length > 0 && !selectedEmailId) {
+      setSelectedEmailId(filteredEmails[0].id);
+    }
+  }, [filteredEmails, loading, selectedEmailId]);
+
+  const selectedEmail = filteredEmails.find(e => e.id === selectedEmailId);
+
+  const inboxCount = emails.filter(e => isInboxEmail(e)).length;
+  const draftCount = emails.filter(e => e.status === 'draft').length;
+  const sentCount = emails.filter(e => e.status === 'sent' && !isInboxEmail(e)).length;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden space-y-4">
+    <div className="flex-1 flex flex-col overflow-hidden space-y-4 h-full">
       
-      {/* Header */}
-      <div className="flex justify-between items-center shrink-0 border-b border-[var(--border-primary)]/30 pb-4 select-none">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-950/20 border border-purple-500/20 flex items-center justify-center">
-            <Mail className="w-4.5 h-4.5 text-purple-400 animate-pulse" />
+      {/* Main Mailroom Split Pane Workspace */}
+      <div className="flex-1 flex overflow-hidden h-full gap-5">
+        
+        {/* ==================== LEFT COLUMN: EMAIL LIST ==================== */}
+        <div className="w-[320px] md:w-[350px] shrink-0 flex flex-col pr-5 border-r border-[var(--border-primary)]/20 h-full overflow-hidden select-none">
+          
+          {/* Segmented Sub-tabs */}
+          <div className="flex bg-[var(--bg-surface)] border border-[var(--border-primary)] p-0.5 rounded-xl shadow-inner shrink-0 text-[9px] font-black uppercase tracking-wider mb-3">
+            <button
+              onClick={() => { setSubTab('inbox'); setSelectedEmailId(null); setReplyingToId(null); }}
+              className={`flex-1 py-2 rounded-lg transition-all ${
+                subTab === 'inbox'
+                  ? 'bg-purple-600/15 border border-purple-500/20 text-purple-400 font-extrabold'
+                  : 'text-[var(--text-secondary)] hover:text-white'
+              }`}
+            >
+              Inbox ({inboxCount})
+            </button>
+            <button
+              onClick={() => { setSubTab('drafts'); setSelectedEmailId(null); setReplyingToId(null); }}
+              className={`flex-1 py-2 rounded-lg transition-all ${
+                subTab === 'drafts'
+                  ? 'bg-purple-600/15 border border-purple-500/20 text-purple-400 font-extrabold'
+                  : 'text-[var(--text-secondary)] hover:text-white'
+              }`}
+            >
+              Drafts ({draftCount})
+            </button>
+            <button
+              onClick={() => { setSubTab('sent'); setSelectedEmailId(null); setReplyingToId(null); }}
+              className={`flex-1 py-2 rounded-lg transition-all ${
+                subTab === 'sent'
+                  ? 'bg-purple-600/15 border border-purple-500/20 text-purple-400 font-extrabold'
+                  : 'text-[var(--text-secondary)] hover:text-white'
+              }`}
+            >
+              Sent ({sentCount})
+            </button>
           </div>
-          <div>
-            <h3 className="text-xs font-black text-[var(--text-primary)] uppercase tracking-wider block leading-none">
-              Autonomous Swarm Mailroom
-            </h3>
-            <span className="text-[8px] text-[var(--text-secondary)] uppercase font-mono tracking-widest mt-1 block">
-              review and authorize outgoing agent communications
-            </span>
+
+          {/* Search box */}
+          <div className="relative shrink-0 mb-3.5">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+              <Search className="w-3.5 h-3.5" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search mails..."
+              className="w-full pl-9 pr-3 py-2 bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-xl text-xs font-mono text-[var(--text-primary)] outline-none focus:border-purple-500/40 shadow-inner"
+            />
           </div>
-        </div>
 
-        {/* Sub-tabs */}
-        <div className="flex bg-[var(--bg-surface)] border border-[var(--border-primary)] p-1 rounded-xl shadow-inner shrink-0 text-[10px] font-bold uppercase tracking-wider">
-          <button
-            onClick={() => { setSubTab('inbox'); setExpandedEmailId(null); }}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              subTab === 'inbox'
-                ? 'bg-purple-600/15 border border-purple-500/20 text-purple-400 font-extrabold'
-                : 'text-[var(--text-secondary)] hover:text-white'
-            }`}
-          >
-            Inbox ({emails.filter(e => e.to.toLowerCase().includes('founder') || e.to.toLowerCase().includes('you')).length})
-          </button>
-          <button
-            onClick={() => { setSubTab('drafts'); setExpandedEmailId(null); }}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              subTab === 'drafts'
-                ? 'bg-purple-600/15 border border-purple-500/20 text-purple-400 font-extrabold'
-                : 'text-[var(--text-secondary)] hover:text-white'
-            }`}
-          >
-            Review Queue ({emails.filter(e => e.status === 'draft').length})
-          </button>
-          <button
-            onClick={() => { setSubTab('sent'); setExpandedEmailId(null); }}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              subTab === 'sent'
-                ? 'bg-purple-600/15 border border-purple-500/20 text-purple-400 font-extrabold'
-                : 'text-[var(--text-secondary)] hover:text-white'
-            }`}
-          >
-            Sent Archive ({emails.filter(e => e.status === 'sent' && !(e.to.toLowerCase().includes('founder') || e.to.toLowerCase().includes('you'))).length})
-          </button>
-        </div>
-      </div>
+          {/* Scrollable Email Row Cards */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 pb-6">
+            {loading ? (
+              <div className="text-center py-20 text-[var(--text-muted)] text-[10px] font-bold uppercase tracking-widest animate-pulse">
+                Retrieving mailbox...
+              </div>
+            ) : filteredEmails.length === 0 ? (
+              <div className="border border-dashed border-[var(--border-primary)] rounded-xl py-12 px-4 text-center text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider flex flex-col items-center justify-center gap-2">
+                <Mail className="w-6 h-6 text-[var(--text-muted)]" />
+                <span>Empty Mailbox</span>
+              </div>
+            ) : (
+              filteredEmails.map((email) => {
+                const isSelected = selectedEmailId === email.id;
+                let timeStr = '';
+                try {
+                  timeStr = new Date(email.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
+                } catch {
+                  timeStr = '';
+                }
 
-      {/* Search Filter */}
-      <div className="relative shrink-0 select-none">
-        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">
-          <Search className="w-4 h-4" />
-        </div>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          placeholder="Search corporate emails by subject, recipient, sender, body..."
-          className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-xl text-xs font-mono text-[var(--text-primary)] outline-none focus:border-purple-500/40 shadow-inner"
-        />
-      </div>
-
-      {/* Emails list */}
-      <div className="flex-1 overflow-y-auto pr-1.5 custom-scrollbar space-y-3.5 pb-6">
-        {loading ? (
-          <div className="text-center py-20 text-[var(--text-muted)] text-xs font-bold uppercase tracking-widest animate-pulse select-none">
-            Retrieving mailbox entries...
-          </div>
-        ) : filteredEmails.length === 0 ? (
-          <div className="border border-dashed border-[var(--border-primary)] rounded-2xl py-20 text-center text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider flex flex-col items-center justify-center gap-2 select-none">
-            <Mail className="w-8 h-8 text-[var(--text-muted)]" />
-            <span>{subTab === 'inbox' ? 'No emails in your inbox' : subTab === 'drafts' ? 'No emails awaiting review' : 'No sent emails found'}</span>
-            {subTab === 'inbox' && (
-              <p className="text-[9px] text-[var(--text-muted)] font-medium lowercase tracking-normal max-w-xs mt-1 leading-normal">
-                Emails addressed to you (Founder) from your swarm agents will appear here.
-              </p>
-            )}
-            {subTab === 'drafts' && (
-              <p className="text-[9px] text-[var(--text-muted)] font-medium lowercase tracking-normal max-w-xs mt-1 leading-normal">
-                Agents draft professional outbound communications (e.g. investor pitches, marketing dispatches, code sync briefs) for your authorization.
-              </p>
-            )}
-          </div>
-        ) : (
-          filteredEmails.map((email) => {
-            const isExpanded = expandedEmailId === email.id;
-            let timeStr = '';
-            try {
-              timeStr = new Date(email.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            } catch {
-              timeStr = '';
-            }
-
-            return (
-              <div 
-                key={email.id} 
-                className={`bg-[var(--bg-card)] border rounded-2xl transition-all duration-300 shadow-md ${
-                  isExpanded 
-                    ? 'border-purple-500/25 bg-[var(--bg-surface-hover)] shadow-lg' 
-                    : 'border-[var(--border-primary)] hover:border-purple-500/15 hover:bg-[var(--bg-surface-hover)]'
-                }`}
-              >
-                {/* Collapsed Header view */}
-                <div 
-                  onClick={() => toggleExpand(email.id)}
-                  className="p-4.5 flex items-center justify-between cursor-pointer select-none"
-                >
-                  <div className="flex items-center gap-3.5 min-w-0 pr-4">
-                    <div className="w-9 h-9 bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-xl flex items-center justify-center shrink-0 shadow-inner">
-                      <Mail className="w-4 h-4 text-purple-400" />
+                return (
+                  <div
+                    key={email.id}
+                    onClick={() => { setSelectedEmailId(email.id); setReplyingToId(null); }}
+                    className={`p-3.5 border rounded-xl flex items-start gap-3 cursor-pointer transition-all duration-200 select-none ${
+                      isSelected
+                        ? 'border-purple-500/35 bg-purple-500/5 shadow-md'
+                        : 'border-[var(--border-primary)] bg-[var(--bg-surface)] hover:border-purple-500/15 hover:bg-[var(--bg-surface-hover)]'
+                    }`}
+                  >
+                    {/* Circle Avatar initials */}
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-tr ${getAvatarGradient(email.from)} flex items-center justify-center font-bold text-xs shrink-0`}>
+                      {getAvatarInitials(email.from)}
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs font-black uppercase text-[var(--text-primary)] truncate leading-tight group-hover:text-purple-400">
+                    
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-black uppercase text-[var(--text-primary)] truncate max-w-[130px]">
+                          {email.from}
+                        </span>
+                        <span className="text-[8px] font-mono text-[var(--text-secondary)] shrink-0">
+                          {timeStr}
+                        </span>
+                      </div>
+                      <h4 className="text-[11px] font-bold text-[var(--text-primary)] truncate mt-1 leading-tight">
                         {email.subject}
                       </h4>
-                      <p className="text-[8px] text-[var(--text-secondary)] uppercase mt-1.5 font-mono font-semibold tracking-wide">
-                        From: <span className="text-[var(--text-primary)] font-bold">{email.from}</span> • To: <span className="text-[var(--text-primary)] font-bold">{email.to}</span>
+                      <p className="text-[10px] text-[var(--text-secondary)] truncate mt-1 font-medium font-sans">
+                        {email.body}
                       </p>
                     </div>
                   </div>
+                );
+              })
+            )}
+          </div>
+
+        </div>
+
+        {/* ==================== RIGHT COLUMN: EMAIL READER ==================== */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+          
+          {selectedEmail ? (
+            <div className="flex-1 flex flex-col h-full overflow-hidden bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl shadow-lg relative">
+              
+              {/* Scrollable Reader Area */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6 pb-32">
+                
+                {/* Header Title section */}
+                <div className="flex justify-between items-start border-b border-[var(--border-primary)]/20 pb-5">
+                  <div className="space-y-2">
+                    <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded bg-purple-600/10 text-purple-400 border border-purple-500/10">
+                      Telemetry Thread
+                    </span>
+                    <h2 className="text-base font-black text-[var(--text-primary)] tracking-tight leading-tight select-text">
+                      {selectedEmail.subject}
+                    </h2>
+                  </div>
                   
-                  <div className="flex items-center gap-4 shrink-0 font-mono text-[9px] font-bold text-[var(--text-secondary)]">
-                    <span>{timeStr}</span>
-                    {isExpanded ? <ChevronUp className="w-4.5 h-4.5" /> : <ChevronDown className="w-4.5 h-4.5" />}
+                  {/* Status Indicator */}
+                  <div className="shrink-0 text-[9px] font-mono font-bold">
+                    {selectedEmail.status === 'draft' ? (
+                      <span className="text-yellow-500 uppercase tracking-widest flex items-center gap-1.5 leading-none">
+                        <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse" /> Pending Review
+                      </span>
+                    ) : (
+                      <span className="text-emerald-500 uppercase tracking-widest flex items-center gap-1.5 leading-none">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_4px_#10b981]" /> Dispatched
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Expanded content view */}
-                {isExpanded && (
-                  <div className="px-6 pb-5 pt-1.5 border-t border-[var(--border-primary)]/30 space-y-4 animate-fadeIn">
-                    <div className="space-y-1">
-                      <div className="text-[8px] font-black text-purple-400 uppercase tracking-widest select-none">
-                        Email Message Details
-                      </div>
-                      <div className="text-[10px] text-[var(--text-secondary)] font-mono space-y-0.5 select-all">
-                        <div><strong className="text-[var(--text-primary)]">Sender:</strong> {email.from}</div>
-                        <div><strong className="text-[var(--text-primary)]">Recipient:</strong> {email.to}</div>
-                        <div><strong className="text-[var(--text-primary)]">Subject:</strong> {email.subject}</div>
-                      </div>
+                {/* Sender/Recipient Detail Pane */}
+                <div className="flex items-center gap-4 bg-[var(--bg-surface)] p-3 border border-[var(--border-primary)] rounded-xl select-none">
+                  <div className={`w-9 h-9 rounded-lg bg-gradient-to-tr ${getAvatarGradient(selectedEmail.from)} flex items-center justify-center font-bold text-xs shrink-0`}>
+                    {getAvatarInitials(selectedEmail.from)}
+                  </div>
+                  <div className="min-w-0 flex-1 font-mono text-[9px] text-[var(--text-secondary)] space-y-0.5">
+                    <div>
+                      <strong className="text-[var(--text-primary)]">From:</strong> {selectedEmail.from}
                     </div>
-
-                    <div className="bg-[var(--bg-surface)] border border-[var(--border-primary)]/40 p-4.5 rounded-xl text-xs text-[var(--text-primary)] font-medium leading-relaxed select-text shadow-inner">
-                      {email.body.split('\n').map((para, i) => (
-                        <p key={i} className={i > 0 ? 'mt-3.5' : ''}>{para}</p>
-                      ))}
+                    <div>
+                      <strong className="text-[var(--text-primary)]">To:</strong> {selectedEmail.to}
                     </div>
+                    <div>
+                      <strong className="text-[var(--text-primary)]">Date:</strong> {new Date(selectedEmail.timestamp).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
 
-                    {subTab === 'inbox' && (
-                      <div className="border-t border-[var(--border-primary)]/30 pt-4.5 space-y-3">
-                        <div className="text-[8px] font-black text-purple-400 uppercase tracking-widest select-none">
-                          Quick Reply to Agent
-                        </div>
-                        {replyingToId === email.id ? (
-                          <div className="space-y-3.5">
-                            <textarea
-                              rows={4}
-                              value={replyText}
-                              onChange={e => setReplyText(e.target.value)}
-                              placeholder={`Type your reply to ${email.from}... (e.g. "Great work! Please proceed to hire a designer" or "create a task to optimize our database schemas")`}
-                              className="w-full px-3.5 py-3 bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-xl text-xs font-mono text-[var(--text-primary)] outline-none focus:border-purple-500/40 shadow-inner resize-none leading-relaxed"
-                            />
-                            <div className="flex justify-end gap-3 select-none">
-                              <button
-                                onClick={() => {
-                                  setReplyingToId(null);
-                                  setReplyText('');
-                                }}
-                                disabled={sendingReply}
-                                className="h-8.5 px-4 rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40"
-                              >
-                                <span>Cancel</span>
-                              </button>
-                              <button
-                                onClick={() => handleSendReply(email)}
-                                disabled={sendingReply || !replyText.trim()}
-                                className="h-8.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-[9px] font-extrabold tracking-widest uppercase flex items-center gap-1.5 transition-all shadow-md shadow-purple-500/10 cursor-pointer disabled:opacity-40"
-                              >
-                                {sendingReply ? (
-                                  <>
-                                    <div className="w-3.5 h-3.5 border-2 border-t-transparent border-white rounded-full animate-spin" />
-                                    <span>Agent working...</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Send className="w-3.5 h-3.5 text-white" />
-                                    <span>Send Reply</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col gap-3">
-                            {replySuccessId === email.id && (
-                              <div className="flex items-center gap-2.5 p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-[10px] font-mono select-none animate-slideUp">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                                <span>Reply successfully dispatched! {email.from} has received your request and is swarming on it in the background. Check your Sent Archive or Activity Feed.</span>
-                              </div>
-                            )}
-                            <button
-                              onClick={() => {
-                                setReplyingToId(email.id);
-                                setReplyText('');
-                              }}
-                              className="h-8.5 px-4 rounded-xl bg-purple-600/15 border border-purple-500/20 hover:bg-purple-600/25 text-purple-400 text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer select-none self-start"
-                            >
-                              <Mail className="w-3.5 h-3.5 text-purple-400" />
-                              <span>Reply to Agent</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                {/* Main Body content */}
+                <div className="text-xs text-[var(--text-primary)] font-medium leading-relaxed select-text space-y-3.5 bg-[var(--bg-surface)]/20 border border-[var(--border-primary)]/30 p-5 rounded-xl shadow-inner">
+                  {selectedEmail.body.split('\n').map((para, i) => (
+                    <p key={i} className={i > 0 ? 'mt-2.5' : ''}>{para}</p>
+                  ))}
+                </div>
 
-                    {email.status === 'draft' && (
-                      <div className="flex justify-end gap-3 select-none">
-                        <button
-                          onClick={() => handleUpdateStatus(email.id, 'cancelled')}
-                          className="h-8.5 px-4 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                          <span>Wipe Draft</span>
-                        </button>
-                        <button
-                          onClick={() => handleUpdateStatus(email.id, 'sent')}
-                          className="h-8.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-[9px] font-extrabold tracking-widest uppercase flex items-center gap-1.5 transition-all shadow-md shadow-purple-500/10 cursor-pointer"
-                        >
-                          <Send className="w-3.5 h-3.5 text-white" />
-                          <span>Approve & Send</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {subTab !== 'inbox' && email.status === 'sent' && (
-                      <div className="flex items-center gap-1.5 text-emerald-500 text-[10px] font-bold uppercase tracking-wider select-none justify-end">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span>Dispatched successfully</span>
-                      </div>
-                    )}
+                {/* Outbound Authorization Buttons (Draft tab only) */}
+                {selectedEmail.status === 'draft' && (
+                  <div className="flex justify-end gap-3 select-none pt-4 border-t border-[var(--border-primary)]/20">
+                    <button
+                      onClick={() => handleUpdateStatus(selectedEmail.id, 'cancelled')}
+                      className="h-9 px-4.5 rounded-xl border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 text-[10px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                      <span>Wipe Draft</span>
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(selectedEmail.id, 'sent')}
+                      className="h-9 px-4.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-[10px] font-extrabold tracking-widest uppercase flex items-center gap-1.5 transition-all shadow-md shadow-purple-500/15 cursor-pointer"
+                    >
+                      <Send className="w-4 h-4 text-white" />
+                      <span>Approve & Discard Outbound</span>
+                    </button>
                   </div>
                 )}
 
               </div>
-            );
-          })
-        )}
+
+              {/* Pinned Reply / Actions Absolute Footer */}
+              {subTab === 'inbox' && (
+                <div className="absolute bottom-0 inset-x-0 bg-[var(--bg-card)] border-t border-[var(--border-primary)]/20 p-4.5 z-10">
+                  {replyingToId === selectedEmail.id ? (
+                    <div className="space-y-3">
+                      <textarea
+                        rows={3}
+                        value={replyText}
+                        onChange={e => setReplyText(e.target.value)}
+                        placeholder={`Instruct ${selectedEmail.from}... (e.g. "Hire a frontend developer" or "optimize compilation seeders")`}
+                        className="w-full px-3.5 py-2.5 bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-xl text-xs font-mono text-[var(--text-primary)] outline-none focus:border-purple-500/40 shadow-inner resize-none leading-relaxed"
+                      />
+                      <div className="flex justify-end gap-3 select-none">
+                        <button
+                          onClick={() => {
+                            setReplyingToId(null);
+                            setReplyText('');
+                          }}
+                          disabled={sendingReply}
+                          className="h-8 px-3.5 rounded-lg border border-[var(--border-primary)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-40"
+                        >
+                          <span>Cancel</span>
+                        </button>
+                        <button
+                          onClick={() => handleSendReply(selectedEmail)}
+                          disabled={sendingReply || !replyText.trim()}
+                          className="h-8 px-4 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-[9px] font-extrabold tracking-widest uppercase flex items-center gap-1 transition-all shadow-md shadow-purple-500/10 cursor-pointer disabled:opacity-40"
+                        >
+                          {sendingReply ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                              <span>Swarming...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-3 h-3 text-white" />
+                              <span>Dispatch Reply</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {replySuccessId === selectedEmail.id && (
+                        <div className="flex items-center gap-2.5 p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-xl text-emerald-400 text-[10px] font-mono select-none animate-slideUp">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <span>Reply dispatched! {selectedEmail.from} is swarming on your requests in the background.</span>
+                        </div>
+                      )}
+                      
+                      <button
+                        onClick={() => {
+                          setReplyingToId(selectedEmail.id);
+                          setReplyText('');
+                        }}
+                        className="h-9 px-4 rounded-xl bg-purple-600/15 border border-purple-500/20 hover:bg-purple-600/25 text-purple-400 text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer select-none self-start"
+                      >
+                        <CornerUpLeft className="w-4.5 h-4.5 text-purple-400" />
+                        <span>Reply to Agent</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
+          ) : (
+            /* Premium Empty State Screen */
+            <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--bg-card)] border border-[var(--border-primary)]/45 rounded-2xl shadow-lg select-none">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 rounded-full bg-purple-500/5 blur-xl w-16 h-16 pointer-events-none" />
+                <div className="w-16 h-16 rounded-2xl bg-purple-950/20 border border-purple-500/20 flex items-center justify-center relative">
+                  <Mail className="w-7 h-7 text-purple-400 animate-pulse" />
+                  <Sparkles className="w-4.5 h-4.5 text-purple-300 absolute -top-1 -right-1 animate-bounce" />
+                </div>
+              </div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-[var(--text-primary)]">
+                Autonomous Mail Intelligence
+              </h3>
+              <p className="text-[10px] text-[var(--text-secondary)] font-mono uppercase tracking-widest mt-2 block">
+                Select a swarming telemetry thread to inspect
+              </p>
+              
+              {/* Telemetry Stats inside Empty State */}
+              <div className="mt-8 grid grid-cols-3 gap-4 w-full max-w-sm text-center">
+                <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-primary)]/30 rounded-xl space-y-1">
+                  <span className="text-[8px] font-black text-blue-400 uppercase block leading-none">Inbox</span>
+                  <span className="text-xs font-black text-[var(--text-primary)]">{inboxCount} threads</span>
+                </div>
+                <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-primary)]/30 rounded-xl space-y-1">
+                  <span className="text-[8px] font-black text-yellow-500 uppercase block leading-none">Drafts</span>
+                  <span className="text-xs font-black text-[var(--text-primary)]">{draftCount} items</span>
+                </div>
+                <div className="p-3 bg-[var(--bg-surface)] border border-[var(--border-primary)]/30 rounded-xl space-y-1">
+                  <span className="text-[8px] font-black text-emerald-400 uppercase block leading-none">Sent</span>
+                  <span className="text-xs font-black text-[var(--text-primary)]">{sentCount} entries</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+
       </div>
 
     </div>
