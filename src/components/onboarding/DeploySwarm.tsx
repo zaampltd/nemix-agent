@@ -89,7 +89,7 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
     const trimmed = apiKey.trim();
     if (!trimmed) return;
 
-    // Immediately reject non-Nvmix keys
+    // Immediately reject non-Nvmix keys — strict format check
     if (!trimmed.startsWith('nvx_') || trimmed.length < 20) {
       setKeyValid(false);
       return;
@@ -101,15 +101,24 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${trimmed}` },
         body: JSON.stringify({ model: 'nvmix-inference-v1', messages: [{ role: 'user', content: 'ping' }] }),
-        signal: AbortSignal.timeout(8000)
+        signal: AbortSignal.timeout(12000)
       });
-      const valid = res.ok || res.status === 200;
+
+      // STRICT: only accept HTTP 200/OK — never auto-accept on error responses
+      const valid = res.ok && res.status === 200;
       setKeyValid(valid);
-      if (valid) localStorage.setItem('nvmix_agent_key', trimmed);
-    } catch {
-      // Network issue — accept the key format as valid for now
-      setKeyValid(true);
-      localStorage.setItem('nvmix_agent_key', trimmed);
+      if (valid) {
+        localStorage.setItem('nvmix_agent_key', trimmed);
+      } else {
+        // Remove any previously stored key if this one fails validation
+        localStorage.removeItem('nvmix_agent_key');
+      }
+    } catch (err: any) {
+      // Timeout, abort, or network failure — NEVER auto-accept.
+      // A key that can't be verified is treated as invalid.
+      console.warn('[Nvmix] Key validation failed:', err?.message || err);
+      setKeyValid(false);
+      localStorage.removeItem('nvmix_agent_key');
     } finally {
       setKeyValidating(false);
     }
