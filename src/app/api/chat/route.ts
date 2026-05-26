@@ -3,6 +3,8 @@ import {
   getCompany, 
   getAgents, 
   getTickets, 
+  saveTickets,
+  saveEmail,
   saveChatMessage, 
   getChatMessages, 
   createChatSession, 
@@ -105,6 +107,73 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
       senderName: 'User'
     });
 
+    let directiveResponse = '';
+
+    // CEO Task Delegation & Command Parser (in # ceo-office or when CEO is default)
+    const lowerChannel = channel?.toLowerCase() || '';
+    const isCeoResponder = targetAgent?.id === agents[0]?.id || lowerChannel.includes('ceo') || lowerChannel.includes('office');
+    
+    if (isCeoResponder) {
+      // A. Create Task: "create task {title} - {description}" or "add task {title}"
+      const createMatch = message.match(/(?:create|add|new)\s+(?:task|ticket)\s+['"“]?([^'\n"“”:\-]+)['"”]?(?:\s*[:\-]\s*(.+))?/i);
+      if (createMatch) {
+        const title = createMatch[1].trim();
+        const description = createMatch[2]?.trim() || `Task created from chat directive: "${title}"`;
+        
+        // Find a specialized non-CEO agent to assign to
+        const nonCeoAgents = agents.filter(a => !a.name.toLowerCase().includes('ceo'));
+        let assignedAgent = nonCeoAgents[0] || agents[0]; // fallback to CEO if no others
+        
+        const lowerTitle = title.toLowerCase();
+        const lowerDesc = description.toLowerCase();
+        if (lowerTitle.includes('code') || lowerTitle.includes('dev') || lowerTitle.includes('api') || lowerTitle.includes('implement') || lowerTitle.includes('database') || lowerTitle.includes('route') || lowerDesc.includes('code') || lowerDesc.includes('dev')) {
+          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('coder') || a.role.toLowerCase().includes('dev') || a.role.toLowerCase().includes('developer')) || assignedAgent;
+        } else if (lowerTitle.includes('architect') || lowerTitle.includes('design') || lowerTitle.includes('db schema') || lowerTitle.includes('plan') || lowerDesc.includes('architect') || lowerDesc.includes('design')) {
+          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('architect')) || assignedAgent;
+        } else if (lowerTitle.includes('test') || lowerTitle.includes('qa') || lowerTitle.includes('audit') || lowerTitle.includes('verify') || lowerTitle.includes('check') || lowerDesc.includes('test') || lowerDesc.includes('qa')) {
+          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('qa') || a.role.toLowerCase().includes('audit') || a.role.toLowerCase().includes('tester')) || assignedAgent;
+        }
+
+        const newTicket = {
+          id: `ticket_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
+          title,
+          description,
+          assignedTo: assignedAgent.id,
+          status: 'todo' as const,
+          thought: 'Initialized via CEO chat delegation.',
+          output: ''
+        };
+
+        const updatedTickets = [...tickets, newTicket];
+        saveTickets(updatedTickets);
+        addActivity('ceo', `Created and delegated task "${title}" to ${assignedAgent.name}.`);
+        
+        directiveResponse = `\n\n[Swarm OS Directive] ✅ I have created the task "${title}" and delegated it to ${assignedAgent.name} (${assignedAgent.role}). It is now queued in the Todo backlog.`;
+      }
+
+      // B. Reassign Task: "assign task_xxx to agent_yyy" or "assign ticket_xxx to Sarah Chen"
+      const assignMatch = message.match(/assign\s+(?:task|ticket)?\s*([a-zA-Z0-9\-_]+)\s+to\s+([a-zA-Z0-9\s\-_]+)/i);
+      if (assignMatch) {
+        const ticketIdOrTitle = assignMatch[1].trim();
+        const agentNameOrId = assignMatch[2].trim().toLowerCase();
+
+        const allTickets = getTickets();
+        const ticketToUpdate = allTickets.find(t => t.id === ticketIdOrTitle || t.title.toLowerCase().includes(ticketIdOrTitle.toLowerCase()));
+        const targetAssignee = agents.find(a => a.id === agentNameOrId || a.name.toLowerCase().includes(agentNameOrId) || a.role.toLowerCase().includes(agentNameOrId));
+
+        if (ticketToUpdate && targetAssignee) {
+          ticketToUpdate.assignedTo = targetAssignee.id;
+          saveTickets(allTickets);
+          addActivity('ceo', `Reassigned task "${ticketToUpdate.title}" to ${targetAssignee.name}.`);
+          directiveResponse = `\n\n[Swarm OS Directive] 📋 Task "${ticketToUpdate.title}" has been reassigned to ${targetAssignee.name} (${targetAssignee.role}).`;
+        } else if (!ticketToUpdate) {
+          directiveResponse = `\n\n[Swarm OS Directive] ⚠️ I could not find a task matching "${ticketIdOrTitle}".`;
+        } else if (!targetAssignee) {
+          directiveResponse = `\n\n[Swarm OS Directive] ⚠️ I could not find an agent matching "${agentNameOrId}".`;
+        }
+      }
+    }
+
     // Format chat history array from server-side database to feed to LLM
     const serverHistory = getChatMessages(sessionId);
     // Exclude the last message we just saved so we can add system prompt at top and format history correctly
@@ -162,11 +231,12 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
 
     try {
       const reply = await Promise.any(promises);
+      const finalReply = reply + directiveResponse;
       
       // Save assistant response to persistent DB
       saveChatMessage(sessionId, {
         role: 'assistant',
-        content: reply,
+        content: finalReply,
         senderName: agentName
       });
 
@@ -175,7 +245,7 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
 
       return NextResponse.json({ 
         success: true, 
-        reply, 
+        reply: finalReply, 
         agent: agentName, 
         source: 'nvmix',
         sessionId
@@ -183,15 +253,27 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
     } catch (err: any) {
       console.error('Chat completion failed:', err);
       
-      // Save a graceful error response as assistant message
+      // Create a graceful CEO error message with the directive response appended
+      const finalErrReply = `⚠️ I apologize — the Nvmix API gateway is temporarily unreachable. Error: ${err?.message || 'Connection timeout'}. Please try again in a moment, or check your API key in Settings.` + directiveResponse;
+      
+      // Save assistant response to persistent DB
       const errorMsg = saveChatMessage(sessionId, {
         role: 'assistant',
-        content: `⚠️ I apologize — the Nvmix API gateway is temporarily unreachable. Error: ${err?.message || 'Connection timeout'}. Please try again in a moment, or check your API key in Settings.`,
+        content: finalErrReply,
         senderName: targetAgent?.name || 'CEO'
       });
       
       addActivity('error', `Chat API failed: ${err?.message || 'Unknown error'}`);
       
+      // Draft failure warning email to founder
+      saveEmail({
+        from: targetAgent?.name || 'CEO',
+        to: 'Founder (You)',
+        subject: `Communication Error: Nvmix API gateway unreachable`,
+        body: `Attention Founder,\n\nOur communication gateway encountered a connection error when processing your last message.\n\nError Details: ${err?.message || 'Connection timeout'}\n\nPlease check your Nvmix API key in Settings or try again shortly. I have logged this warning in our activity feed.\n\n— CEO`,
+        status: 'draft'
+      });
+
       return NextResponse.json({
         success: true,
         reply: errorMsg.content,
