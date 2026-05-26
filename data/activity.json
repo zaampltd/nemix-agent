@@ -1,5 +1,12 @@
 [
   {
+    "id": "act_feg4rux4h_1779763938590",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T02:52:18.590Z",
+    "agentId": "agent_ceo"
+  },
+  {
     "id": "act_lsw3kk6gx_1779763701268",
     "type": "agent",
     "message": "Replied to chat session in room: \"# ceo-office\".",

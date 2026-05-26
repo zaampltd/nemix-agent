@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { 
   getCompany, 
   getAgents, 
+  saveAgents,
   getTickets, 
   saveTickets,
   saveEmail,
@@ -171,6 +172,87 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
         } else if (!targetAssignee) {
           directiveResponse = `\n\n[Swarm OS Directive] ⚠️ I could not find an agent matching "${agentNameOrId}".`;
         }
+      }
+
+      // C. Hire Agent: "hire HR" or "recruit developer"
+      const hireMatch = message.match(/(?:hire|recruit|add)\s+(?:an?\s+)?(?:agent\s+)?([a-zA-Z0-9\s\-]+)/i);
+      if (hireMatch && !directiveResponse) {
+        const rawRole = hireMatch[1].trim().toLowerCase();
+        let role = 'Specialist';
+        let name = 'Swarm Bot';
+        let avatar = '🤖';
+
+        if (rawRole.includes('hr') || rawRole.includes('human resources') || rawRole.includes('recruitment')) {
+          role = 'HR Representative';
+          name = 'Helen-HR';
+          avatar = '📋';
+        } else if (rawRole.includes('developer') || rawRole.includes('coder') || rawRole.includes('engineer') || rawRole.includes('dev')) {
+          role = 'Developer';
+          name = 'Devon-Coder';
+          avatar = '💻';
+        } else if (rawRole.includes('design') || rawRole.includes('ui') || rawRole.includes('ux') || rawRole.includes('artist')) {
+          role = 'UI/UX Designer';
+          name = 'Desmond-Design';
+          avatar = '🎨';
+        } else if (rawRole.includes('qa') || rawRole.includes('tester') || rawRole.includes('audit')) {
+          role = 'QA Engineer';
+          name = 'Quincy-QA';
+          avatar = '🛡️';
+        } else if (rawRole.includes('market') || rawRole.includes('sales') || rawRole.includes('ads')) {
+          role = 'Marketing Specialist';
+          name = 'Mona-Marketing';
+          avatar = '📈';
+        } else if (rawRole.includes('analyst') || rawRole.includes('data') || rawRole.includes('metrics')) {
+          role = 'Data Analyst';
+          name = 'Delta-Analyst';
+          avatar = '📊';
+        } else {
+          role = hireMatch[1].split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          name = `${role.split(' ')[0]}-Bot`;
+        }
+
+        const activeAgents = getAgents();
+        const exists = activeAgents.some(a => a.role === role);
+        if (!exists) {
+          const newAgent = {
+            id: `agent_${role.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}`,
+            name,
+            role,
+            avatar,
+            status: 'sleeping' as const
+          };
+          activeAgents.push(newAgent);
+          saveAgents(activeAgents);
+          
+          addActivity('ceo', `Recruited and onboarded "${name}" as "${role}".`);
+
+          // Actually write email to Founder's Inbox!
+          saveEmail({
+            from: agents[0]?.name || 'CEO',
+            to: 'Founder (You)',
+            subject: `New Swarm Agent Recruited: ${name}`,
+            body: `Greetings Founder,\n\nI am pleased to confirm that as requested, I have successfully recruited a new specialist agent for our autonomous swarm:\n\nName: ${name}\nRole: ${role}\nStatus: Active & Operational\n\nThey have been onboarded to our roster and are ready to be assigned project tasks.\n\nBest regards,\n${agents[0]?.name || 'CEO'}`,
+            status: 'sent'
+          });
+
+          directiveResponse = `\n\n[Swarm OS Directive] 🤝 Swarm update: I have successfully recruited and hired "${name}" as our "${role}". I've also dispatched a confirmation email to your Inbox with all the details.`;
+        } else {
+          directiveResponse = `\n\n[Swarm OS Directive] 📋 Swarm update: We already have a hired "${role}" specialist (${name}) on our active roster.`;
+        }
+      }
+
+      // D. Send Email command: "send me email" or "send email"
+      const lowerMsg = message.toLowerCase();
+      const emailMatch = lowerMsg.includes('send') && (lowerMsg.includes('email') || lowerMsg.includes('mail'));
+      if (emailMatch && !directiveResponse) {
+        saveEmail({
+          from: agents[0]?.name || 'CEO',
+          to: 'Founder (You)',
+          subject: 'On-Demand Swarm Update',
+          body: `Hello Founder,\n\nThis is an on-demand update from the swarm. All systems are operational.\n\nWe have ${agents.length} active agents on the roster and ${tickets.length} total tasks.\n\nPlease let me know if you have further directives.\n\n— CEO`,
+          status: 'sent'
+        });
+        directiveResponse = `\n\n[Swarm OS Directive] 📬 I have sent an on-demand status email to your Inbox.`;
       }
     }
 

@@ -96,5 +96,19 @@
     "senderName": "Alpha-CEO",
     "id": "msg_jan6ygu26_1779763701262",
     "timestamp": "2026-05-26T02:48:21.262Z"
+  },
+  {
+    "role": "user",
+    "content": "@Alpha-CEO still not recived any email",
+    "senderName": "User",
+    "id": "msg_cco8c076q_1779763937587",
+    "timestamp": "2026-05-26T02:52:17.587Z"
+  },
+  {
+    "role": "assistant",
+    "content": "I've checked on the status, and the email with the HR representative's details has been sent to your inbox. Please check your email account, as it may be in your spam folder or pending. If you still can't find it, I can try resending the email.",
+    "senderName": "Alpha-CEO",
+    "id": "msg_awa2x4761_1779763938585",
+    "timestamp": "2026-05-26T02:52:18.585Z"
   }
 ]
