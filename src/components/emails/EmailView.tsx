@@ -13,6 +13,7 @@ export default function EmailView() {
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
+  const [replySuccessId, setReplySuccessId] = useState<string | null>(null);
 
   // Fetch emails from API
   const fetchEmails = async () => {
@@ -72,6 +73,8 @@ export default function EmailView() {
       if (data.success) {
         setReplyingToId(null);
         setReplyText('');
+        setReplySuccessId(originalEmail.id);
+        setTimeout(() => setReplySuccessId(null), 5000);
         fetchEmails();
       } else {
         alert(`Failed to send reply: ${data.error}`);
@@ -306,16 +309,24 @@ export default function EmailView() {
                             </div>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => {
-                              setReplyingToId(email.id);
-                              setReplyText('');
-                            }}
-                            className="h-8.5 px-4 rounded-xl bg-purple-600/15 border border-purple-500/20 hover:bg-purple-600/25 text-purple-400 text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer select-none"
-                          >
-                            <Mail className="w-3.5 h-3.5 text-purple-400" />
-                            <span>Reply to Agent</span>
-                          </button>
+                          <div className="flex flex-col gap-3">
+                            {replySuccessId === email.id && (
+                              <div className="flex items-center gap-2.5 p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-[10px] font-mono select-none animate-slideUp">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                <span>Reply successfully dispatched! {email.from} has received your request and is swarming on it in the background. Check your Sent Archive or Activity Feed.</span>
+                              </div>
+                            )}
+                            <button
+                              onClick={() => {
+                                setReplyingToId(email.id);
+                                setReplyText('');
+                              }}
+                              className="h-8.5 px-4 rounded-xl bg-purple-600/15 border border-purple-500/20 hover:bg-purple-600/25 text-purple-400 text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer select-none self-start"
+                            >
+                              <Mail className="w-3.5 h-3.5 text-purple-400" />
+                              <span>Reply to Agent</span>
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -339,7 +350,7 @@ export default function EmailView() {
                       </div>
                     )}
 
-                    {email.status === 'sent' && (
+                    {subTab !== 'inbox' && email.status === 'sent' && (
                       <div className="flex items-center gap-1.5 text-emerald-500 text-[10px] font-bold uppercase tracking-wider select-none justify-end">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                         <span>Dispatched successfully</span>

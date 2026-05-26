@@ -23,6 +23,7 @@ import { CompanyState, Agent, Ticket, ActivityItem, ChatSession, ChatMessage } f
 export default function Page() {
   // ─── Top-Level Navigation & UI States ───
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Chat' | 'Files' | 'Emails' | 'Settings'>('Dashboard');
+  const isFirstRender = useRef(true);
   const [initialized, setInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
@@ -56,6 +57,10 @@ export default function Page() {
 
   // ─── Theme Sync Effect ───
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const root = document.documentElement;
     if (isDarkMode) {
       root.classList.add('dark');
