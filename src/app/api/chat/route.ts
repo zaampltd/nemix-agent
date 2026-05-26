@@ -148,7 +148,7 @@ ${workspaceContext}`;
       senderName: 'User'
     });
 
-    let directiveResponse: string | undefined;
+    let directiveResponse = '';
 
     // CEO Task Delegation & Command Parser (in # ceo-office or when CEO is default)
     const lowerChannel = channel?.toLowerCase() || '';
@@ -345,7 +345,7 @@ ${workspaceContext}`;
 
     try {
       const reply = await Promise.any(promises);
-      const finalReply = reply + directiveResponse;
+      const finalReply = reply + (directiveResponse || '');
       
       // Save assistant response to persistent DB
       saveChatMessage(sessionId, {

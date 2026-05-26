@@ -457,7 +457,29 @@ export default function Page() {
         // Reload messages list
         fetchChatMessages(activeSessionId);
         fetchActivities();
-        fetchChatSessions(); // Update last message in sidebar
+        fetchChatSessions();
+
+        // ── Auto-start execution when CEO creates a task directive ──
+        // If the reply contains "[Swarm OS Directive]" it means a task/ticket was created.
+        // Automatically kick off the heartbeat runner so agents start immediately.
+        const replyText: string = data.reply || data.message || '';
+        const isDirective =
+          replyText.includes('[Swarm OS Directive]') ||
+          replyText.includes('🚀 Task created') ||
+          replyText.includes('⚡ ACTIVE') ||
+          replyText.includes('Task created:');
+
+        if (isDirective && !isAutoTicking) {
+          // Small delay so ticket is fully persisted before heartbeat fires
+          setTimeout(() => {
+            setIsAutoTicking(true);
+            // Trigger immediate first pulse — don't wait for interval
+            triggerHeartbeat();
+          }, 800);
+        }
+
+        // Also refresh agent/ticket state so Dashboard updates immediately
+        fetchSwarmState();
       } else {
         // Show error message
         setChatMessages(prev => prev.filter(m => m.id !== tempUserMsg.id).concat({
