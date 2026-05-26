@@ -1,0 +1,202 @@
+[
+  {
+    "id": "act_xoeaufwc6_1779760064073",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T01:47:44.073Z"
+  },
+  {
+    "id": "act_klonoo09f_1779760062705",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T01:47:42.705Z"
+  },
+  {
+    "id": "act_dwotkbpsm_1779759456037",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T01:37:36.037Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_wiw8bmgnp_1779705518545",
+    "type": "ceo",
+    "message": "\"Analyze Website Traffic and Conversion Rates\" closed as DONE.",
+    "timestamp": "2026-05-25T10:38:38.545Z"
+  },
+  {
+    "id": "act_tb4q7sub7_1779705518540",
+    "type": "system",
+    "message": "✅ Approved merge for \"Analyze Website Traffic and Conversion Rates\".",
+    "timestamp": "2026-05-25T10:38:38.540Z"
+  },
+  {
+    "id": "act_kkx5uw55y_1779705485538",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# marketing\".",
+    "timestamp": "2026-05-25T10:38:05.538Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_5fx7kiatx_1779705447968",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# marketing\".",
+    "timestamp": "2026-05-25T10:37:27.968Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_pzk6yg9ni_1779705412915",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-25T10:36:52.915Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_okiioc4z2_1779705384762",
+    "type": "ceo",
+    "message": "Board approval required to merge \"Analyze Website Traffic and Conversion Rates\".",
+    "timestamp": "2026-05-25T10:36:24.762Z"
+  },
+  {
+    "id": "act_4km6kyat5_1779705384758",
+    "type": "agent",
+    "message": "Finished: \"Analyze Website Traffic and Conversion Rates\".",
+    "timestamp": "2026-05-25T10:36:24.758Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_9glpeqxo3_1779705369579",
+    "type": "agent",
+    "message": "Task \"Analyze Website Traffic and Conversion Rates\" now In Progress.",
+    "timestamp": "2026-05-25T10:36:09.579Z",
+    "agentId": "agent_analyst"
+  },
+  {
+    "id": "act_zdjc2q3wj_1779705369575",
+    "type": "ceo",
+    "message": "Dispatched Delta-Analyst → \"Analyze Website Traffic and Conversion Rates\".",
+    "timestamp": "2026-05-25T10:36:09.575Z"
+  },
+  {
+    "id": "act_f1ypilzsh_1779705358821",
+    "type": "ceo",
+    "message": "\"Develop a Customer Relationship Management (CRM) System\" closed as DONE.",
+    "timestamp": "2026-05-25T10:35:58.821Z"
+  },
+  {
+    "id": "act_6onviz6ld_1779705358817",
+    "type": "system",
+    "message": "✅ Approved merge for \"Develop a Customer Relationship Management (CRM) System\".",
+    "timestamp": "2026-05-25T10:35:58.817Z"
+  },
+  {
+    "id": "act_2w9mkp9e9_1779705355382",
+    "type": "ceo",
+    "message": "Board approval required to merge \"Develop a Customer Relationship Management (CRM) System\".",
+    "timestamp": "2026-05-25T10:35:55.382Z"
+  },
+  {
+    "id": "act_o3gdc0z61_1779705355370",
+    "type": "agent",
+    "message": "Finished: \"Develop a Customer Relationship Management (CRM) System\".",
+    "timestamp": "2026-05-25T10:35:55.370Z",
+    "agentId": "agent_dev"
+  },
+  {
+    "id": "act_e627fd5cn_1779705342917",
+    "type": "agent",
+    "message": "Task \"Develop a Customer Relationship Management (CRM) System\" now In Progress.",
+    "timestamp": "2026-05-25T10:35:42.917Z",
+    "agentId": "agent_dev"
+  },
+  {
+    "id": "act_och08nbtm_1779705342909",
+    "type": "ceo",
+    "message": "Dispatched Gamma-Dev → \"Develop a Customer Relationship Management (CRM) System\".",
+    "timestamp": "2026-05-25T10:35:42.909Z"
+  },
+  {
+    "id": "act_fxo0qjqy5_1779705328651",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-25T10:35:28.651Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_5bxfvphqy_1779705306729",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-25T10:35:06.729Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_c8192lxag_1779705288317",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-25T10:34:48.317Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_hgka2hoab_1779705267420",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-25T10:34:27.420Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_acr9m7fei_1779705213367",
+    "type": "ceo",
+    "message": "\"Create a Lead Magnet for Email List Growth\" closed as DONE.",
+    "timestamp": "2026-05-25T10:33:33.367Z"
+  },
+  {
+    "id": "act_421qpqyoz_1779705213361",
+    "type": "system",
+    "message": "✅ Approved merge for \"Create a Lead Magnet for Email List Growth\".",
+    "timestamp": "2026-05-25T10:33:33.361Z"
+  },
+  {
+    "id": "act_1yewqkizh_1779705209473",
+    "type": "ceo",
+    "message": "Board approval required to merge \"Create a Lead Magnet for Email List Growth\".",
+    "timestamp": "2026-05-25T10:33:29.473Z"
+  },
+  {
+    "id": "act_1otscb4kw_1779705209470",
+    "type": "agent",
+    "message": "Finished: \"Create a Lead Magnet for Email List Growth\".",
+    "timestamp": "2026-05-25T10:33:29.470Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_px7rymai6_1779705196993",
+    "type": "agent",
+    "message": "Task \"Create a Lead Magnet for Email List Growth\" now In Progress.",
+    "timestamp": "2026-05-25T10:33:16.993Z",
+    "agentId": "agent_marketer"
+  },
+  {
+    "id": "act_96sr6wcsm_1779705196988",
+    "type": "ceo",
+    "message": "Dispatched Beta-Marketer → \"Create a Lead Magnet for Email List Growth\".",
+    "timestamp": "2026-05-25T10:33:16.988Z"
+  },
+  {
+    "id": "act_lz9y0m6m8_1779705026181",
+    "type": "ceo",
+    "message": "Created 3 backlog tickets for goal: \"Built Marketing compnay\"",
+    "timestamp": "2026-05-25T10:30:26.181Z"
+  },
+  {
+    "id": "act_nmh1l9xh8_1779705026167",
+    "type": "ceo",
+    "message": "Alpha-CEO hired to lead the mission.",
+    "timestamp": "2026-05-25T10:30:26.167Z"
+  },
+  {
+    "id": "act_44ujeh7is_1779705026162",
+    "type": "system",
+    "message": "Swarm \"Marketing Company\" launched successfully via Nvmix API.",
+    "timestamp": "2026-05-25T10:30:26.162Z"
+  }
+]

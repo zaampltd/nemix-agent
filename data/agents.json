@@ -1,0 +1,30 @@
+[
+  {
+    "id": "agent_ceo",
+    "role": "CEO",
+    "name": "Alpha-CEO",
+    "avatar": "💼",
+    "status": "sleeping"
+  },
+  {
+    "id": "agent_marketer",
+    "role": "Marketing",
+    "name": "Beta-Marketer",
+    "avatar": "📢",
+    "status": "sleeping"
+  },
+  {
+    "id": "agent_dev",
+    "role": "Developer",
+    "name": "Gamma-Dev",
+    "avatar": "💻",
+    "status": "sleeping"
+  },
+  {
+    "id": "agent_analyst",
+    "role": "Analyst",
+    "name": "Delta-Analyst",
+    "avatar": "📊",
+    "status": "sleeping"
+  }
+]
