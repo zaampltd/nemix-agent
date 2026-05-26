@@ -262,6 +262,13 @@ export async function GET() {
         return `[${prefix}] ${act.message}`;
       });
 
+    // ── CEO is ALWAYS working — never sleeps ──
+    // Force-fix in case any prior operation accidentally set CEO to sleeping
+    if (agents.length > 0 && agents[0].status !== 'working') {
+      agents[0].status = 'working';
+      saveAgents(agents);
+    }
+
     return NextResponse.json({
       success: true,
       state: {
@@ -726,7 +733,10 @@ Produce the complete, high-quality ${format === 'python_code' ? 'Python script' 
           const awaitingIdx = tickets.findIndex((t) => t.status === 'awaiting');
           if (awaitingIdx === -1) {
             addActivity('system', `All tickets completed. Swarm standing by.`);
-            agents.forEach((a) => (a.status = 'sleeping'));
+            // CEO stays 'working' always — only workers sleep
+            agents.forEach((a) => {
+              a.status = a.id === agents[0]?.id ? 'working' : 'sleeping';
+            });
           }
         }
       }
