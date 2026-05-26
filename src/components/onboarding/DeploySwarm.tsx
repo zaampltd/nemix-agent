@@ -10,6 +10,7 @@ import {
   Code2, TrendingUp, Megaphone, Utensils,
   GraduationCap, Truck, Home, Globe
 } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 interface DeploySwarmProps {
   onDeploy: (companyName: string, goal: string, mission: string, apiKey: string, userName?: string, industry?: string) => void;
@@ -151,12 +152,7 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
         {/* Logo Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
-            <img
-              src="/logo.png"
-              alt="Nvmix"
-              className="w-10 h-10 rounded-xl object-cover shadow-lg"
-              style={{ boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}
-            />
+            <BrandLogo size={40} className="drop-shadow-[0_0_15px_rgba(99,102,241,0.35)]" />
             <span className="text-xl font-black text-[var(--text-primary)] tracking-tight">Nvmix</span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-indigo-400 border-indigo-500/25"
               style={{ background: 'rgba(99,102,241,0.08)' }}>Agents</span>

@@ -5,32 +5,7 @@ import {
   LayoutDashboard, Users, MessageSquare, Folder, Mail, Settings,
   Moon, Sun, HelpCircle, LogOut, Coins, Briefcase
 } from 'lucide-react';
-
-/* Nvmix official logo — matches nvmix.com brand identity */
-function NvmixLogo({ size = 32 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="nvmix-logo-grad-sb" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4f46e5" />
-          <stop offset="50%" stopColor="#7c3aed" />
-          <stop offset="100%" stopColor="#0891b2" />
-        </linearGradient>
-        <filter id="nvmix-logo-glow-sb" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="1" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-      </defs>
-      <g filter="url(#nvmix-logo-glow-sb)">
-        <rect x="6" y="6" width="4" height="20" rx="1.5" fill="url(#nvmix-logo-grad-sb)" />
-        <polygon points="10,6 14,6 22,26 18,26" fill="url(#nvmix-logo-grad-sb)" />
-        <rect x="22" y="6" width="4" height="20" rx="1.5" fill="url(#nvmix-logo-grad-sb)" />
-        <rect x="22" y="0" width="4" height="4" rx="1" fill="url(#nvmix-logo-grad-sb)" />
-        <circle cx="8" cy="30" r="2" fill="url(#nvmix-logo-grad-sb)" />
-      </g>
-    </svg>
-  );
-}
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 interface SidebarProps {
   activeTab: 'Dashboard' | 'Team' | 'Projects' | 'Chat' | 'Files' | 'Emails' | 'Settings';
@@ -95,7 +70,7 @@ export default function Sidebar({
         {/* Official Nvmix logo */}
         <div className="relative shrink-0">
           <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-indigo-600/30 to-violet-600/20 blur-md" />
-          <NvmixLogo size={34} />
+          <BrandLogo size={34} />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="font-black text-[15px] tracking-tight text-[var(--text-primary)] leading-tight">Nvmix</span>
