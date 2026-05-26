@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "file_8zg220g0p_1779786546329",
+    "name": "task_4.md",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Nvmix\\task_4.md",
+    "createdBy": "Architect-Bot",
+    "timestamp": "2026-05-26T09:09:06.329Z"
+  },
+  {
+    "id": "file_3exbn4yq0_1779786522934",
+    "name": "task_3.py",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Nvmix\\task_3.py",
+    "createdBy": "Shield-Auditor",
+    "timestamp": "2026-05-26T09:08:42.934Z"
+  },
+  {
+    "id": "file_0nvj30q5d_1779786488550",
+    "name": "task_2.py",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Nvmix\\task_2.py",
+    "createdBy": "Code-Engine-v4",
+    "timestamp": "2026-05-26T09:08:08.550Z"
+  },
+  {
+    "id": "file_42ies7e2a_1779786465372",
+    "name": "task_1.md",
+    "path": "C:\\Users\\shahi\\NvmixProjects\\Nvmix\\task_1.md",
+    "createdBy": "Architect-Bot",
+    "timestamp": "2026-05-26T09:07:45.372Z"
+  }
+]
