@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "project_default",
+    "name": "Nvmix",
+    "description": "Establish a fully autonomous multi-agent AI Swarm to manage, automate, and orchestrate all critical operations of the business. \n\nThe AI team must handle:\n1. Accounts & Financial Operations: Automate bookkeeping, generate professional invoices, track operating budgets, run cost audits, and handle financial forecasting.\n2. Legal & Regulatory Compliance: Draft and review partner agreements, analyze terms of service, monitor regulatory changes, and provide dynamic corporate policy advice.\n3. IT & DevOps Operations: Monitor infrastructure health, automate system diagnostics, conduct security audits, orchestrate code deployments, and handle ticket resolution.\n4. Project & General Management: Automatically coordinate cross-departmental tasks, track sprint progress, generate daily/weekly executive summaries, and optimize operational workflows.\n5. Growth & Brand Management: Conduct market analysis, write highly targeted marketing content, manage email communication, and schedule SEO-optimized marketing campaigns.\n\nThe ultimate objective is to establish an end-to-end, self-optimizing digital workforce where specialized AI agents securely communicate, execute complex tasks, and drive company growth with minimal manual oversight.",
+    "createdAt": "2026-05-26T09:09:11.047Z",
+    "status": "active"
+  }
+]
