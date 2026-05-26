@@ -10,9 +10,45 @@ import {
   getActivity,
   saveEmail,
   getChatSessions,
-  saveChatMessage 
+  saveChatMessage,
+  saveFile,
+  getFiles
 } from '@/lib/db';
 import { Agent, Ticket, CompanyState } from '@/lib/types';
+
+// ─── Filename derivation helper from task title ───
+function getFilenameForTicket(title: string): string {
+  const lower = title.toLowerCase();
+  
+  if (lower.includes('blueprint') || lower.includes('blue print')) {
+    return 'campaign_blueprint.py';
+  }
+  if (lower.includes('lead magnet') || lower.includes('lead_magnet')) {
+    return 'lead_magnet.py';
+  }
+  if (lower.includes('crm') || lower.includes('customer relationship')) {
+    return 'crm_system.py';
+  }
+  if (lower.includes('traffic') || lower.includes('conversion') || lower.includes('analytics')) {
+    return 'traffic_analysis.py';
+  }
+  if (lower.includes('architect') || lower.includes('schema')) {
+    return 'architecture_design.py';
+  }
+  if (lower.includes('bootstrap') || lower.includes('api')) {
+    return 'app_api.py';
+  }
+  if (lower.includes('security') || lower.includes('qa') || lower.includes('audit')) {
+    return 'security_audit.py';
+  }
+  
+  // Generic fallback: sanitize the title to lowercase snake_case
+  const sanitized = lower
+    .replace(/[^a-z0-9\s-_]/g, '')
+    .trim()
+    .replace(/[\s-_]+/g, '_');
+  return `${sanitized || 'module'}.py`;
+}
 
 // ─── STRICT RULE: ONLY NVMIX API ───
 const NVMIX_MODEL = 'nvmix-inference-v1';
@@ -57,10 +93,33 @@ export async function GET() {
     const company = getCompany();
     const agents = getAgents();
     const tickets = getTickets();
-    const activities = getActivity();
+
+    // Ensure all completed (done) tickets have their files written to local disk so they show up in Files Space
+    if (company.companyName && company.companyName.trim().length > 0) {
+      try {
+        const currentFiles = getFiles();
+        const completedTickets = tickets.filter(t => t.status === 'done');
+        const agentName = (id: string) => agents.find((a) => a.id === id)?.name ?? 'Agent';
+
+        for (const ticket of completedTickets) {
+          const expectedFilename = getFilenameForTicket(ticket.title);
+          const fileExistsInRegistry = currentFiles.some(f => f.name === expectedFilename);
+          
+          if (!fileExistsInRegistry && ticket.output) {
+            saveFile(expectedFilename, ticket.output, agentName(ticket.assignedTo));
+            addActivity('agent', `Restored completed asset to disk: "${expectedFilename}"`, ticket.assignedTo);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to sync completed files on disk:', err);
+      }
+    }
+    
+    // Refresh activities in case any files were restored and created activity items
+    const finalActivities = getActivity();
     
     // Map activity items to the legacy string log format for backwards compatibility
-    const logs = activities
+    const logs = finalActivities
       .slice()
       .reverse()
       .map(act => {
@@ -505,6 +564,17 @@ export async function POST(request: Request) {
       if (decision === 'approved') {
         ticket.status  = 'done';
         ticket.thought = 'Merged & deployed. Verified by Board and static compilers.';
+        
+        // Save to workspace local disk!
+        try {
+          const filename = getFilenameForTicket(ticket.title);
+          const creator = agentName(ticket.assignedTo);
+          saveFile(filename, ticket.output || '# Completed module work', creator);
+          addActivity('agent', `Saved completed asset to disk: "${filename}"`, ticket.assignedTo);
+        } catch (e: any) {
+          console.error('Failed to write completed ticket file to workspace drive:', e);
+        }
+        
         addActivity('system', `✅ Approved merge for "${ticket.title}".`);
         addActivity('ceo', `"${ticket.title}" closed as DONE.`);
 
