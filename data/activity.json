@@ -1,5 +1,33 @@
 [
   {
+    "id": "act_lsw3kk6gx_1779763701268",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T02:48:21.268Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_vjzejaz16_1779763676348",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T02:47:56.348Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_r62kbvpw9_1779763661228",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T02:47:41.228Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_ujagcvwl7_1779763647363",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# analyst\".",
+    "timestamp": "2026-05-26T02:47:27.363Z",
+    "agentId": "agent_analyst"
+  },
+  {
     "id": "act_xoeaufwc6_1779760064073",
     "type": "system",
     "message": "All tickets completed. Swarm standing by.",

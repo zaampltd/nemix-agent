@@ -71,10 +71,10 @@ export default function Sidebar({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 group relative ${
+              className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-bold tracking-tight transition-all duration-300 group relative ${
                 isActive 
-                  ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-blue-500/15' 
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 border border-blue-400/20' 
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] border border-transparent'
               }`}
             >
               <Icon className={`w-4.5 h-4.5 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`} />

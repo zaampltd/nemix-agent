@@ -40,5 +40,61 @@
     "senderName": "Alpha-CEO",
     "id": "msg_l9kgf20qy_1779759456023",
     "timestamp": "2026-05-26T01:37:36.023Z"
+  },
+  {
+    "role": "user",
+    "content": "hi",
+    "senderName": "User",
+    "id": "msg_a77i9arok_1779763646237",
+    "timestamp": "2026-05-26T02:47:26.237Z"
+  },
+  {
+    "role": "assistant",
+    "content": "Welcome to our Marketing Company pipeline. Since all tasks are completed, we're now focusing on implementation and growth. How can I assist you with integrating our strategies into your business operations?",
+    "senderName": "Delta-Analyst",
+    "id": "msg_jcwiz2w6m_1779763647357",
+    "timestamp": "2026-05-26T02:47:27.357Z"
+  },
+  {
+    "role": "user",
+    "content": "hi",
+    "senderName": "User",
+    "id": "msg_dxfb5o7qe_1779763660523",
+    "timestamp": "2026-05-26T02:47:40.523Z"
+  },
+  {
+    "role": "assistant",
+    "content": "You've checked in. Our company's mission is to build production pipelines, and we've successfully completed all 3 tasks. If you're interested in learning more about our operations or would like to discuss potential collaborations, please let me know how I can assist you.",
+    "senderName": "Alpha-CEO",
+    "id": "msg_uuw745kgj_1779763661222",
+    "timestamp": "2026-05-26T02:47:41.222Z"
+  },
+  {
+    "role": "user",
+    "content": "hire HR",
+    "senderName": "User",
+    "id": "msg_im0fg4i12_1779763675354",
+    "timestamp": "2026-05-26T02:47:55.354Z"
+  },
+  {
+    "role": "assistant",
+    "content": "We're glad to hear that. To hire an HR representative, I'll initiate a request to our talent pool. We'll need to assess the position's requirements and develop a job description to ensure a smooth hiring process. I'll assign a dedicated agent to handle the task.",
+    "senderName": "Alpha-CEO",
+    "id": "msg_gi24m8hoj_1779763676341",
+    "timestamp": "2026-05-26T02:47:56.341Z"
+  },
+  {
+    "role": "user",
+    "content": "when you hire send me email",
+    "senderName": "User",
+    "id": "msg_neqpltwf6_1779763700324",
+    "timestamp": "2026-05-26T02:48:20.324Z"
+  },
+  {
+    "role": "assistant",
+    "content": "I'll send you an email once the HR representative is hired. You'll receive a confirmation email with the new team member's details.",
+    "senderName": "Alpha-CEO",
+    "id": "msg_jan6ygu26_1779763701262",
+    "timestamp": "2026-05-26T02:48:21.262Z"
   }
 ]
