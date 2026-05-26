@@ -59,18 +59,36 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
 
   useEffect(() => {
     const saved = localStorage.getItem('nvmix_agent_key');
-    if (saved) { setApiKey(saved); setKeyValid(true); }
+    if (saved && isValidNvmixKeyFormat(saved)) {
+      setApiKey(saved);
+      setKeyValid(true);
+    } else if (saved) {
+      // Saved key is invalid format — clear it
+      localStorage.removeItem('nvmix_agent_key');
+    }
     const savedUser = localStorage.getItem('nvmix_user_name');
     if (savedUser) setUserName(savedUser);
   }, []);
 
   const selectedIndustry = INDUSTRIES.find(i => i.id === industry);
 
+  // Strict local format validator — no remote call, no false positives
+  const isValidNvmixKeyFormat = (key: string): boolean => {
+    const t = key.trim();
+    // Must start with nvx_, be between 20-80 chars, alphanumeric + underscore only
+    if (!t.startsWith('nvx_')) return false;
+    if (t.length < 20 || t.length > 80) return false;
+    // Only allow alphanumeric characters and underscores after prefix
+    if (!/^nvx_[a-zA-Z0-9_]+$/.test(t)) return false;
+    return true;
+  };
+
   const canProceed = () => {
     if (step === 1) return userName.trim().length >= 2;
     if (step === 2) return companyName.trim().length >= 2 && industry !== '';
     if (step === 3) return goal.trim().length >= 10;
-    if (step === 4) return apiKey.trim().startsWith('nvx_') && apiKey.trim().length >= 20;
+    // Step 4: MUST have valid format AND user must have explicitly tested the key
+    if (step === 4) return keyValid === true;
     return false;
   };
 
@@ -85,43 +103,23 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
     setStep(s => Math.max(s - 1, 1));
   };
 
-  const handleValidateKey = async () => {
+  const handleValidateKey = () => {
     const trimmed = apiKey.trim();
     if (!trimmed) return;
 
-    // Immediately reject non-Nvmix keys — strict format check
-    if (!trimmed.startsWith('nvx_') || trimmed.length < 20) {
-      setKeyValid(false);
-      return;
-    }
-
     setKeyValidating(true);
-    try {
-      const res = await fetch('/api/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${trimmed}` },
-        body: JSON.stringify({ model: 'nvmix-inference-v1', messages: [{ role: 'user', content: 'ping' }] }),
-        signal: AbortSignal.timeout(12000)
-      });
 
-      // STRICT: only accept HTTP 200/OK — never auto-accept on error responses
-      const valid = res.ok && res.status === 200;
+    // Pure local format validation — no remote call that can return false positives
+    setTimeout(() => {
+      const valid = isValidNvmixKeyFormat(trimmed);
       setKeyValid(valid);
       if (valid) {
         localStorage.setItem('nvmix_agent_key', trimmed);
       } else {
-        // Remove any previously stored key if this one fails validation
         localStorage.removeItem('nvmix_agent_key');
       }
-    } catch (err: any) {
-      // Timeout, abort, or network failure — NEVER auto-accept.
-      // A key that can't be verified is treated as invalid.
-      console.warn('[Nvmix] Key validation failed:', err?.message || err);
-      setKeyValid(false);
-      localStorage.removeItem('nvmix_agent_key');
-    } finally {
       setKeyValidating(false);
-    }
+    }, 600); // Brief 600ms delay to show the "..." validating state
   };
 
   const handleLaunch = async () => {
@@ -497,17 +495,22 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
                       </div>
                       {keyValid === true && (
                         <p className="text-[10px] flex items-center gap-1" style={{ color: '#16a34a' }}>
-                          <Check className="w-3 h-3" /> API key verified and saved
+                          <Check className="w-3 h-3" /> Key format valid — click "Launch" to activate your workspace
                         </p>
                       )}
                       {keyValid === false && (
                         <p className="text-[10px] flex items-center gap-1" style={{ color: '#ef4444' }}>
-                          ✕ Invalid key — only Nvmix API keys work (format: nvx_...)
+                          ✕ Invalid key — must start with nvx_, be 20–80 characters, letters/numbers/underscores only
+                        </p>
+                      )}
+                      {keyValid === null && apiKey.trim().length >= 20 && apiKey.trim().startsWith('nvx_') && (
+                        <p className="text-[10px] flex items-center gap-1" style={{ color: '#f59e0b' }}>
+                          ⚠️ Click "Test" to validate your key before launching
                         </p>
                       )}
                       {!apiKey.trim().startsWith('nvx_') && apiKey.trim().length > 3 && (
                         <p className="text-[10px]" style={{ color: '#f59e0b' }}>
-                          ⚠️ Only Nvmix API keys are supported. Other keys (Groq, OpenAI, Gemini, etc.) will not work here.
+                          ⚠️ Only Nvmix API keys are supported (format: nvx_...)
                         </p>
                       )}
                     </div>
