@@ -26,5 +26,12 @@
     "name": "Shield-Auditor",
     "avatar": "🛡️",
     "status": "sleeping"
+  },
+  {
+    "id": "agent_more_1779786825125",
+    "name": "More-Bot",
+    "role": "More",
+    "avatar": "🤖",
+    "status": "sleeping"
   }
 ]

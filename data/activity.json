@@ -1,5 +1,214 @@
 [
   {
+    "id": "act_0b769szf9_1779787210834",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:20:10.834Z"
+  },
+  {
+    "id": "act_vd3orx0a6_1779787205831",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:20:05.831Z"
+  },
+  {
+    "id": "act_cyq8iemb7_1779787200830",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:20:00.830Z"
+  },
+  {
+    "id": "act_3jhwsomp8_1779787195831",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:55.831Z"
+  },
+  {
+    "id": "act_n33bcoztg_1779787190830",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:50.830Z"
+  },
+  {
+    "id": "act_n4t9jm7nk_1779787185837",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:45.837Z"
+  },
+  {
+    "id": "act_o9lzk2kzp_1779787180832",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:40.832Z"
+  },
+  {
+    "id": "act_1dq1sc8dd_1779787175835",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:35.835Z"
+  },
+  {
+    "id": "act_j55kir2so_1779787170830",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:30.830Z"
+  },
+  {
+    "id": "act_kj5utsj1g_1779787165836",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:25.836Z"
+  },
+  {
+    "id": "act_lft8qmc7k_1779787160830",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:20.830Z"
+  },
+  {
+    "id": "act_f4zsg0xwc_1779787155838",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:15.838Z"
+  },
+  {
+    "id": "act_m637r4571_1779787150833",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:10.833Z"
+  },
+  {
+    "id": "act_ehdqg3ivr_1779787145835",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:05.835Z"
+  },
+  {
+    "id": "act_q803dlny4_1779787140832",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:19:00.832Z"
+  },
+  {
+    "id": "act_xk1crx04n_1779787135831",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:55.831Z"
+  },
+  {
+    "id": "act_phwwkpays_1779787130827",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:50.827Z"
+  },
+  {
+    "id": "act_jjb06zngy_1779787125832",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:45.832Z"
+  },
+  {
+    "id": "act_0a08zogrf_1779787120834",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:40.834Z"
+  },
+  {
+    "id": "act_pw65v8eky_1779787115834",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:35.834Z"
+  },
+  {
+    "id": "act_imzvyjlgk_1779787110857",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:30.857Z"
+  },
+  {
+    "id": "act_d69uex3e7_1779787105858",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:25.858Z"
+  },
+  {
+    "id": "act_7mgt4xhxp_1779787101002",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:21.002Z"
+  },
+  {
+    "id": "act_kgcf3iaen_1779787096932",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:16.932Z"
+  },
+  {
+    "id": "act_s4nvtexri_1779787092847",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:12.847Z"
+  },
+  {
+    "id": "act_16v2gnbg4_1779787087829",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:07.829Z"
+  },
+  {
+    "id": "act_cv6xir7v2_1779787083446",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T09:18:03.446Z"
+  },
+  {
+    "id": "act_804sdha5h_1779787060851",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T09:17:40.851Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_ru750bp91_1779787041889",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T09:17:21.889Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_rdzrko2aw_1779786925797",
+    "type": "agent",
+    "message": "Processed email from Founder.",
+    "timestamp": "2026-05-26T09:15:25.797Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_4zjfkmoe4_1779786925629",
+    "type": "agent",
+    "message": "Sent email: \"RE: New Swarm Agent Recruited: More-Bot\" to Nvmix-CEO-Alpha.",
+    "timestamp": "2026-05-26T09:15:25.629Z"
+  },
+  {
+    "id": "act_z5v1skr21_1779786829425",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T09:13:49.425Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_swav9floy_1779786825129",
+    "type": "ceo",
+    "message": "Recruited and onboarded \"More-Bot\" as \"More\".",
+    "timestamp": "2026-05-26T09:13:45.129Z"
+  },
+  {
+    "id": "act_xzmpivwiw_1779786794818",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T09:13:14.818Z",
+    "agentId": "agent_ceo"
+  },
+  {
     "id": "act_mareih56b_1779786546339",
     "type": "ceo",
     "message": "\"Task 4\" closed as DONE.",
