@@ -1,5 +1,23 @@
 [
   {
+    "id": "act_2aas3usa9_1779764518452",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T03:01:58.452Z"
+  },
+  {
+    "id": "act_gvh1tf6lu_1779764517508",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T03:01:57.508Z"
+  },
+  {
+    "id": "act_d7ovnhqwg_1779764516662",
+    "type": "system",
+    "message": "All tickets completed. Swarm standing by.",
+    "timestamp": "2026-05-26T03:01:56.662Z"
+  },
+  {
     "id": "act_jgxlc0rhd_1779764400646",
     "type": "agent",
     "message": "Replied to chat session in room: \"# ceo-office\".",
