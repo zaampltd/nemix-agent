@@ -250,5 +250,12 @@
     "senderName": "Alpha-CEO",
     "id": "msg_qgvito5tc_1779783331199",
     "timestamp": "2026-05-26T08:15:31.199Z"
+  },
+  {
+    "role": "assistant",
+    "content": "🚀 **Wiped is live!**\n\nI'm FounderBot, your AI CEO. I've hired 6 specialized agents for your general:\n• **TechNova** (CTO)\n• **MoneyMind** (CFO)\n• **MarketMaster** (CMO)\n• **Regulator** (Compliance Officer)\n• **CustomerCare** (Customer Relations Manager)\n• **OpsGenius** (Operations Manager)\n\n6 tasks are queued and ready. Press **Pulse** or enable **Auto Runner** to start full automation.",
+    "senderName": "FounderBot",
+    "id": "msg_2ereysd7q_1779783353100",
+    "timestamp": "2026-05-26T08:15:53.100Z"
   }
 ]

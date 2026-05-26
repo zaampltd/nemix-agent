@@ -215,52 +215,11 @@ function getOutputTypeForRole(role: string): { ext: string; format: string } {
   return { ext: '.md', format: 'business_document' };
 }
 
-// ─── Highly Resilient Nvmix API Helper with Automatic Fallbacks ───
+// ─── Nvmix API helper — delegates to engine which enforces Nvmix-only keys ───
 async function callNvmixAPI(apiKey: string, messages: { role: string; content: string }[], timeoutMs = 20000) {
-  // 1. Direct local execution first (100% deadlock-immune)
-  try {
-    const localResult = await generateNvmixCompletion(messages as any, {
-      temperature: 0.7,
-      max_tokens: 2048,
-      timeoutMs
-    });
-    if (localResult?.choices?.[0]?.message?.content) {
-      return localResult;
-    }
-  } catch (localErr: any) {
-    console.warn('Direct local Nvmix completion failed, falling back to HTTP routing:', localErr?.message || localErr);
-  }
-
-  // 2. HTTP routing fallbacks (Remote-only to prevent Next.js loopback dev deadlocks)
-  const urls = ([
-    process.env.NVMIX_API_URL,
-    'https://nvmix.com/api/v1/chat/completions',
-    'https://nemix-jjjj.vercel.app/api/v1/chat/completions',
-  ].filter(Boolean) as string[])
-   .filter(url => !url.includes('localhost') && !url.includes('127.0.0.1'));
-
-  let lastErr: any = null;
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body:    JSON.stringify({ model: NVMIX_MODEL, messages }),
-        signal:  AbortSignal.timeout(timeoutMs),
-      });
-      if (res.ok) {
-        return await res.json();
-      }
-      const errText = await res.text();
-      console.warn(`Fetch to ${url} failed with status ${res.status}: ${errText}`);
-      lastErr = new Error(`Status ${res.status}: ${errText}`);
-    } catch (err: any) {
-      console.warn(`Fetch to ${url} failed with error: ${err?.message || err}`);
-      lastErr = err;
-    }
-  }
-  throw lastErr || new Error('All Nvmix API completions failed.');
+  return generateNvmixCompletion(messages as any, { temperature: 0.7, max_tokens: 2048, timeoutMs }, apiKey);
 }
+
 
 // ─── GET: Retrieve Swarm State ───
 export async function GET() {
@@ -375,10 +334,10 @@ export async function POST(request: Request) {
       if (!companyName || !goal)
         return NextResponse.json({ error: 'companyName and goal are required' }, { status: 400 });
 
-      // Verify Nvmix API key is provided
-      if (!apiKey || apiKey.trim().length < 5) {
+      // Verify Nvmix API key has correct format
+      if (!apiKey || !apiKey.trim().startsWith('nvx_') || apiKey.trim().length < 20) {
         return NextResponse.json(
-          { error: 'Autonomous onboarding failed: No active Nvmix API Key provided. Real AI execution requires an active Nvmix key.' },
+          { error: 'Invalid API key. Only Nvmix API keys are supported (format: nvx_...). Get your key at https://nvmix.com/dashboard/api-keys' },
           { status: 400 }
         );
       }

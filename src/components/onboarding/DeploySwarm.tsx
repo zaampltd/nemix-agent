@@ -69,7 +69,7 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
     if (step === 1) return userName.trim().length >= 2;
     if (step === 2) return companyName.trim().length >= 2 && industry !== '';
     if (step === 3) return goal.trim().length >= 10;
-    if (step === 4) return apiKey.trim().length >= 8;
+    if (step === 4) return apiKey.trim().startsWith('nvx_') && apiKey.trim().length >= 20;
     return false;
   };
 
@@ -85,23 +85,30 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
   };
 
   const handleValidateKey = async () => {
-    if (!apiKey.trim()) return;
+    const trimmed = apiKey.trim();
+    if (!trimmed) return;
+
+    // Immediately reject non-Nvmix keys
+    if (!trimmed.startsWith('nvx_') || trimmed.length < 20) {
+      setKeyValid(false);
+      return;
+    }
+
     setKeyValidating(true);
     try {
       const res = await fetch('/api/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey.trim()}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${trimmed}` },
         body: JSON.stringify({ model: 'nvmix-inference-v1', messages: [{ role: 'user', content: 'ping' }] }),
         signal: AbortSignal.timeout(8000)
       });
-      setKeyValid(res.ok || res.status === 401 === false);
-      if (res.ok) {
-        localStorage.setItem('nvmix_agent_key', apiKey.trim());
-      }
+      const valid = res.ok || res.status === 200;
+      setKeyValid(valid);
+      if (valid) localStorage.setItem('nvmix_agent_key', trimmed);
     } catch {
-      // If local route works or external, treat as valid for now
-      setKeyValid(apiKey.trim().length >= 8);
-      if (apiKey.trim().length >= 8) localStorage.setItem('nvmix_agent_key', apiKey.trim());
+      // Network issue — accept the key format as valid for now
+      setKeyValid(true);
+      localStorage.setItem('nvmix_agent_key', trimmed);
     } finally {
       setKeyValidating(false);
     }
@@ -440,9 +447,9 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 block">Nvmix API Key *</label>
-                        <a href="https://nvmix.com" target="_blank" rel="noopener noreferrer"
+                        <a href="https://nvmix.com/dashboard/api-keys" target="_blank" rel="noopener noreferrer"
                           className="text-[9px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors cursor-pointer">
-                          Get your key <ExternalLink className="w-3 h-3" />
+                          Get key at nvmix.com <ExternalLink className="w-3 h-3" />
                         </a>
                       </div>
                       <div className="relative">
@@ -451,11 +458,15 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
                           type={showKey ? 'text' : 'password'}
                           value={apiKey}
                           onChange={e => { setApiKey(e.target.value); setKeyValid(null); }}
-                          placeholder="nvx_sk_ep_xxxxxxxxxxxxxxxxxxxx"
+                          placeholder="nvx_live_sk_xxxxxxxxxxxxxxxxxxxxxxxx"
                           className="w-full px-4 py-3.5 pr-24 rounded-xl text-sm font-mono outline-none transition-all"
                           style={{
                             background: 'var(--bg-surface)',
-                            border: `1px solid ${keyValid === true ? 'rgba(22,163,74,0.5)' : keyValid === false ? 'rgba(239,68,68,0.5)' : 'var(--border-primary)'}`,
+                            border: `1px solid ${
+                              keyValid === true ? 'rgba(22,163,74,0.5)' :
+                              keyValid === false ? 'rgba(239,68,68,0.5)' :
+                              'var(--border-primary)'
+                            }`,
                             color: 'var(--text-primary)',
                           }}
                         />
@@ -481,7 +492,18 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
                           <Check className="w-3 h-3" /> API key verified and saved
                         </p>
                       )}
+                      {keyValid === false && (
+                        <p className="text-[10px] flex items-center gap-1" style={{ color: '#ef4444' }}>
+                          ✕ Invalid key — only Nvmix API keys work (format: nvx_...)
+                        </p>
+                      )}
+                      {!apiKey.trim().startsWith('nvx_') && apiKey.trim().length > 3 && (
+                        <p className="text-[10px]" style={{ color: '#f59e0b' }}>
+                          ⚠️ Only Nvmix API keys are supported. Other keys (Groq, OpenAI, Gemini, etc.) will not work here.
+                        </p>
+                      )}
                     </div>
+
 
                     {/* Summary before launch */}
                     <div className="p-4 rounded-xl space-y-3"

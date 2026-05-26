@@ -1,5 +1,29 @@
 [
   {
+    "id": "act_z7bxva7xg_1779783353094",
+    "type": "ceo",
+    "message": "Created 6 backlog tasks for goal: \"Wiped...\"",
+    "timestamp": "2026-05-26T08:15:53.094Z"
+  },
+  {
+    "id": "act_uirogs7pn_1779783353091",
+    "type": "ceo",
+    "message": "Hired 6 team members: CTO, CFO, CMO, Compliance Officer, Customer Relations Manager, Operations Manager.",
+    "timestamp": "2026-05-26T08:15:53.091Z"
+  },
+  {
+    "id": "act_9spzt7vgf_1779783353089",
+    "type": "ceo",
+    "message": "FounderBot hired as CEO — leading 7 specialized agents.",
+    "timestamp": "2026-05-26T08:15:53.089Z"
+  },
+  {
+    "id": "act_4boc1yfur_1779783353087",
+    "type": "system",
+    "message": "✅ \"Wiped\" workspace launched by Founder via Nvmix AI.",
+    "timestamp": "2026-05-26T08:15:53.087Z"
+  },
+  {
     "id": "act_papfgkijk_1779783331190",
     "type": "ceo",
     "message": "Created 6 backlog tasks for goal: \"Wiped...\"",
@@ -623,17 +647,5 @@
     "type": "ceo",
     "message": "Created 3 backlog tickets for goal: \"Built Marketing compnay\"",
     "timestamp": "2026-05-25T10:30:26.181Z"
-  },
-  {
-    "id": "act_nmh1l9xh8_1779705026167",
-    "type": "ceo",
-    "message": "Alpha-CEO hired to lead the mission.",
-    "timestamp": "2026-05-25T10:30:26.167Z"
-  },
-  {
-    "id": "act_44ujeh7is_1779705026162",
-    "type": "system",
-    "message": "Swarm \"Marketing Company\" launched successfully via Nvmix API.",
-    "timestamp": "2026-05-25T10:30:26.162Z"
   }
 ]

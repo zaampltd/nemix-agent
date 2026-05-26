@@ -2,7 +2,7 @@
   {
     "id": "ticket_1",
     "title": "Develop 5-Year Business Growth Strategy",
-    "description": "Create a comprehensive 5-year business plan, including market analysis, competitive landscape, and revenue projections",
+    "description": "Create a comprehensive 5-year business plan, including market analysis, revenue projections, and key milestones",
     "assignedTo": "agent_cto",
     "status": "todo",
     "thought": "Align with company vision and mission",
@@ -11,7 +11,7 @@
   {
     "id": "ticket_2",
     "title": "Implement Cloud-Based ERP System",
-    "description": "Design and deploy a cloud-based Enterprise Resource Planning (ERP) system to streamline business operations and improve efficiency",
+    "description": "Design and deploy a cloud-based enterprise resource planning system to streamline operations and improve efficiency",
     "assignedTo": "agent_cto",
     "status": "todo",
     "thought": "Ensure scalability and security",
@@ -20,16 +20,16 @@
   {
     "id": "ticket_3",
     "title": "Launch Social Media Marketing Campaign",
-    "description": "Create and execute a social media marketing campaign to increase brand awareness and engage with target audience",
+    "description": "Create and execute a social media marketing campaign to increase brand awareness and engage with customers",
     "assignedTo": "agent_cmo",
     "status": "todo",
-    "thought": "Focus on Twitter, LinkedIn, and Facebook",
+    "thought": "Target key demographics and track analytics",
     "output": ""
   },
   {
     "id": "ticket_4",
     "title": "Generate Quarterly Financial Reports",
-    "description": "Prepare and submit quarterly financial reports, including balance sheet, income statement, and cash flow statement",
+    "description": "Prepare and submit quarterly financial reports, including balance sheets, income statements, and cash flow statements",
     "assignedTo": "agent_cfo",
     "status": "todo",
     "thought": "Ensure compliance with accounting standards",
@@ -38,19 +38,19 @@
   {
     "id": "ticket_5",
     "title": "Develop Employee Onboarding Program",
-    "description": "Create a comprehensive employee onboarding program to improve new hire experience and reduce turnover rate",
+    "description": "Create a comprehensive employee onboarding program to improve new hire experience and reduce turnover rates",
     "assignedTo": "agent_operations",
     "status": "todo",
-    "thought": "Include compliance training and benefits enrollment",
+    "thought": "Include compliance training and HR support",
     "output": ""
   },
   {
     "id": "ticket_6",
-    "title": "Implement Customer Feedback System",
-    "description": "Design and deploy a customer feedback system to collect and analyze customer feedback and improve customer satisfaction",
+    "title": "Improve Customer Support Ticket Resolution Time",
+    "description": "Analyze and optimize customer support processes to reduce ticket resolution time and improve customer satisfaction",
     "assignedTo": "agent_customer",
     "status": "todo",
-    "thought": "Use surveys, reviews, and social media listening",
+    "thought": "Implement efficient workflows and agent training",
     "output": ""
   }
 ]

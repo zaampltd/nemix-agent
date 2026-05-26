@@ -2,7 +2,7 @@
   {
     "id": "agent_ceo",
     "role": "CEO",
-    "name": "Alpha-CEO",
+    "name": "FounderBot",
     "avatar": "💼",
     "status": "working"
   },
@@ -16,7 +16,7 @@
   {
     "id": "agent_cfo",
     "role": "CFO",
-    "name": "FinancePro",
+    "name": "MoneyMind",
     "avatar": "📊",
     "status": "sleeping"
   },
@@ -31,20 +31,20 @@
     "id": "agent_compliance",
     "role": "Compliance Officer",
     "name": "Regulator",
-    "avatar": "🚫",
+    "avatar": "⚖️",
     "status": "sleeping"
   },
   {
     "id": "agent_customer",
     "role": "Customer Relations Manager",
     "name": "CustomerCare",
-    "avatar": "🤝",
+    "avatar": "👥",
     "status": "sleeping"
   },
   {
     "id": "agent_operations",
     "role": "Operations Manager",
-    "name": "OpsExpert",
+    "name": "OpsGenius",
     "avatar": "📋",
     "status": "sleeping"
   }

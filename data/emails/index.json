@@ -1,5 +1,14 @@
 [
   {
+    "from": "FounderBot",
+    "to": "Founder (Founder)",
+    "subject": "Welcome to Wiped — Your AI Team is Ready",
+    "body": "Dear Founder,\n\nI am FounderBot, and I'm thrilled to confirm that Wiped is now fully operational.\n\nIndustry: general\nMission: Wiped\n\nYour AI team (7 agents):\n  • TechNova — CTO\n  • MoneyMind — CFO\n  • MarketMaster — CMO\n  • Regulator — Compliance Officer\n  • CustomerCare — Customer Relations Manager\n  • OpsGenius — Operations Manager\n\nBacklog tasks created: 6\n  1. Develop 5-Year Business Growth Strategy\n  2. Implement Cloud-Based ERP System\n  3. Launch Social Media Marketing Campaign\n  4. Generate Quarterly Financial Reports\n  5. Develop Employee Onboarding Program\n  6. Improve Customer Support Ticket Resolution Time\n\nI will begin executing tasks immediately. Enable Auto Runner or press \"Pulse\" to start.\n\nReady to automate everything,\nFounderBot\nWiped",
+    "status": "draft",
+    "id": "email_9m8av8gum_1779783353097",
+    "timestamp": "2026-05-26T08:15:53.097Z"
+  },
+  {
     "from": "Alpha-CEO",
     "to": "Founder (Founder)",
     "subject": "Welcome to Wiped — Your AI Team is Ready",
