@@ -40,5 +40,12 @@
     "role": "Accontant",
     "avatar": "🤖",
     "status": "sleeping"
+  },
+  {
+    "id": "agent_accontant_team_as_well_1779826935702",
+    "name": "Accontant-Bot",
+    "role": "Accontant Team As Well",
+    "avatar": "🤖",
+    "status": "sleeping"
   }
 ]

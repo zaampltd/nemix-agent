@@ -17,16 +17,7 @@ import fs from 'fs';
 
 const NVMIX_MODEL = 'nvmix-inference-v1';
 
-// ─── Filtered Remote-Only URLs to prevent Next.js loopback dev deadlocks ───
-const NVMIX_REMOTE_URLS = [
-  process.env.NVMIX_API_URL,
-  'https://nvmix.com/api/v1/chat/completions',
-  'https://nemix-jjjj.vercel.app/api/v1/chat/completions',
-].filter((url) => {
-  if (!url) return false;
-  // Enforce remote-only: exclude any loopback localhost endpoints to prevent server deadlocks
-  return !url.includes('localhost') && !url.includes('127.0.0.1');
-}) as string[];
+// No extra remote URLs needed — use the engine directly
 
 function getWorkspaceContext(): string {
   try {
@@ -341,50 +332,32 @@ ${workspaceContext}`;
       };
     });
 
-    const messagesToSend: Message[] = [
-      { role: 'system' as const, content: systemPrompt },
-      ...formattedHistory,
-      { role: 'user' as const,   content: message.trim() }
+    // ── Few-shot examples: teach the AI to speak like a human (not a robot) ──
+    const fewShotExamples: Message[] = [
+      { role: 'user' as const, content: 'hello' },
+      { role: 'assistant' as const, content: `Hey! Good to see you. Things are moving well over here — we've got the team running and tasks in progress. What's on your mind?` },
+      { role: 'user' as const, content: 'how are things going?' },
+      { role: 'assistant' as const, content: `Honestly, pretty well! We're making solid progress. The team is heads-down on some key deliverables right now. Is there something specific you'd like me to focus on or update you about?` },
+      { role: 'user' as const, content: 'please hire accountant' },
+      { role: 'assistant' as const, content: `On it! I'll get an accountant onboarded right away — someone who can handle the books and keep our financials tight. I'll loop you in once they're set up.` },
     ];
 
-    // 1. Direct Engine Completion Promise — pass the company Nvmix API key
-    const directLocalPromise = (async () => {
-      const result = await generateNvmixCompletion(messagesToSend, {
-        temperature: 0.7,
-        max_tokens: 400
-      }, apiKey);
-      
-      const content = result?.choices?.[0]?.message?.content?.trim();
-      if (!content || content.includes('[Nvmix System Offline]')) {
-        throw new Error('Offline fallback returned');
-      }
-      return content;
-    })();
+    const messagesToSend: Message[] = [
+      { role: 'system' as const, content: systemPrompt },
+      ...fewShotExamples,
+      ...formattedHistory,
+      { role: 'user' as const, content: message.trim() }
+    ];
 
-    // 2. Build concurrent race promises combining local call + remote backends
+    // Single direct call to Nvmix API via engine
     const promises = [
-      directLocalPromise,
-      ...NVMIX_REMOTE_URLS.map(async (url) => {
-        const res = await fetch(url, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body:    JSON.stringify({
-            model:       NVMIX_MODEL,
-            messages:    messagesToSend,
-            max_tokens:  400,
-            temperature: 0.7,
-          }),
-          signal: AbortSignal.timeout(5000), // Enforce 5s timeout on remote calls
-        });
-
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const data = await res.json();
-        const reply = data?.choices?.[0]?.message?.content?.trim();
-        
-        if (!reply || reply.includes('[Nvmix System Offline]')) {
-          throw new Error('Offline fallback returned');
-        }
-        return reply;
+      generateNvmixCompletion(messagesToSend, {
+        temperature: 0.85,
+        max_tokens: 450
+      }, apiKey).then(result => {
+        const content = result?.choices?.[0]?.message?.content?.trim();
+        if (!content) throw new Error('Empty response');
+        return content;
       })
     ];
 

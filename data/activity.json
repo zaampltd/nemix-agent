@@ -1,5 +1,25 @@
 [
   {
+    "id": "act_of0ectxeu_1779826939363",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T20:22:19.363Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_cb19m54vz_1779826935708",
+    "type": "ceo",
+    "message": "Recruited and onboarded \"Accontant-Bot\" as \"Accontant Team As Well\".",
+    "timestamp": "2026-05-26T20:22:15.708Z"
+  },
+  {
+    "id": "act_spf9dibdc_1779826911509",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T20:21:51.509Z",
+    "agentId": "agent_ceo"
+  },
+  {
     "id": "act_nlc180xqz_1779826586756",
     "type": "agent",
     "message": "Replied to chat session in room: \"# ceo-office\".",
