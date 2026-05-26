@@ -148,175 +148,157 @@ ${workspaceContext}`;
       senderName: 'User'
     });
 
-    let directiveResponse = '';
+    let directiveResponse: string | undefined;
 
     // CEO Task Delegation & Command Parser (in # ceo-office or when CEO is default)
     const lowerChannel = channel?.toLowerCase() || '';
     const isCeoResponder = targetAgent?.id === agents[0]?.id || lowerChannel.includes('ceo') || lowerChannel.includes('office');
     
     if (isCeoResponder) {
-      // A. Create Task: "create task {title} - {description}" or "add task {title}"
-      const createMatch = message.match(/(?:create|add|new)\s+(?:(?:a|an|the)\s+)?(?:task|ticket)\s+['"“]?([^'\n"“”:\-]+)['"”]?(?:\s*[:\-]\s*(.+))?/i);
+      // A. Explicit task creation: "create task X" or "add task X"
+      const createMatch = message.match(/(?:create|add|new)\s+(?:(?:a|an|the)\s+)?(?:task|ticket)\s+['"""]?([^'\n""":\-]+)['"""]?(?:\s*[:\-]\s*(.+))?/i);
       if (createMatch) {
         let title = createMatch[1].trim();
-        // Infinitive phrase cleanup: strip leading "to " if present
-        if (title.toLowerCase().startsWith('to ')) {
-          title = title.substring(3).trim();
-        }
-        // Capitalize first letter
+        if (title.toLowerCase().startsWith('to ')) title = title.substring(3).trim();
         title = title.charAt(0).toUpperCase() + title.slice(1);
-
-        const description = createMatch[2]?.trim() || `Task created from chat directive: "${title}"`;
-        
-        // Find a specialized non-CEO agent to assign to
-        const nonCeoAgents = agents.filter(a => !a.name.toLowerCase().includes('ceo'));
-        let assignedAgent = nonCeoAgents[0] || agents[0]; // fallback to CEO if no others
-        
-        const lowerTitle = title.toLowerCase();
-        const lowerDesc = description.toLowerCase();
-        if (lowerTitle.includes('code') || lowerTitle.includes('dev') || lowerTitle.includes('api') || lowerTitle.includes('implement') || lowerTitle.includes('database') || lowerTitle.includes('route') || lowerDesc.includes('code') || lowerDesc.includes('dev')) {
-          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('coder') || a.role.toLowerCase().includes('dev') || a.role.toLowerCase().includes('developer')) || assignedAgent;
-        } else if (lowerTitle.includes('architect') || lowerTitle.includes('design') || lowerTitle.includes('db schema') || lowerTitle.includes('plan') || lowerDesc.includes('architect') || lowerDesc.includes('design')) {
-          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('architect')) || assignedAgent;
-        } else if (lowerTitle.includes('test') || lowerTitle.includes('qa') || lowerTitle.includes('audit') || lowerTitle.includes('verify') || lowerTitle.includes('check') || lowerDesc.includes('test') || lowerDesc.includes('qa')) {
-          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('qa') || a.role.toLowerCase().includes('audit') || a.role.toLowerCase().includes('tester')) || assignedAgent;
-        }
-
-        // Check if there is already an in-progress ticket
-        const hasInProgress = tickets.some(t => t.status === 'inprogress');
-        const initialStatus = hasInProgress ? 'todo' : 'inprogress';
-        const initialThought = hasInProgress 
-          ? 'Initialized via CEO chat delegation.' 
-          : 'Generating code models, analyzing dependencies, and mapping credential environments.';
-
-        const newTicket = {
-          id: `ticket_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
-          title,
-          description,
-          assignedTo: assignedAgent.id,
-          status: initialStatus as any,
-          thought: initialThought,
-          output: ''
-        };
-
-        const updatedTickets = [...tickets, newTicket];
-        saveTickets(updatedTickets);
-
-        if (!hasInProgress) {
-          // Wake up the agent in the roster!
-          const activeAgents = getAgents();
-          activeAgents.forEach((a) => {
-            a.status = a.id === assignedAgent.id ? 'working' : 'sleeping';
-          });
-          saveAgents(activeAgents);
-        }
-
-        addActivity('ceo', `Created and delegated task "${title}" to ${assignedAgent.name}.`);
-        
-        directiveResponse = `\n\n[Swarm OS Directive] ✅ I have created the task "${title}" and delegated it to ${assignedAgent.name} (${assignedAgent.role}). ${!hasInProgress ? 'It is now active and the agent is WORKING.' : 'It has been added to the backlog.'}`;
+        const description = createMatch[2]?.trim() || `Task: "${title}"`;
+        const nonCeoAgents = agents.filter(a => !a.role.toLowerCase().includes('ceo'));
+        let assignedAgent = nonCeoAgents[0] || agents[0];
+        const lt = title.toLowerCase();
+        if (lt.includes('code') || lt.includes('dev') || lt.includes('web') || lt.includes('html') || lt.includes('app'))
+          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('develop') || a.role.toLowerCase().includes('coder')) || assignedAgent;
+        else if (lt.includes('design') || lt.includes('ui'))
+          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('design')) || assignedAgent;
+        else if (lt.includes('test') || lt.includes('qa'))
+          assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('qa') || a.role.toLowerCase().includes('test')) || assignedAgent;
+        const hasIP = tickets.some(t => t.status === 'inprogress');
+        const newT = { id: `ticket_${Math.random().toString(36).substring(2,9)}_${Date.now()}`, title, description, assignedTo: assignedAgent.id, status: (hasIP ? 'todo' : 'inprogress') as any, thought: hasIP ? 'Queued.' : 'Starting work...', output: '' };
+        saveTickets([...tickets, newT]);
+        if (!hasIP) { const aa = getAgents(); aa.forEach(a => { a.status = a.id === assignedAgent.id ? 'working' : 'sleeping'; }); saveAgents(aa); }
+        addActivity('ceo', `Task "${title}" created → ${assignedAgent.name}.`);
+        directiveResponse = `\n\n[Swarm OS Directive] ✅ Task "${title}" assigned to ${assignedAgent.name} (${assignedAgent.role}). ${!hasIP ? '⚡ Agent is WORKING now!' : '📋 Added to backlog.'}`;
       }
 
-      // B. Reassign Task: "assign task_xxx to agent_yyy" or "assign ticket_xxx to Sarah Chen"
+      // B. Reassign task
       const assignMatch = message.match(/assign\s+(?:task|ticket)?\s*([a-zA-Z0-9\-_]+)\s+to\s+([a-zA-Z0-9\s\-_]+)/i);
       if (assignMatch) {
-        const ticketIdOrTitle = assignMatch[1].trim();
-        const agentNameOrId = assignMatch[2].trim().toLowerCase();
-
-        const allTickets = getTickets();
-        const ticketToUpdate = allTickets.find(t => t.id === ticketIdOrTitle || t.title.toLowerCase().includes(ticketIdOrTitle.toLowerCase()));
-        const targetAssignee = agents.find(a => a.id === agentNameOrId || a.name.toLowerCase().includes(agentNameOrId) || a.role.toLowerCase().includes(agentNameOrId));
-
-        if (ticketToUpdate && targetAssignee) {
-          ticketToUpdate.assignedTo = targetAssignee.id;
-          saveTickets(allTickets);
-          addActivity('ceo', `Reassigned task "${ticketToUpdate.title}" to ${targetAssignee.name}.`);
-          directiveResponse = `\n\n[Swarm OS Directive] 📋 Task "${ticketToUpdate.title}" has been reassigned to ${targetAssignee.name} (${targetAssignee.role}).`;
-        } else if (!ticketToUpdate) {
-          directiveResponse = `\n\n[Swarm OS Directive] ⚠️ I could not find a task matching "${ticketIdOrTitle}".`;
-        } else if (!targetAssignee) {
-          directiveResponse = `\n\n[Swarm OS Directive] ⚠️ I could not find an agent matching "${agentNameOrId}".`;
-        }
+        const allT = getTickets();
+        const tkt = allT.find(t => t.id === assignMatch[1] || t.title.toLowerCase().includes(assignMatch[1].toLowerCase()));
+        const agt = agents.find(a => a.name.toLowerCase().includes(assignMatch[2].toLowerCase()) || a.role.toLowerCase().includes(assignMatch[2].toLowerCase()));
+        if (tkt && agt) { tkt.assignedTo = agt.id; saveTickets(allT); directiveResponse = `\n\n[Swarm OS Directive] 📋 "${tkt.title}" reassigned to ${agt.name}.`; }
       }
 
-      // C. Hire Agent: "hire HR" or "recruit developer"
+      // C. Hire Agent explicitly
       const hireMatch = message.match(/(?:hire|recruit|add)\s+(?:an?\s+)?(?:agent\s+)?([a-zA-Z0-9\s\-]+)/i);
       if (hireMatch && !directiveResponse) {
         const rawRole = hireMatch[1].trim().toLowerCase();
-        let role = 'Specialist';
-        let name = 'Swarm Bot';
-        let avatar = '🤖';
-
-        if (rawRole.includes('hr') || rawRole.includes('human resources') || rawRole.includes('recruitment')) {
-          role = 'HR Representative';
-          name = 'Helen-HR';
-          avatar = '📋';
-        } else if (rawRole.includes('developer') || rawRole.includes('coder') || rawRole.includes('engineer') || rawRole.includes('dev')) {
-          role = 'Developer';
-          name = 'Devon-Coder';
-          avatar = '💻';
-        } else if (rawRole.includes('design') || rawRole.includes('ui') || rawRole.includes('ux') || rawRole.includes('artist')) {
-          role = 'UI/UX Designer';
-          name = 'Desmond-Design';
-          avatar = '🎨';
-        } else if (rawRole.includes('qa') || rawRole.includes('tester') || rawRole.includes('audit')) {
-          role = 'QA Engineer';
-          name = 'Quincy-QA';
-          avatar = '🛡️';
-        } else if (rawRole.includes('market') || rawRole.includes('sales') || rawRole.includes('ads')) {
-          role = 'Marketing Specialist';
-          name = 'Mona-Marketing';
-          avatar = '📈';
-        } else if (rawRole.includes('analyst') || rawRole.includes('data') || rawRole.includes('metrics')) {
-          role = 'Data Analyst';
-          name = 'Delta-Analyst';
-          avatar = '📊';
+        let role = 'Specialist', name = 'Swarm-Bot', avatar = '🤖';
+        if (rawRole.includes('developer') || rawRole.includes('coder') || rawRole.includes('dev')) { role='Web Developer'; name='CodeCraft-AI'; avatar='💻'; }
+        else if (rawRole.includes('design') || rawRole.includes('ui') || rawRole.includes('ux')) { role='UI/UX Designer'; name='PixelForge-AI'; avatar='🎨'; }
+        else if (rawRole.includes('market') || rawRole.includes('sales')) { role='Marketing Specialist'; name='GrowthEngine-AI'; avatar='📣'; }
+        else if (rawRole.includes('accountant') || rawRole.includes('finance') || rawRole.includes('cfo')) { role='Accountant'; name='Finley-AI'; avatar='💰'; }
+        else if (rawRole.includes('writer') || rawRole.includes('content')) { role='Content Writer'; name='Quill-AI'; avatar='✍️'; }
+        else if (rawRole.includes('qa') || rawRole.includes('tester')) { role='QA Engineer'; name='Quincy-QA'; avatar='🛡️'; }
+        else if (rawRole.includes('hr') || rawRole.includes('human')) { role='HR Manager'; name='Helen-HR'; avatar='📋'; }
+        else if (rawRole.includes('analyst') || rawRole.includes('data')) { role='Data Analyst'; name='Delta-AI'; avatar='📊'; }
+        else { role = hireMatch[1].split(' ').map((w:string)=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '); name=`${role.split(' ')[0]}-AI`; }
+        const aa = getAgents();
+        if (!aa.some(a => a.role.toLowerCase() === role.toLowerCase())) {
+          aa.push({ id:`agent_${role.toLowerCase().replace(/[^a-z0-9]/g,'_')}_${Date.now()}`, name, role, avatar, status:'sleeping' as const });
+          saveAgents(aa);
+          addActivity('ceo', `Hired "${name}" as "${role}".`);
+          saveEmail({ from: agents[0]?.name||'CEO', to:'Founder (You)', subject:`New Agent: ${name}`, body:`"${name}" (${role}) has been onboarded and is ready for tasks.\n\n— CEO`, status:'sent' });
+          directiveResponse = `\n\n[Swarm OS Directive] 🤝 "${name}" hired as "${role}" — ready!`;
         } else {
-          role = hireMatch[1].split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-          name = `${role.split(' ')[0]}-Bot`;
-        }
-
-        const activeAgents = getAgents();
-        const exists = activeAgents.some(a => a.role === role);
-        if (!exists) {
-          const newAgent = {
-            id: `agent_${role.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}`,
-            name,
-            role,
-            avatar,
-            status: 'sleeping' as const
-          };
-          activeAgents.push(newAgent);
-          saveAgents(activeAgents);
-          
-          addActivity('ceo', `Recruited and onboarded "${name}" as "${role}".`);
-
-          // Actually write email to Founder's Inbox!
-          saveEmail({
-            from: agents[0]?.name || 'CEO',
-            to: 'Founder (You)',
-            subject: `New Swarm Agent Recruited: ${name}`,
-            body: `Greetings Founder,\n\nI am pleased to confirm that as requested, I have successfully recruited a new specialist agent for our autonomous swarm:\n\nName: ${name}\nRole: ${role}\nStatus: Active & Operational\n\nThey have been onboarded to our roster and are ready to be assigned project tasks.\n\nBest regards,\n${agents[0]?.name || 'CEO'}`,
-            status: 'sent'
-          });
-
-          directiveResponse = `\n\n[Swarm OS Directive] 🤝 Swarm update: I have successfully recruited and hired "${name}" as our "${role}". I've also dispatched a confirmation email to your Inbox with all the details.`;
-        } else {
-          directiveResponse = `\n\n[Swarm OS Directive] 📋 Swarm update: We already have a hired "${role}" specialist (${name}) on our active roster.`;
+          directiveResponse = `\n\n[Swarm OS Directive] 📋 We already have a "${role}" on the team.`;
         }
       }
 
-      // D. Send Email command: "send me email" or "send email"
-      const lowerMsg = message.toLowerCase();
-      const emailMatch = lowerMsg.includes('send') && (lowerMsg.includes('email') || lowerMsg.includes('mail'));
-      if (emailMatch && !directiveResponse) {
-        saveEmail({
-          from: agents[0]?.name || 'CEO',
-          to: 'Founder (You)',
-          subject: 'On-Demand Swarm Update',
-          body: `Hello Founder,\n\nThis is an on-demand update from the swarm. All systems are operational.\n\nWe have ${agents.length} active agents on the roster and ${tickets.length} total tasks.\n\nPlease let me know if you have further directives.\n\n— CEO`,
-          status: 'sent'
-        });
-        directiveResponse = `\n\n[Swarm OS Directive] 📬 I have sent an on-demand status email to your Inbox.`;
+      // D. Send email command
+      const lowerMsgD = message.toLowerCase();
+      if (!directiveResponse && lowerMsgD.includes('send') && (lowerMsgD.includes('email') || lowerMsgD.includes('mail'))) {
+        saveEmail({ from:agents[0]?.name||'CEO', to:'Founder (You)', subject:'Swarm Status Update', body:`All systems operational.\nAgents: ${agents.length} | Tasks: ${tickets.length}\n\n— CEO`, status:'sent' });
+        directiveResponse = `\n\n[Swarm OS Directive] 📬 Status email sent to your Inbox.`;
+      }
+
+      // ════════════════════════════════════════════════════════
+      // E. SMART TASK DETECTION — catch ANY action phrase
+      //    "build a website", "make an app", "develop a CRM" etc.
+      // ════════════════════════════════════════════════════════
+      if (!directiveResponse) {
+        const actionVerbs = ['build','make','develop','design','write','generate','implement','code',
+          'deploy','setup','set up','launch','produce','draft','prepare','analyse','analyze',
+          'research','plan','test','fix','update','improve','integrate','automate','configure','create'];
+        const lm = message.toLowerCase().trim();
+        const hitVerb = actionVerbs.find(v => lm.startsWith(v) || new RegExp(`\\b${v}\\b`).test(lm));
+
+        if (hitVerb) {
+          const taskTitle = message.trim().charAt(0).toUpperCase() + message.trim().slice(1);
+          const taskDesc = `Founder directive: "${message.trim()}". Produce a complete, high-quality, production-ready output.`;
+
+          // ── Auto-hire agents if team is missing the right skill ──
+          type AgentSpec = { role: string; name: string; avatar: string };
+          const freshTeam = getAgents();
+          const hasRole = (kw: string) => freshTeam.some(a => a.role.toLowerCase().includes(kw));
+          const toHire: AgentSpec[] = [];
+
+          if ((lm.includes('website')||lm.includes('html')||lm.includes('web')||lm.includes('app')||lm.includes('dashboard')||lm.includes('frontend')) && !hasRole('develop') && !hasRole('coder'))
+            toHire.push({ role:'Web Developer', name:'CodeCraft-AI', avatar:'💻' });
+          if ((lm.includes('design')||lm.includes('ui')||lm.includes('ux')||lm.includes('style')) && !hasRole('design'))
+            toHire.push({ role:'UI/UX Designer', name:'PixelForge-AI', avatar:'🎨' });
+          if ((lm.includes('sell')||lm.includes('selling')||lm.includes('market')||lm.includes('advertis')||lm.includes('campaign')) && !hasRole('market'))
+            toHire.push({ role:'Marketing Specialist', name:'GrowthEngine-AI', avatar:'📣' });
+          if ((lm.includes('content')||lm.includes('copy')||lm.includes('blog')||lm.includes('article')) && !hasRole('writer') && !hasRole('content'))
+            toHire.push({ role:'Content Writer', name:'Quill-AI', avatar:'✍️' });
+          if ((lm.includes('api')||lm.includes('backend')||lm.includes('server')||lm.includes('database')||lm.includes('crm')) && !hasRole('backend') && !hasRole('engineer'))
+            toHire.push({ role:'Backend Engineer', name:'ServerBot-AI', avatar:'⚙️' });
+          if ((lm.includes('finance')||lm.includes('budget')||lm.includes('accounting')) && !hasRole('accountant') && !hasRole('financial'))
+            toHire.push({ role:'Financial Analyst', name:'FinBot-AI', avatar:'📊' });
+
+          const hiredNames: string[] = [];
+          for (const spec of toHire) {
+            freshTeam.push({ id:`agent_${spec.role.toLowerCase().replace(/[^a-z0-9]/g,'_')}_${Date.now()}`, ...spec, status:'sleeping' as const });
+            hiredNames.push(`${spec.name} (${spec.role})`);
+            addActivity('ceo', `Auto-hired "${spec.name}" as "${spec.role}" for: "${taskTitle}".`);
+          }
+          if (hiredNames.length > 0) saveAgents(freshTeam);
+
+          // Pick best agent for the task
+          const latestTeam = getAgents();
+          const latestNonCeo = latestTeam.filter(a => !a.role.toLowerCase().includes('ceo'));
+          let best = latestNonCeo[0] || latestTeam[0];
+          if (lm.includes('website')||lm.includes('html')||lm.includes('web')||lm.includes('app')||lm.includes('dashboard'))
+            best = latestNonCeo.find(a=>a.role.toLowerCase().includes('develop')||a.role.toLowerCase().includes('coder')) || best;
+          else if (lm.includes('design')||lm.includes('ui'))
+            best = latestNonCeo.find(a=>a.role.toLowerCase().includes('design')) || best;
+          else if (lm.includes('sell')||lm.includes('selling')||lm.includes('market'))
+            best = latestNonCeo.find(a=>a.role.toLowerCase().includes('market')) || best;
+          else if (lm.includes('write')||lm.includes('content')||lm.includes('copy'))
+            best = latestNonCeo.find(a=>a.role.toLowerCase().includes('writer')||a.role.toLowerCase().includes('content')) || best;
+
+          // Create the ticket
+          const curTickets = getTickets();
+          const hasIP2 = curTickets.some(t => t.status === 'inprogress');
+          curTickets.push({
+            id: `ticket_${Math.random().toString(36).substring(2,9)}_${Date.now()}`,
+            title: taskTitle, description: taskDesc, assignedTo: best.id,
+            status: (hasIP2 ? 'todo' : 'inprogress') as any,
+            thought: hasIP2 ? 'Queued — waiting for current task.' : 'Starting execution: analyzing requirements and building solution.',
+            output: ''
+          });
+          saveTickets(curTickets);
+
+          if (!hasIP2) {
+            const ua = getAgents();
+            ua.forEach(a => { a.status = a.id === best.id ? 'working' : 'sleeping'; });
+            saveAgents(ua);
+          }
+
+          addActivity('ceo', `Directive received: "${taskTitle}" — assigned to ${best.name}.`);
+
+          const hireMsg = hiredNames.length > 0 ? `\n✅ Auto-hired: ${hiredNames.join(', ')}` : '';
+          directiveResponse = `\n\n[Swarm OS Directive] 🚀 Task created: "${taskTitle}"\n→ Assigned to: **${best.name}** (${best.role})${hireMsg}\n→ Status: ${hasIP2 ? '📋 Queued in backlog' : '⚡ ACTIVE — working now!'}\n\nHit **Pulse** or turn on **Auto Runner** to execute.`;
+        }
       }
     }
 
