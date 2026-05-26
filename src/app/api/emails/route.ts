@@ -133,18 +133,33 @@ JSON Structure:
                 addActivity('ceo', `Recruited new team member: "${newAgent.name}" as "${newAgent.role}"`);
               } else if (type === 'create_ticket' && parsed.action.ticketTitle && parsed.action.ticketDesc) {
                 const currentTickets = getTickets();
+                const hasInProgress = currentTickets.some(t => t.status === 'inprogress');
+                const initialStatus = hasInProgress ? 'todo' : 'inprogress';
+                const initialThought = hasInProgress 
+                  ? 'Awaiting heartbeat swarming execution.' 
+                  : 'Generating code models, analyzing dependencies, and mapping credential environments.';
+                
+                const assignedId = parsed.action.ticketAssignedTo || agents[Math.min(1, agents.length - 1)].id;
                 const newTicket = {
                   id: `ticket_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`,
                   title: parsed.action.ticketTitle,
                   description: parsed.action.ticketDesc,
-                  assignedTo: parsed.action.ticketAssignedTo || agents[Math.min(1, agents.length - 1)].id,
-                  status: 'todo' as const,
-                  thought: 'Awaiting heartbeat swarming execution.',
+                  assignedTo: assignedId,
+                  status: initialStatus as any,
+                  thought: initialThought,
                   output: ''
                 };
                 currentTickets.push(newTicket);
                 saveTickets(currentTickets);
                 
+                if (!hasInProgress) {
+                  const currentAgents = getAgents();
+                  currentAgents.forEach((a) => {
+                    a.status = a.id === assignedId ? 'working' : 'sleeping';
+                  });
+                  saveAgents(currentAgents);
+                }
+
                 addActivity('ceo', `Created backlog task: "${newTicket.title}"`);
               } else if (type === 'create_file' && parsed.action.fileName && parsed.action.fileContent) {
                 saveFile(parsed.action.fileName, parsed.action.fileContent, activeAgent.name);

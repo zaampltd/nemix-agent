@@ -23,7 +23,6 @@ import { CompanyState, Agent, Ticket, ActivityItem, ChatSession, ChatMessage } f
 export default function Page() {
   // ─── Top-Level Navigation & UI States ───
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Chat' | 'Files' | 'Emails' | 'Settings'>('Dashboard');
-  const isFirstRender = useRef(true);
   const [initialized, setInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
@@ -55,14 +54,11 @@ export default function Page() {
   const [activeCodePreview, setActiveCodePreview] = useState<string | null>(null);
   const [activeApprovalTicket, setActiveApprovalTicket] = useState<Ticket | null>(null);
 
-  // ─── Theme Sync Effect ───
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+  // ─── Explicit Theme Sync Updater ───
+  const handleSetDarkMode = (val: boolean) => {
+    setIsDarkMode(val);
     const root = document.documentElement;
-    if (isDarkMode) {
+    if (val) {
       root.classList.add('dark');
       root.classList.remove('light');
       localStorage.setItem('nvmix_theme', 'dark');
@@ -71,7 +67,7 @@ export default function Page() {
       root.classList.add('light');
       localStorage.setItem('nvmix_theme', 'light');
     }
-  }, [isDarkMode]);
+  };
 
   // ─── Fetch All Swarm State from Server ───
   const fetchSwarmState = async () => {
@@ -145,8 +141,15 @@ export default function Page() {
   // ─── Initial Load on Mount ───
   useEffect(() => {
     const savedTheme = localStorage.getItem('nvmix_theme');
+    const root = document.documentElement;
     if (savedTheme === 'light') {
       setIsDarkMode(false);
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      setIsDarkMode(true);
+      root.classList.add('dark');
+      root.classList.remove('light');
     }
     fetchSwarmState();
     fetchActivities();
@@ -530,7 +533,7 @@ export default function Page() {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             isDarkMode={isDarkMode}
-            setIsDarkMode={setIsDarkMode}
+            setIsDarkMode={handleSetDarkMode}
             companyName={companyState.companyName}
             budgetUsed={companyState.budgetUsed}
             onLogout={handleWipeSwarm}
@@ -661,7 +664,7 @@ export default function Page() {
                       companyState={companyState}
                       onSave={handleSaveSettings}
                       isDarkMode={isDarkMode}
-                      setIsDarkMode={setIsDarkMode}
+                      setIsDarkMode={handleSetDarkMode}
                     />
                   )}
                 </motion.div>

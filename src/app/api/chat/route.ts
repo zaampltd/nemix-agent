@@ -116,9 +116,16 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
     
     if (isCeoResponder) {
       // A. Create Task: "create task {title} - {description}" or "add task {title}"
-      const createMatch = message.match(/(?:create|add|new)\s+(?:task|ticket)\s+['"“]?([^'\n"“”:\-]+)['"”]?(?:\s*[:\-]\s*(.+))?/i);
+      const createMatch = message.match(/(?:create|add|new)\s+(?:(?:a|an|the)\s+)?(?:task|ticket)\s+['"“]?([^'\n"“”:\-]+)['"”]?(?:\s*[:\-]\s*(.+))?/i);
       if (createMatch) {
-        const title = createMatch[1].trim();
+        let title = createMatch[1].trim();
+        // Infinitive phrase cleanup: strip leading "to " if present
+        if (title.toLowerCase().startsWith('to ')) {
+          title = title.substring(3).trim();
+        }
+        // Capitalize first letter
+        title = title.charAt(0).toUpperCase() + title.slice(1);
+
         const description = createMatch[2]?.trim() || `Task created from chat directive: "${title}"`;
         
         // Find a specialized non-CEO agent to assign to
@@ -135,21 +142,38 @@ Respond concisely and professionally in-character as an AI agent executive. Keep
           assignedAgent = nonCeoAgents.find(a => a.role.toLowerCase().includes('qa') || a.role.toLowerCase().includes('audit') || a.role.toLowerCase().includes('tester')) || assignedAgent;
         }
 
+        // Check if there is already an in-progress ticket
+        const hasInProgress = tickets.some(t => t.status === 'inprogress');
+        const initialStatus = hasInProgress ? 'todo' : 'inprogress';
+        const initialThought = hasInProgress 
+          ? 'Initialized via CEO chat delegation.' 
+          : 'Generating code models, analyzing dependencies, and mapping credential environments.';
+
         const newTicket = {
           id: `ticket_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`,
           title,
           description,
           assignedTo: assignedAgent.id,
-          status: 'todo' as const,
-          thought: 'Initialized via CEO chat delegation.',
+          status: initialStatus as any,
+          thought: initialThought,
           output: ''
         };
 
         const updatedTickets = [...tickets, newTicket];
         saveTickets(updatedTickets);
+
+        if (!hasInProgress) {
+          // Wake up the agent in the roster!
+          const activeAgents = getAgents();
+          activeAgents.forEach((a) => {
+            a.status = a.id === assignedAgent.id ? 'working' : 'sleeping';
+          });
+          saveAgents(activeAgents);
+        }
+
         addActivity('ceo', `Created and delegated task "${title}" to ${assignedAgent.name}.`);
         
-        directiveResponse = `\n\n[Swarm OS Directive] ✅ I have created the task "${title}" and delegated it to ${assignedAgent.name} (${assignedAgent.role}). It is now queued in the Todo backlog.`;
+        directiveResponse = `\n\n[Swarm OS Directive] ✅ I have created the task "${title}" and delegated it to ${assignedAgent.name} (${assignedAgent.role}). ${!hasInProgress ? 'It is now active and the agent is WORKING.' : 'It has been added to the backlog.'}`;
       }
 
       // B. Reassign Task: "assign task_xxx to agent_yyy" or "assign ticket_xxx to Sarah Chen"
