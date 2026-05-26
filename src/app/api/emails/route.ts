@@ -51,22 +51,27 @@ export async function POST(request: Request) {
       addActivity('agent', `Sent email: "${subject}" to ${to}.`);
     }
 
-    // ─── If this is a reply to an agent's email ───
-    if (isReply && originalEmailId) {
+    // ─── If this is a reply or a direct email to an agent ───
+    const agents = getAgents();
+    const isToAgent = agents.some(a => a.name.toLowerCase() === to.toLowerCase() || a.role.toLowerCase() === to.toLowerCase());
+    
+    if (isToAgent || (isReply && originalEmailId)) {
       const emails = getEmails();
-      const originalEmail = emails.find(e => e.id === originalEmailId);
+      const originalEmail = originalEmailId ? emails.find(e => e.id === originalEmailId) : null;
       
-      if (originalEmail) {
-        const company = getCompany();
-        const agents = getAgents();
-        const tickets = getTickets();
-        
-        // Find the sender agent in our team roster
-        const activeAgent = agents.find(a => a.name.toLowerCase() === originalEmail.from.toLowerCase()) || {
-          id: 'agent_ceo',
-          name: originalEmail.from,
-          role: 'Specialized Swarm Agent'
-        };
+      const company = getCompany();
+      const tickets = getTickets();
+      
+      // Find the sender/target agent in our team roster
+      const activeAgent = agents.find(a => 
+        a.name.toLowerCase() === to.toLowerCase() ||
+        a.role.toLowerCase() === to.toLowerCase() ||
+        (originalEmail && a.name.toLowerCase() === originalEmail.from.toLowerCase())
+      ) || {
+        id: 'agent_ceo',
+        name: to,
+        role: 'Specialized Swarm Agent'
+      };
 
         const agentPrompt = `You are the autonomous AI Agent "${activeAgent.name}" with role "${activeAgent.role}" in the company "${company.companyName}" (Mission: "${company.mission}", Goal: "${company.goal}").
 
@@ -171,7 +176,7 @@ JSON Structure:
             saveEmail({
               from: activeAgent.name,
               to: 'Founder (You)',
-              subject: `RE: ${originalEmail.subject}`,
+              subject: originalEmail ? `RE: ${originalEmail.subject}` : `RE: ${subject}`,
               body: parsed.agentBody || "Message processed successfully.",
               status: 'sent'
             });
@@ -180,7 +185,7 @@ JSON Structure:
             if (parsed.activityLog) {
               addActivity('agent', parsed.activityLog, activeAgent.id);
             } else {
-              addActivity('agent', `Processed email reply from Founder regarding "${originalEmail.subject}".`, activeAgent.id);
+              addActivity('agent', `Processed email reply from Founder regarding "${originalEmail ? originalEmail.subject : subject}".`, activeAgent.id);
             }
           }
         } catch (err: any) {
@@ -189,15 +194,14 @@ JSON Structure:
           saveEmail({
             from: activeAgent.name,
             to: 'Founder (You)',
-            subject: `RE: ${originalEmail.subject}`,
-            body: `Hello Founder,\n\nI have received your instructions regarding "${originalEmail.subject}":\n\n"${emailBody}"\n\nI am coordinating with the team swarm and will work on implementing your requests immediately.\n\nBest regards,\n${activeAgent.name}`,
+            subject: originalEmail ? `RE: ${originalEmail.subject}` : `RE: ${subject}`,
+            body: `Hello Founder,\n\nI have received your instructions regarding "${originalEmail ? originalEmail.subject : subject}":\n\n"${emailBody}"\n\nI am coordinating with the team swarm and will work on implementing your requests immediately.\n\nBest regards,\n${activeAgent.name}`,
             status: 'sent'
           });
 
-          addActivity('agent', `Processed email reply from Founder.`, activeAgent.id);
+          addActivity('agent', `Processed email from Founder.`, activeAgent.id);
         }
       }
-    }
 
     return NextResponse.json({ success: true, email: saved });
   } catch (err: any) {
