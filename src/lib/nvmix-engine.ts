@@ -1,11 +1,9 @@
 /**
- * Nvmix Inference Engine
+ * Nvmix Inference Engine — OFFICIAL NVMIX API ONLY
  *
- * Routes completions through Google Gemini (gemini-1.5-flash) as the real
- * AI backend.  The Nvmix API key (nvx_...) is accepted at the UI layer;
- * server-side we use GEMINI_API_KEY from the environment.
- *
- * Get a free Gemini key → https://aistudio.google.com/apikey
+ * Exclusively uses Nvmix API keys (format: nvx_...).
+ * No third-party AI keys are accepted or used.
+ * Get your key at: https://nvmix.com/dashboard/api-keys
  */
 
 export interface Message {
@@ -20,134 +18,133 @@ export interface CompletionOptions {
   timeoutMs?: number;
 }
 
-// ─── Validate Nvmix key format (used by UI only) ───
+// ─── Validate Nvmix key format ───
 export function isValidNvmixKey(key: string): boolean {
   if (!key || typeof key !== 'string') return false;
   const t = key.trim();
   return t.startsWith('nvx_') && t.length >= 20 && /^nvx_[a-zA-Z0-9_]+$/.test(t);
 }
 
-// ─── Convert OpenAI-style messages → Gemini contents array ───
-function toGeminiContents(messages: Message[]) {
-  // Extract system prompt (Gemini handles it separately)
-  const systemParts: string[] = [];
-  const turns: { role: string; parts: { text: string }[] }[] = [];
+// ─── Nvmix API endpoint ───
+const NVMIX_ENDPOINT = 'https://nvmix.com/api/v1/chat/completions';
 
-  for (const msg of messages) {
-    if (msg.role === 'system') {
-      systemParts.push(msg.content);
-    } else {
-      turns.push({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }],
-      });
-    }
-  }
-
-  // If the last turn is 'model', Gemini requires a user turn after it — skip edge case
-  return { systemInstruction: systemParts.join('\n\n'), contents: turns };
-}
-
-// ─── Main completion function ───
+// ─── Main completion function — Nvmix API only ───
 export async function generateNvmixCompletion(
   messages: Message[],
   options: CompletionOptions = {},
-  _nvmixApiKey?: string   // accepted for API compatibility, not used server-side
+  nvmixApiKey?: string
 ) {
   const { temperature = 0.7, max_tokens = 4096, timeoutMs = 30000 } = options;
 
-  // ── Resolve Gemini API key from environment ──
-  const geminiKey =
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  // Resolve API key — only from parameter or NVMIX_API_KEY env var
+  const resolvedKey = nvmixApiKey?.trim() || process.env.NVMIX_API_KEY?.trim();
 
-  if (!geminiKey) {
+  if (!resolvedKey || !isValidNvmixKey(resolvedKey)) {
     throw new Error(
-      'Server configuration error: GEMINI_API_KEY is not set. ' +
-      'Add it to your .env.local file. Get a free key at https://aistudio.google.com/apikey'
+      'Nvmix: Invalid or missing API key. ' +
+      'Only Nvmix keys (starting with nvx_) are supported. ' +
+      'Get your key at https://nvmix.com/dashboard/api-keys'
     );
   }
 
-  const model = 'gemini-1.5-flash';
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
-
-  const { systemInstruction, contents } = toGeminiContents(messages);
-
-  const payload: Record<string, any> = {
-    contents,
-    generationConfig: {
-      temperature,
-      maxOutputTokens: max_tokens,
-    },
+  const payload = {
+    model: 'nvmix-inference-v1',
+    messages,
+    temperature,
+    max_tokens,
+    stream: false,
   };
-
-  if (systemInstruction) {
-    payload.systemInstruction = { parts: [{ text: systemInstruction }] };
-  }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+  let res: Response;
   try {
-    const res = await fetch(endpoint, {
+    res = await fetch(NVMIX_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${resolvedKey}`,
+        'X-Client': 'nvmix-agents/1.0',
+      },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
-
+    clearTimeout(timeoutId);
+  } catch (networkErr: any) {
     clearTimeout(timeoutId);
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      if (res.status === 400 && errText.includes('API_KEY_INVALID')) {
-        throw new Error('GEMINI_API_KEY is invalid. Check https://aistudio.google.com/apikey');
-      }
-      if (res.status === 429) {
-        throw new Error('Gemini rate limit hit. Please wait a moment and try again.');
-      }
-      throw new Error(`Gemini API error ${res.status}: ${errText.substring(0, 200)}`);
+    // AbortError = timeout
+    if (networkErr?.name === 'AbortError') {
+      throw new Error(
+        `Nvmix API request timed out after ${timeoutMs / 1000}s. ` +
+        'Check your internet connection or try again later.'
+      );
     }
 
-    const data = await res.json();
-    const content: string =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-
-    if (!content || content.trim().length < 5) {
-      throw new Error('Gemini returned an empty response.');
-    }
-
-    console.log(`[Nvmix Engine] ✅ Gemini success | ~${Math.ceil(content.length / 4)} tokens`);
-
-    // ── Return OpenAI-compatible response shape ──
-    return {
-      id: `nvmix-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
-      object: 'chat.completion' as const,
-      created: Math.floor(Date.now() / 1000),
-      model: 'nvmix-inference-v1',
-      provider: 'Gemini',
-      choices: [
-        {
-          index: 0,
-          message: { role: 'assistant' as const, content },
-          finish_reason: 'stop',
-        },
-      ],
-      usage: {
-        prompt_tokens: messages.reduce((a, m) => a + Math.ceil(m.content.length / 4), 0),
-        completion_tokens: Math.ceil(content.length / 4),
-        total_tokens:
-          messages.reduce((a, m) => a + Math.ceil(m.content.length / 4), 0) +
-          Math.ceil(content.length / 4),
-      },
-    };
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-
-    if (err?.name === 'AbortError') {
-      throw new Error(`Gemini request timed out after ${timeoutMs / 1000}s. Try again.`);
-    }
-    throw err;
+    // General network failure (server unreachable, DNS fail, etc.)
+    throw new Error(
+      `Cannot reach Nvmix API (${networkErr?.message || 'network error'}). ` +
+      'Please check your internet connection. ' +
+      'If the issue persists, visit https://nvmix.com/status'
+    );
   }
+
+  // ── HTTP error responses ──
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+
+    if (res.status === 401) {
+      throw new Error(
+        'Nvmix API key is invalid or expired (401). ' +
+        'Check your key at https://nvmix.com/dashboard/api-keys'
+      );
+    }
+    if (res.status === 402) {
+      throw new Error('Nvmix account has insufficient credits (402). Top up at https://nvmix.com/billing');
+    }
+    if (res.status === 429) {
+      throw new Error('Nvmix rate limit reached (429). Please wait a moment and try again.');
+    }
+    if (res.status >= 500) {
+      throw new Error(`Nvmix server error (${res.status}). The Nvmix API is temporarily unavailable.`);
+    }
+
+    throw new Error(`Nvmix API error ${res.status}: ${errText.substring(0, 200)}`);
+  }
+
+  // ── Parse response ──
+  const data = await res.json().catch(() => {
+    throw new Error('Nvmix API returned an invalid (non-JSON) response.');
+  });
+
+  const content: string = data?.choices?.[0]?.message?.content ?? '';
+
+  if (!content || content.trim().length < 5) {
+    throw new Error('Nvmix API returned an empty response. Please try again.');
+  }
+
+  console.log(`[Nvmix Engine] ✅ Success | ~${Math.ceil(content.length / 4)} tokens`);
+
+  return {
+    id: `nvmix-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+    object: 'chat.completion' as const,
+    created: Math.floor(Date.now() / 1000),
+    model: 'nvmix-inference-v1',
+    provider: 'Nvmix',
+    choices: [
+      {
+        index: 0,
+        message: { role: 'assistant' as const, content },
+        finish_reason: 'stop',
+      },
+    ],
+    usage: {
+      prompt_tokens: messages.reduce((a, m) => a + Math.ceil(m.content.length / 4), 0),
+      completion_tokens: Math.ceil(content.length / 4),
+      total_tokens:
+        messages.reduce((a, m) => a + Math.ceil(m.content.length / 4), 0) +
+        Math.ceil(content.length / 4),
+    },
+  };
 }

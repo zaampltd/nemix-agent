@@ -275,13 +275,46 @@ export default function Page() {
 
     setIsHeartbeating(true);
     try {
-      const res = await fetch('/api/orchestrator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'heartbeat' })
-      });
+      // 35s timeout — Nvmix API can take up to 30s to respond
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 35000);
+
+      let res: Response;
+      try {
+        res = await fetch('/api/orchestrator', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'heartbeat' }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchErr: any) {
+        clearTimeout(timeoutId);
+        const isTimeout = fetchErr?.name === 'AbortError';
+        const msg = isTimeout
+          ? 'Nvmix API timed out (35s). The AI is taking longer than expected — try again.'
+          : `Cannot reach server: ${fetchErr?.message || 'network error'}. Make sure the dev server is running.`;
+        console.error('[Heartbeat]', msg);
+        setIsAutoTicking(false);
+        setIsHeartbeating(false);
+        return;
+      }
+
+      // Handle non-ok HTTP (e.g. 400, 500 from API)
+      if (!res.ok) {
+        let errMsg = `Server error ${res.status}`;
+        try {
+          const errData = await res.json();
+          errMsg = errData?.error || errMsg;
+        } catch {}
+        console.error('[Heartbeat] API error:', errMsg);
+        // Don't stop auto-ticking on recoverable errors — just log and continue
+        setIsHeartbeating(false);
+        return;
+      }
+
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (data.success) {
         setTickets(data.state.tickets);
         setAgents(data.state.agents);
         setCompanyState(prev => ({
@@ -310,13 +343,14 @@ export default function Page() {
           setIsAutoTicking(false);
         }
       }
-    } catch (e) {
-      console.error('Heartbeat sync failure:', e);
+    } catch (e: any) {
+      console.error('[Heartbeat] Unexpected error:', e?.message || e);
       setIsAutoTicking(false);
     } finally {
       setIsHeartbeating(false);
     }
   };
+
 
   // ─── Auto Run Loop ───
   useEffect(() => {
