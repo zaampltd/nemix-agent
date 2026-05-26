@@ -25,7 +25,7 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Team' | 'Chat' | 'Files' | 'Emails' | 'Settings'>('Dashboard');
   const [initialized, setInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
   // ─── Swarm State ───
   const [companyState, setCompanyState] = useState<CompanyState>({
@@ -139,14 +139,10 @@ export default function Page() {
 
   // ─── Initial Load on Mount ───
   useEffect(() => {
-    // Read theme preference from local storage
     const savedTheme = localStorage.getItem('nvmix_theme');
     if (savedTheme === 'light') {
       setIsDarkMode(false);
-    } else if (savedTheme === 'dark') {
-      setIsDarkMode(true);
     }
-    
     fetchSwarmState();
     fetchActivities();
     fetchChatSessions();

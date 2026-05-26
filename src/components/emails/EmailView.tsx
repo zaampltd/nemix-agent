@@ -10,6 +10,9 @@ export default function EmailView() {
   const [subTab, setSubTab] = useState<'inbox' | 'drafts' | 'sent'>('inbox');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedEmailId, setExpandedEmailId] = useState<string | null>(null);
+  const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
 
   // Fetch emails from API
   const fetchEmails = async () => {
@@ -45,6 +48,38 @@ export default function EmailView() {
       }
     } catch (err) {
       console.error('Failed to update email status:', err);
+    }
+  };
+
+  const handleSendReply = async (originalEmail: Email) => {
+    if (!replyText.trim()) return;
+    setSendingReply(true);
+    try {
+      const res = await fetch('/api/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Founder (You)',
+          to: originalEmail.from,
+          subject: `RE: ${originalEmail.subject}`,
+          body: replyText,
+          status: 'sent',
+          isReply: true,
+          originalEmailId: originalEmail.id
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReplyingToId(null);
+        setReplyText('');
+        fetchEmails();
+      } else {
+        alert(`Failed to send reply: ${data.error}`);
+      }
+    } catch (e: any) {
+      alert(`Connection failed: ${e.message}`);
+    } finally {
+      setSendingReply(false);
     }
   };
 
@@ -225,6 +260,65 @@ export default function EmailView() {
                         <p key={i} className={i > 0 ? 'mt-3.5' : ''}>{para}</p>
                       ))}
                     </div>
+
+                    {subTab === 'inbox' && (
+                      <div className="border-t border-[var(--border-primary)]/30 pt-4.5 space-y-3">
+                        <div className="text-[8px] font-black text-purple-400 uppercase tracking-widest select-none">
+                          Quick Reply to Agent
+                        </div>
+                        {replyingToId === email.id ? (
+                          <div className="space-y-3.5">
+                            <textarea
+                              rows={4}
+                              value={replyText}
+                              onChange={e => setReplyText(e.target.value)}
+                              placeholder={`Type your reply to ${email.from}... (e.g. "Great work! Please proceed to hire a designer" or "create a task to optimize our database schemas")`}
+                              className="w-full px-3.5 py-3 bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-xl text-xs font-mono text-[var(--text-primary)] outline-none focus:border-purple-500/40 shadow-inner resize-none leading-relaxed"
+                            />
+                            <div className="flex justify-end gap-3 select-none">
+                              <button
+                                onClick={() => {
+                                  setReplyingToId(null);
+                                  setReplyText('');
+                                }}
+                                disabled={sendingReply}
+                                className="h-8.5 px-4 rounded-xl border border-[var(--border-primary)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40"
+                              >
+                                <span>Cancel</span>
+                              </button>
+                              <button
+                                onClick={() => handleSendReply(email)}
+                                disabled={sendingReply || !replyText.trim()}
+                                className="h-8.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-[9px] font-extrabold tracking-widest uppercase flex items-center gap-1.5 transition-all shadow-md shadow-purple-500/10 cursor-pointer disabled:opacity-40"
+                              >
+                                {sendingReply ? (
+                                  <>
+                                    <div className="w-3.5 h-3.5 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                                    <span>Agent working...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="w-3.5 h-3.5 text-white" />
+                                    <span>Send Reply</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setReplyingToId(email.id);
+                              setReplyText('');
+                            }}
+                            className="h-8.5 px-4 rounded-xl bg-purple-600/15 border border-purple-500/20 hover:bg-purple-600/25 text-purple-400 text-[9px] font-extrabold uppercase tracking-widest flex items-center gap-1.5 transition-colors cursor-pointer select-none"
+                          >
+                            <Mail className="w-3.5 h-3.5 text-purple-400" />
+                            <span>Reply to Agent</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {email.status === 'draft' && (
                       <div className="flex justify-end gap-3 select-none">
