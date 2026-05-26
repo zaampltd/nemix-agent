@@ -338,12 +338,12 @@ ${workspaceContext}`;
       { role: 'user' as const,   content: message.trim() }
     ];
 
-    // 1. Direct Engine Completion Promise (100% Deadlock-immune local execution)
+    // 1. Direct Engine Completion Promise — pass the company Nvmix API key
     const directLocalPromise = (async () => {
       const result = await generateNvmixCompletion(messagesToSend, {
         temperature: 0.7,
         max_tokens: 400
-      });
+      }, apiKey);
       
       const content = result?.choices?.[0]?.message?.content?.trim();
       if (!content || content.includes('[Nvmix System Offline]')) {

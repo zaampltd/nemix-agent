@@ -151,10 +151,12 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
         {/* Logo Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%)' }}>
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Nvmix"
+              className="w-10 h-10 rounded-xl object-cover shadow-lg"
+              style={{ boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}
+            />
             <span className="text-xl font-black text-[var(--text-primary)] tracking-tight">Nvmix</span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-indigo-400 border-indigo-500/25"
               style={{ background: 'rgba(99,102,241,0.08)' }}>Agents</span>
@@ -163,6 +165,7 @@ export default function DeploySwarm({ onDeploy, onDemoMode, isDeploying }: Deplo
             Automate your entire company with AI agents
           </p>
         </div>
+
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-0 mb-8">
