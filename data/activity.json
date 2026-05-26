@@ -1,5 +1,18 @@
 [
   {
+    "id": "act_jgxlc0rhd_1779764400646",
+    "type": "agent",
+    "message": "Replied to chat session in room: \"# ceo-office\".",
+    "timestamp": "2026-05-26T03:00:00.646Z",
+    "agentId": "agent_ceo"
+  },
+  {
+    "id": "act_k8sfvg9e7_1779764399946",
+    "type": "ceo",
+    "message": "Recruited and onboarded \"Helen-HR\" as \"HR Representative\".",
+    "timestamp": "2026-05-26T02:59:59.946Z"
+  },
+  {
     "id": "act_feg4rux4h_1779763938590",
     "type": "agent",
     "message": "Replied to chat session in room: \"# ceo-office\".",

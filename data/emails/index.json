@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "from": "Alpha-CEO",
+    "to": "Founder (You)",
+    "subject": "New Swarm Agent Recruited: Helen-HR",
+    "body": "Greetings Founder,\n\nI am pleased to confirm that as requested, I have successfully recruited a new specialist agent for our autonomous swarm:\n\nName: Helen-HR\nRole: HR Representative\nStatus: Active & Operational\n\nThey have been onboarded to our roster and are ready to be assigned project tasks.\n\nBest regards,\nAlpha-CEO",
+    "status": "sent",
+    "id": "email_uy0nj0sec_1779764399951",
+    "timestamp": "2026-05-26T02:59:59.951Z"
+  }
+]

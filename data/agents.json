@@ -26,5 +26,12 @@
     "name": "Delta-Analyst",
     "avatar": "📊",
     "status": "sleeping"
+  },
+  {
+    "id": "agent_hr_representative_1779764399943",
+    "name": "Helen-HR",
+    "role": "HR Representative",
+    "avatar": "📋",
+    "status": "sleeping"
   }
 ]

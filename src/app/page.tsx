@@ -60,9 +60,11 @@ export default function Page() {
     if (isDarkMode) {
       root.classList.add('dark');
       root.classList.remove('light');
+      localStorage.setItem('nvmix_theme', 'dark');
     } else {
       root.classList.remove('dark');
       root.classList.add('light');
+      localStorage.setItem('nvmix_theme', 'light');
     }
   }, [isDarkMode]);
 
@@ -137,6 +139,14 @@ export default function Page() {
 
   // ─── Initial Load on Mount ───
   useEffect(() => {
+    // Read theme preference from local storage
+    const savedTheme = localStorage.getItem('nvmix_theme');
+    if (savedTheme === 'light') {
+      setIsDarkMode(false);
+    } else if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+    }
+    
     fetchSwarmState();
     fetchActivities();
     fetchChatSessions();

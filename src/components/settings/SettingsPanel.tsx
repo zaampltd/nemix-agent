@@ -29,8 +29,8 @@ export default function SettingsPanel({
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSaving(true);
     
     // Save locally
@@ -70,7 +70,7 @@ export default function SettingsPanel({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6 pr-1.5 custom-scrollbar pb-6 select-none">
+      <div className="flex-1 overflow-y-auto space-y-6 pr-1.5 custom-scrollbar pb-6 select-none">
         
         {/* Nvmix API Gateway Info card */}
         <div className="bg-blue-950/10 border border-blue-500/20 rounded-2xl p-5 flex flex-col space-y-3 relative overflow-hidden shadow-md">
@@ -206,6 +206,7 @@ export default function SettingsPanel({
             <input
               type={showKey ? 'text' : 'password'}
               required
+              autoComplete="new-password"
               placeholder="nvx_sk_ep_xxxxxxxxxxxx"
               value={apiKey}
               onChange={e => setApiKey(e.target.value)}
@@ -224,7 +225,8 @@ export default function SettingsPanel({
         {/* Submit */}
         <div className="flex justify-end pt-2">
           <button
-            type="submit"
+            type="button"
+            onClick={() => handleSubmit()}
             disabled={saving || !companyName.trim() || !goal.trim() || !apiKey.trim()}
             className="px-6 py-3.5 rounded-xl border border-blue-500/50 bg-[#082f49] hover:bg-[#0c4a6e] text-blue-300 text-xs font-black tracking-widest uppercase transition-all glow-cyan flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-40"
           >
@@ -233,7 +235,7 @@ export default function SettingsPanel({
           </button>
         </div>
 
-      </form>
+      </div>
     </div>
   );
 }

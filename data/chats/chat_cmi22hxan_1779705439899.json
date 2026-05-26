@@ -110,5 +110,19 @@
     "senderName": "Alpha-CEO",
     "id": "msg_awa2x4761_1779763938585",
     "timestamp": "2026-05-26T02:52:18.585Z"
+  },
+  {
+    "role": "user",
+    "content": "@Alpha-CEO hire HR",
+    "senderName": "User",
+    "id": "msg_w901x7m6d_1779764399937",
+    "timestamp": "2026-05-26T02:59:59.938Z"
+  },
+  {
+    "role": "assistant",
+    "content": "Task: Hire HR Representative. Initiating request to talent pool. Please wait for confirmation email with new team member's details.\n\n[Swarm OS Directive] 🤝 Swarm update: I have successfully recruited and hired \"Helen-HR\" as our \"HR Representative\". I've also dispatched a confirmation email to your Inbox with all the details.",
+    "senderName": "Alpha-CEO",
+    "id": "msg_sojwskdi7_1779764400639",
+    "timestamp": "2026-05-26T03:00:00.639Z"
   }
 ]
